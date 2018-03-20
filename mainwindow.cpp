@@ -4,7 +4,8 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    experiment(8, 4, 2)
 {
     ui->setupUi(this);
 
@@ -15,14 +16,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->pushButton, SIGNAL(released()), SLOT(update()));
     connect(ui->pushButton_2, SIGNAL(released()), SLOT(printText()));
-
-    experiment = new Experiment;
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete experiment;
 }
 
 void MainWindow::update() {
@@ -31,8 +29,9 @@ void MainWindow::update() {
     input[1] = 2.0f;
     input[2] = 3.0f;
     input[3] = 4.0f;
-    QVector<float> output = experiment->task->update(input);
+    QVector<float> output = experiment.task.update(input);
     qDebug() << output[0] << ", " << output[1];
+    qDebug() << experiment.gens[0].pop[7].x;
 }
 
 void MainWindow::printText() {

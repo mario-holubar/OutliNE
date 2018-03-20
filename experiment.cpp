@@ -1,22 +1,23 @@
 #include "experiment.h"
 
-Generation::Generation() {
-
-}
-
-Generation::Generation(unsigned int popSize) :
-    pop(QVector<Task::Individual>(popSize))
+Generation::Generation() :
+    popSize(0),
+    pop(QVector<Individual>(0))
 {
 
 }
 
-Experiment::Experiment() :
-    popSize(8)
+Generation::Generation(unsigned int g_popSize) :
+    popSize(g_popSize),
+    pop(QVector<Individual>(g_popSize))
 {
-    task = new TestTask;
-    gens.append(Generation(8));
+    pop[g_popSize - 1].x = 15;
 }
 
-Experiment::~Experiment() {
-    delete task;
+Experiment::Experiment(unsigned int e_popSize, unsigned int e_inputSize, unsigned int e_outputSize) :
+    popSize(e_popSize),
+    task(e_inputSize, e_outputSize),
+    gens(QVector<Generation>(0, Generation(e_popSize)))
+{
+    gens.append(Generation(e_popSize));
 }

@@ -3,29 +3,17 @@
 
 #include <QVector>
 
-class Task {
-protected:
-    const unsigned int inputLength;
-    const unsigned int outputLength;
+class Individual {
 public:
-    Task(unsigned int t_inputLength, unsigned int t_outputLength);
-
-    class Individual {
-
-    };
-
-    virtual QVector<float> update(QVector<float> input) =0;
+    float x, y;
 };
 
-class TestTask : public Task {
+class Task {
 public:
-    TestTask();
-
-    class Individual : public Task::Individual {
-        float x, y;
-    };
-
-    QVector<float> update(QVector<float> input);
+    unsigned int inputLength;
+    unsigned int outputLength;
+    Task(unsigned int t_inputLength, unsigned int t_outputLength);
+    virtual QVector<float> update(QVector<float> input);
 };
 
 #endif // TASK_H

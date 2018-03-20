@@ -5,18 +5,17 @@
 
 class Generation {
 public:
+    unsigned int popSize;
     Generation();
-    Generation(unsigned int popSize);
-    QVector<Task::Individual> pop;
+    Generation(unsigned int g_popSize);
+    QVector<Individual> pop;
 };
 
 class Experiment {
 public:
-    Experiment();
-    ~Experiment();
-    Task *task;
-    const unsigned int popSize;
-
+    unsigned int popSize;
+    Experiment(unsigned int e_popSize, unsigned int e_inputSize, unsigned int e_outputSize);
+    Task task;
     QVector<Generation> gens;
 };
 

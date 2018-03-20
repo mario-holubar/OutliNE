@@ -5,13 +5,12 @@ Task::Task(unsigned int t_inputLength, unsigned int t_outputLength) : inputLengt
     qDebug() << "Task constructor";
 }
 
-TestTask::TestTask() : Task(4, 2) {
-    qDebug() << "Test Task constructor";
-}
-
-QVector<float> TestTask::update(QVector<float> input) {
-    qDebug() << "Test Task update";
+QVector<float> Task::update(QVector<float> input) {
     QVector<float> output(outputLength);
+    if (input.length() != inputLength) {
+        qDebug() << "Expected " << inputLength << "input values, given " << input.length();
+        return output;
+    }
     output[0] = input[0] * 10 + input[1];
     output[1] = input[2] * 10 + input[3];
     return output;
