@@ -2,18 +2,21 @@
 #define TASK_H
 
 #include <QVector>
+#include <QGraphicsItem>
 
 class Individual {
 public:
+    Individual();
+    QGraphicsItem *graphic;
     float x, y;
 };
 
 class Task {
 public:
-    unsigned int inputLength;
-    unsigned int outputLength;
-    Task(unsigned int t_inputLength, unsigned int t_outputLength);
-    virtual QVector<float> update(QVector<float> input);
+    int inputLength = 2;
+
+    Task();
+    void update(Individual *individual);
 };
 
 #endif // TASK_H

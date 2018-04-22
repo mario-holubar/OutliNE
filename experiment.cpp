@@ -2,22 +2,27 @@
 
 Generation::Generation() :
     popSize(0),
-    pop(QVector<Individual>(0))
-{
+    pop(QVector<Individual>(0)) {
 
 }
 
 Generation::Generation(unsigned int g_popSize) :
     popSize(g_popSize),
-    pop(QVector<Individual>(g_popSize))
-{
-    pop[g_popSize - 1].x = 15;
+    pop(QVector<Individual>(g_popSize)) {
+
 }
 
-Experiment::Experiment(unsigned int e_popSize, unsigned int e_inputSize, unsigned int e_outputSize) :
+Experiment::Experiment(unsigned int e_popSize) :
     popSize(e_popSize),
-    task(e_inputSize, e_outputSize),
-    gens(QVector<Generation>(0, Generation(e_popSize)))
-{
-    gens.append(Generation(e_popSize));
+    gens(QVector<Generation>(1, Generation(e_popSize))) {
+
+}
+
+void Experiment::updateAll() {
+    //QVector<float> inputs(2, 1.0f);
+    //Individual *i = (Individual *)(gens.at(0).pop.begin());
+    //task.update(i);
+    for (QMutableVectorIterator<Individual> i(gens[0].pop); i.hasNext(); i.next()) { //maybe don't use vectors at all? (constant size)
+        task.update(i);
+    }
 }

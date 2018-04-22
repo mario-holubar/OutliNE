@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsScene>
 #include "experiment.h"
 
 namespace Ui {
@@ -20,6 +21,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QGraphicsScene *scene;
 
 private slots:
     void update();

@@ -145,7 +145,16 @@ QTabBar::tab:!selected:right {
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <widget class="QOpenGLWidget" name="mainView"/>
+     <widget class="QGraphicsView" name="mainView">
+      <property name="styleSheet">
+       <string notr="true">QGraphicsView {
+	background-color: black;
+}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -247,14 +256,14 @@ QTabBar::tab:!selected:right {
             <item>
              <widget class="QPushButton" name="pushButton">
               <property name="text">
-               <string>Beep</string>
+               <string>Update</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="pushButton_2">
               <property name="text">
-               <string>Boop</string>
+               <string>Print</string>
               </property>
              </widget>
             </item>

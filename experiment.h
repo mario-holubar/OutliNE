@@ -14,9 +14,10 @@ public:
 class Experiment {
 public:
     unsigned int popSize;
-    Experiment(unsigned int e_popSize, unsigned int e_inputSize, unsigned int e_outputSize);
+    Experiment(unsigned int e_popSize);
     Task task;
     QVector<Generation> gens;
+    void updateAll();
 };
 
 #endif // EXPERIMENT_H
