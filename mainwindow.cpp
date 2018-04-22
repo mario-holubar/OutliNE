@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 #include <QTimer>
+#include <QTime>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,8 +21,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->pushButton_2, SIGNAL(released()), SLOT(printText()));
 
-    ui->mainView->setScene(&(experiment.scene));
+    ui->mainView->setScene(experiment.scene);
+    ui->mainView->setRenderHint(QPainter::Antialiasing);
     ui->mainView->show();
+
+    qsrand(QTime::currentTime().msec());
 }
 
 MainWindow::~MainWindow() {
@@ -31,6 +35,9 @@ MainWindow::~MainWindow() {
 
 void MainWindow::update() {
     experiment.updateAll();
+    ui->mainView->centerOn(ui->mainView->scene()->items().at(1));
+    //ui->mainView->fitInView(ui->mainView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
+    //ui->mainView->centerOn(ui->mainView->scene()->items().at(1)->pos());
     ui->mainView->update();
 }
 

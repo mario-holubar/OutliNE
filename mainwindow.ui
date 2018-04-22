@@ -52,6 +52,13 @@ QPushButton:pressed {
 	background-color: #323232;
 }
 
+QLineEdit {
+	border: 1px solid gray;
+	padding: 1px 2px;
+	border-radius: 2px;
+	selection-background-color: #3c3c3c;
+}
+
 QTabWidget::pane {
 	border: 0px;
 }
@@ -122,7 +129,14 @@ QTabBar::tab:!selected:left {
 }
 QTabBar::tab:!selected:right {
 	margin-left: 2px;
-}</string>
+}
+
+/*QScrollBar {
+	border: 1px solid #242424;
+}
+QScrollBar::add-page {
+	background: none;
+}*/</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
@@ -147,12 +161,28 @@ QTabBar::tab:!selected:right {
     <item row="0" column="0">
      <widget class="QGraphicsView" name="mainView">
       <property name="styleSheet">
-       <string notr="true">QGraphicsView {
-	background-color: black;
-}</string>
+       <string notr="true"/>
       </property>
       <property name="frameShape">
        <enum>QFrame::Box</enum>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="backgroundBrush">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </property>
+      <property name="viewportUpdateMode">
+       <enum>QGraphicsView::NoViewportUpdate</enum>
       </property>
      </widget>
     </item>
@@ -180,8 +210,8 @@ QTabBar::tab:!selected:right {
   <widget class="QDockWidget" name="settings">
    <property name="minimumSize">
     <size>
-     <width>76</width>
-     <height>95</height>
+     <width>129</width>
+     <height>151</height>
     </size>
    </property>
    <property name="floating">
@@ -218,6 +248,15 @@ QTabBar::tab:!selected:right {
        <property name="frameShape">
         <enum>QFrame::Box</enum>
        </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="midLineWidth">
+        <number>0</number>
+       </property>
        <property name="widgetResizable">
         <bool>true</bool>
        </property>
@@ -227,26 +266,10 @@ QTabBar::tab:!selected:right {
           <x>0</x>
           <y>0</y>
           <width>252</width>
-          <height>310</height>
+          <height>247</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
-         <item row="1" column="0">
-          <widget class="QGroupBox" name="groupBox">
-           <property name="title">
-            <string>Edit</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <item>
-             <widget class="QLineEdit" name="lineEdit">
-              <property name="text">
-               <string>Text!</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
          <item row="0" column="0">
           <widget class="QGroupBox" name="control">
            <property name="title">
@@ -261,23 +284,33 @@ QTabBar::tab:!selected:right {
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_2">
-              <property name="text">
-               <string>Print</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSlider" name="horizontalSlider">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QLineEdit" name="lineEdit">
+                <property name="text">
+                 <string>Text!</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_2">
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Print</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item row="1" column="0">
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -392,7 +425,7 @@ QTabBar::tab:!selected:right {
       <number>0</number>
      </property>
      <item row="0" column="0">
-      <widget class="QTreeView" name="treeView">
+      <widget class="QTableView" name="tableView">
        <property name="frameShape">
         <enum>QFrame::Box</enum>
        </property>

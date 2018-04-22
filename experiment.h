@@ -15,10 +15,12 @@ public:
 class Experiment {
 public:
     unsigned int popSize;
+
     Experiment(unsigned int e_popSize);
+    ~Experiment();
     Task task;
     QVector<Generation> gens;
-    QGraphicsScene scene;
+    QGraphicsScene *scene;
     void updateAll();
 };
 

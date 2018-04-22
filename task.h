@@ -8,14 +8,15 @@
 class Individual {
 public:
     Individual();
-    float x, y;
+    float x, y, angle, speed;
 };
 
 class Task {
 public:
-    int inputLength = 2;
+    QGraphicsPathItem *track;
 
     Task();
+    ~Task();
     void createScene(QGraphicsScene *scene, unsigned int popSize);
     void update(Individual *individual, QGraphicsItem *item);
 };
