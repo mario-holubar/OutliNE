@@ -22,7 +22,12 @@ void Experiment::updateAll() {
     //QVector<float> inputs(2, 1.0f);
     //Individual *i = (Individual *)(gens.at(0).pop.begin());
     //task.update(i);
-    for (QMutableVectorIterator<Individual> i(gens[0].pop); i.hasNext(); i.next()) { //maybe don't use vectors at all? (constant size)
+
+    /*for (QMutableVectorIterator<Individual> i(gens[0].pop); i.hasNext(); i.next()) { //maybe don't use vectors at all? (constant size)
         task.update(i);
+    }*/
+
+    for (unsigned int i = 0; i < popSize; i++) {
+        task.update(gens[0].pop.data() + i);
     }
 }

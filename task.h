@@ -8,7 +8,6 @@ class Individual {
 public:
     Individual();
     QGraphicsItem *graphic;
-    float x, y;
 };
 
 class Task {

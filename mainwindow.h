@@ -22,6 +22,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
+    QTimer *timer;
 
 private slots:
     void update();
