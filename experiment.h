@@ -2,6 +2,7 @@
 #define EXPERIMENT_H
 
 #include "task.h"
+#include <QGraphicsScene>
 
 class Generation {
 public:
@@ -17,6 +18,7 @@ public:
     Experiment(unsigned int e_popSize);
     Task task;
     QVector<Generation> gens;
+    QGraphicsScene scene;
     void updateAll();
 };
 

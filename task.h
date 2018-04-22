@@ -2,12 +2,13 @@
 #define TASK_H
 
 #include <QVector>
+#include <QGraphicsScene>
 #include <QGraphicsItem>
 
 class Individual {
 public:
     Individual();
-    QGraphicsItem *graphic;
+    float x, y;
 };
 
 class Task {
@@ -15,7 +16,8 @@ public:
     int inputLength = 2;
 
     Task();
-    void update(Individual *individual);
+    void createScene(QGraphicsScene *scene, unsigned int popSize);
+    void update(Individual *individual, QGraphicsItem *item);
 };
 
 #endif // TASK_H

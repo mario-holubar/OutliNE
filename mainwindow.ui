@@ -256,7 +256,7 @@ QTabBar::tab:!selected:right {
             <item>
              <widget class="QPushButton" name="pushButton">
               <property name="text">
-               <string>Update</string>
+               <string>Do nothing</string>
               </property>
              </widget>
             </item>
