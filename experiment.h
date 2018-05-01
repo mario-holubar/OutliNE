@@ -6,7 +6,7 @@
 
 class Generation {
 public:
-    unsigned int popSize;
+    const unsigned int popSize;
     Generation();
     Generation(unsigned int g_popSize);
     QVector<Individual> pop;
@@ -21,7 +21,7 @@ public:
     Task task;
     QVector<Generation> gens;
     QGraphicsScene *scene;
-    void updateAll();
+    void stepAll(bool updateGraphics);
 };
 
 #endif // EXPERIMENT_H

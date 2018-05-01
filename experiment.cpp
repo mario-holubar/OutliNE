@@ -1,4 +1,5 @@
 #include "experiment.h"
+#include <QTime>
 
 Generation::Generation() :
     popSize(0),
@@ -17,6 +18,7 @@ Experiment::Experiment(unsigned int e_popSize) :
     gens(QVector<Generation>(1, Generation(e_popSize))) {
     scene = new QGraphicsScene;
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
+    qsrand(QTime::currentTime().msec());
     task.createScene(scene, popSize);
     //scene->setSceneRect(scene->items().at(0)->boundingRect());
     scene->setSceneRect(-100000, -100000, 200000, 200000);
@@ -26,9 +28,9 @@ Experiment::~Experiment() {
     delete scene;
 }
 
-void Experiment::updateAll() {
+void Experiment::stepAll(bool updateGraphics) {
     QList<QGraphicsItem *> items = scene->items();
     for (unsigned int i = 0; i < popSize; i++) { //figure out a better way to do this (list of cars?)
-        task.update(gens[0].pop.data() + i, items[i + 1]);
+        task.step(gens[0].pop.data() + i, updateGraphics ? items[i + 1] : NULL);
     }
 }

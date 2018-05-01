@@ -18,7 +18,7 @@ public:
     Task();
     ~Task();
     void createScene(QGraphicsScene *scene, unsigned int popSize);
-    void update(Individual *individual, QGraphicsItem *item);
+    void step(Individual *individual, QGraphicsItem *item);
 };
 
 #endif // TASK_H

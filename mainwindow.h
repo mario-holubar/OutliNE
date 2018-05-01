@@ -22,10 +22,12 @@ public:
 private:
     Ui::MainWindow *ui;
     QTimer *timer;
+    bool play;
 
 private slots:
     void update();
     void printText();
+    void playPause(bool checked);
 };
 
 #endif // MAINWINDOW_H
