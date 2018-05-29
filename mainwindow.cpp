@@ -3,11 +3,12 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTime>
+#include <mainview.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    experiment(8) {
+    experiment(64) {
     ui->setupUi(this);
 
     ui->menuView->addAction(ui->settings->toggleViewAction());
@@ -19,12 +20,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), SLOT(update()));
     timer->start(1000.0f / 60.0f);
 
-    connect(ui->pushButton_2, SIGNAL(released()), SLOT(printText()));
+    connect(ui->pushButton, SIGNAL(released()), SLOT(evaluate()));
+    connect(ui->pushButton_2, SIGNAL(released()), SLOT(newGen()));
     connect(ui->playButton, SIGNAL(clicked(bool)), SLOT(playPause(bool)));
 
     ui->mainView->setScene(experiment.scene);
-    ui->mainView->setBackgroundBrush(QBrush(QColor(8, 8, 8)));
-    ui->mainView->show();
+
+    ui->progressBar->setMaximum(experiment.tMax);
+
+    instanceTableModel = new InstanceModel(0, experiment.popSize);
+    proxyModel = new QSortFilterProxyModel(0);
+    proxyModel->setSourceModel(instanceTableModel);
+    ui->tableView->setModel(proxyModel);
 
     play = false;
 }
@@ -34,23 +41,52 @@ MainWindow::~MainWindow() {
     delete timer;
 }
 
+void MainWindow::setPlaying(bool playing) {
+    play = playing;
+    if (experiment.t >= experiment.tMax) play = false;
+    if (play) ui->playButton->setText("◼");
+    else ui->playButton->setText("►");
+}
+
 void MainWindow::update() {
-    if (play) experiment.stepAll(true);
+    if (play) {
+        if (experiment.t >= experiment.tMax) {
+            playPause(false);
+            return;
+        }
+        experiment.stepAll(true);
+    }
     //ui->mainView->fitInView(ui->mainView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
     //ui->mainView->fitInView(ui->mainView->scene()->items().at(0), Qt::KeepAspectRatio);
     QTransform zoomTransform;
-    zoomTransform.scale(0.5f, 0.5f);
+    zoomTransform.scale(1.0f, 1.0f);
     ui->mainView->setTransform(zoomTransform, false);
-    ui->mainView->centerOn(ui->mainView->scene()->items().at(1));
+    //ui->mainView->centerOn(ui->mainView->scene()->items().at(1));
+    //ui->mainView->centerOn(QPoint(0.0f, 0.0f));
     ui->mainView->update();
+    ui->progressBar->setValue(experiment.t);
 }
 
-void MainWindow::printText() {
-    qDebug() << ui->lineEdit->text();
+void MainWindow::updateInstanceTable() {
+    for (unsigned int i = 0; i < experiment.popSize; i++) {
+        instanceTableModel->fitness[i] = experiment.gens.at(experiment.currentGen).pop.at(i).fitness / experiment.tMax;
+    }
+    //proxyModel->sort(1, Qt::DescendingOrder);
+    ui->tableView->repaint();
+}
+
+void MainWindow::evaluate() {
+    experiment.evaluateGen();
+    updateInstanceTable();
+}
+
+void MainWindow::newGen() {
+    experiment.newGen();
 }
 
 void MainWindow::playPause(bool checked) {
     play = checked;
-    if (checked) ui->playButton->setText("◼");
+    if (experiment.t >= experiment.tMax) play = false;
+    if (play) ui->playButton->setText("◼");
     else ui->playButton->setText("►");
 }

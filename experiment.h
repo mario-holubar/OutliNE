@@ -15,6 +15,10 @@ public:
 class Experiment {
 public:
     unsigned int popSize;
+    unsigned int tMax;
+
+    unsigned int currentGen;
+    unsigned int t;
 
     Experiment(unsigned int e_popSize);
     ~Experiment();
@@ -22,6 +26,8 @@ public:
     QVector<Generation> gens;
     QGraphicsScene *scene;
     void stepAll(bool updateGraphics);
+    void evaluateGen();
+    void newGen();
 };
 
 #endif // EXPERIMENT_H

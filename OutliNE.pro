@@ -27,12 +27,17 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     task.cpp \
-    experiment.cpp
+    experiment.cpp \
+    mainview.cpp \
+    instancemodel.cpp
 
 HEADERS += \
         mainwindow.h \
     task.h \
-    experiment.h
+    experiment.h \
+    mainview.h \
+    mainview.h \
+    instancemodel.h
 
 FORMS += \
     mainwindow.ui

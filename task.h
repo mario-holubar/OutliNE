@@ -8,17 +8,18 @@
 class Individual {
 public:
     Individual();
-    float x, y, angle, speed;
+    float fitness;
+    float pos, vel;
+
+    void step(QGraphicsItem *item);
 };
 
 class Task {
+private:
 public:
-    QGraphicsPathItem *track;
-
     Task();
     ~Task();
     void createScene(QGraphicsScene *scene, unsigned int popSize);
-    void step(Individual *individual, QGraphicsItem *item);
 };
 
 #endif // TASK_H
