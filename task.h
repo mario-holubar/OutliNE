@@ -11,6 +11,7 @@ public:
     float fitness;
     float pos, vel;
 
+    void init();
     void step(QGraphicsItem *item);
 };
 

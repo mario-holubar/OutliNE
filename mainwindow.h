@@ -33,9 +33,10 @@ private:
 
 private slots:
     void update();
-    void evaluate();
     void newGen();
     void playPause(bool checked);
+    void evaluateGen();
+    void resetGen();
 };
 
 #endif // MAINWINDOW_H

@@ -3,6 +3,7 @@
 
 #include "task.h"
 #include <QGraphicsScene>
+#include <QPainter>
 
 class Generation {
 public:
@@ -25,9 +26,12 @@ public:
     Task task;
     QVector<Generation> gens;
     QGraphicsScene *scene;
+    Individual *getIndividual(int i);
     void stepAll(bool updateGraphics);
+    void resetGen();
     void evaluateGen();
     void newGen();
+    void draw(QPainter *painter);
 };
 
 #endif // EXPERIMENT_H

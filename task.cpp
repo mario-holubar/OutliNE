@@ -2,11 +2,14 @@
 #include <QDebug>
 #include <QtMath>
 
-Individual::Individual() :
-    fitness(0.0f),
-    pos(0.0f),
-    vel(0.0f) {
+Individual::Individual() {
+    init();
+}
 
+void Individual::init() {
+    fitness = 0.0f;
+    pos = 0.0f;
+    vel = 0.0f;
 }
 
 void Individual::step(QGraphicsItem *item) {

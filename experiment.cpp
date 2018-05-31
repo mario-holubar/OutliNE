@@ -15,7 +15,7 @@ Generation::Generation(unsigned int g_popSize) :
 
 Experiment::Experiment(unsigned int e_popSize) :
     popSize(e_popSize),
-    gens(QVector<Generation>(1, Generation(e_popSize))),
+    gens(QVector<Generation>()),
     currentGen(0),
     t(0),
     tMax(1800) {
@@ -31,14 +31,24 @@ Experiment::~Experiment() {
     delete scene;
 }
 
+Individual *Experiment::getIndividual(int i) {
+    return gens[currentGen].pop.data() + i;
+}
+
 void Experiment::stepAll(bool updateGraphics) {
     if (t >= tMax) return;
     QList<QGraphicsItem *> items = scene->items();
-    for (unsigned int i = 0; i < popSize; i++) { //figure out a better way to do this (list of cars?)
-        //task.step(gens[currentGen].pop.data() + i, updateGraphics ? items[i] : NULL); //items[i + 1] for racing task
-        (gens[currentGen].pop.data() + i)->step(updateGraphics ? items[i] : NULL);
+    for (unsigned int i = 0; i < popSize; i++) {
+        getIndividual(i)->step(updateGraphics ? items[i] : NULL);
     }
     t++;
+}
+
+void Experiment::resetGen() {
+    t = 0;
+    for (unsigned int i = 0; i < popSize; i++) {
+        getIndividual(i)->init();
+    }
 }
 
 void Experiment::evaluateGen() {
@@ -52,4 +62,8 @@ void Experiment::newGen() {
     gens.append(Generation(popSize));
     currentGen = gens.size() - 1;
     t = 0;
+}
+
+void Experiment::draw(QPainter *painter) {
+    painter->drawRect(0, 0, 100, 100);
 }

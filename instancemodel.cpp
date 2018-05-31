@@ -9,9 +9,7 @@ InstanceModel::InstanceModel(QObject *parent, int popSize)
 {
 }
 
-QVariant InstanceModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    Q_UNUSED(orientation);
+QVariant InstanceModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (role == Qt::DisplayRole) {
         if (orientation == Qt::Horizontal) {
             if (section == 0) return QString("Name");
@@ -22,18 +20,17 @@ QVariant InstanceModel::headerData(int section, Qt::Orientation orientation, int
 }
 
 int InstanceModel::rowCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
+    if (parent.isValid()) return 0;
     return rows;
 }
 
 int InstanceModel::columnCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
+    if (parent.isValid()) return 0;
     return 2;
 }
 
 QVariant InstanceModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::DisplayRole) {
-        //return QString("Row%1, Column%2").arg(index.row() + 1).arg(index.column() + 1);
         if (index.column() == 0) return index.row();
         return fitness.at(index.row());
     }
