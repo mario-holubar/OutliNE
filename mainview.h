@@ -16,6 +16,9 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+
+private:
+    QItemSelection selected;
 };
 
 #endif // MAINVIEW_H

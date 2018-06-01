@@ -4,6 +4,7 @@
 #include "task.h"
 #include <QGraphicsScene>
 #include <QPainter>
+#include <QItemSelectionModel>
 
 class Generation {
 public:
@@ -21,17 +22,20 @@ public:
     unsigned int currentGen;
     unsigned int t;
 
+private:
+    int selected;
+
+public:
     Experiment(unsigned int e_popSize);
-    ~Experiment();
     Task task;
     QVector<Generation> gens;
-    QGraphicsScene *scene;
     Individual *getIndividual(int i);
-    void stepAll(bool updateGraphics);
+    void stepAll();
     void resetGen();
     void evaluateGen();
     void newGen();
     void draw(QPainter *painter);
+    void setSelected(int i);
 };
 
 #endif // EXPERIMENT_H

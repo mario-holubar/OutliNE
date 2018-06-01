@@ -5,27 +5,17 @@
 #include <QTime>
 #include <mainview.h>
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    experiment(32) {
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent),
+      ui(new Ui::MainWindow),
+      experiment(8) {
     ui->setupUi(this);
-
-    ui->menuView->addAction(ui->settings->toggleViewAction());
-    ui->menuView->addAction(ui->performance->toggleViewAction());
-    ui->menuView->addAction(ui->instances->toggleViewAction());
-    ui->menuView->addAction(ui->net->toggleViewAction());
+    initMenu();
+    initConnections();
 
     timer = new QTimer;
     connect(timer, SIGNAL(timeout()), SLOT(update()));
     timer->start(1000.0f / 60.0f);
-
-    connect(ui->pushButton_2, SIGNAL(released()), SLOT(newGen()));
-    connect(ui->playButton, SIGNAL(clicked(bool)), SLOT(playPause(bool)));
-    connect(ui->resetButton, SIGNAL(released()), SLOT(resetGen()));
-    connect(ui->evaluateButton, SIGNAL(released()), SLOT(evaluateGen()));
-
-    ui->mainView->setScene(experiment.scene);
 
     ui->progressBar->setMaximum(experiment.tMax);
 
@@ -35,10 +25,25 @@ MainWindow::MainWindow(QWidget *parent) :
     proxyModel->setDynamicSortFilter(true);
     ui->tableView->setModel(proxyModel);
     proxyModel->sort(1, Qt::DescendingOrder);
+    connect(ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), SLOT(setSelected(const QItemSelection &)));
 
     play = false;
 
     newGen();
+}
+
+void MainWindow::initMenu() {
+    ui->menuView->addAction(ui->settings->toggleViewAction());
+    ui->menuView->addAction(ui->performance->toggleViewAction());
+    ui->menuView->addAction(ui->instances->toggleViewAction());
+    ui->menuView->addAction(ui->net->toggleViewAction());
+}
+
+void MainWindow::initConnections() {
+    connect(ui->pushButton_2, SIGNAL(released()), SLOT(newGen()));
+    connect(ui->playButton, SIGNAL(released()), SLOT(playPause()));
+    connect(ui->resetButton, SIGNAL(released()), SLOT(resetGen()));
+    connect(ui->evaluateButton, SIGNAL(released()), SLOT(evaluateGen()));
 }
 
 MainWindow::~MainWindow() {
@@ -56,18 +61,11 @@ void MainWindow::setPlaying(bool playing) {
 void MainWindow::update() {
     if (play) {
         if (experiment.t >= experiment.tMax) {
-            playPause(false);
+            playPause();
             return;
         }
-        experiment.stepAll(true);
+        experiment.stepAll();
     }
-    //ui->mainView->fitInView(ui->mainView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
-    //ui->mainView->fitInView(ui->mainView->scene()->items().at(0), Qt::KeepAspectRatio);
-    /*QTransform zoomTransform;
-    zoomTransform.scale(1.0f, 1.0f);
-    ui->mainView->setTransform(zoomTransform, false);*/
-    //ui->mainView->centerOn(ui->mainView->scene()->items().at(1));
-    //ui->mainView->centerOn(QPoint(0.0f, 0.0f));
     ui->mainView->experiment = &experiment;
     ui->mainView->update();
     ui->progressBar->setValue(experiment.t);
@@ -79,18 +77,17 @@ void MainWindow::updateInstanceTable() {
         instanceTableModel->fitness[i] = experiment.gens.at(experiment.currentGen).pop.at(i).fitness / experiment.t;
     }
     proxyModel->invalidate();
-    //proxyModel->sort(1, Qt::DescendingOrder);
     ui->tableView->repaint();
 }
 
 void MainWindow::newGen() {
     experiment.newGen();
-    //experiment.evaluateGen();
+    ui->tableView->clearSelection();
     updateInstanceTable();
 }
 
-void MainWindow::playPause(bool checked) {
-    play = checked;
+void MainWindow::playPause() {
+    play = !play;
     if (experiment.t >= experiment.tMax) play = false;
     if (play) ui->playButton->setText("◼");
     else ui->playButton->setText("►");
@@ -104,4 +101,9 @@ void MainWindow::evaluateGen() {
 void MainWindow::resetGen() {
     experiment.resetGen();
     updateInstanceTable();
+}
+
+void MainWindow::setSelected(const QItemSelection &selection) {
+    if (selection.indexes().size() == 0) experiment.setSelected(-1);
+    else experiment.setSelected(selection.indexes().at(0).row());
 }

@@ -1,45 +1,37 @@
 #include "experiment.h"
 #include <QTime>
+#include <qDebug>
 
-Generation::Generation() :
-    popSize(0),
-    pop(QVector<Individual>(0)) {
-
-}
-
-Generation::Generation(unsigned int g_popSize) :
-    popSize(g_popSize),
-    pop(QVector<Individual>(g_popSize)) {
+Generation::Generation()
+    : popSize(0),
+      pop(QVector<Individual>(0)) {
 
 }
 
-Experiment::Experiment(unsigned int e_popSize) :
-    popSize(e_popSize),
-    gens(QVector<Generation>()),
-    currentGen(0),
-    t(0),
-    tMax(1800) {
-    scene = new QGraphicsScene;
-    scene->setItemIndexMethod(QGraphicsScene::NoIndex);
-    qsrand(QTime::currentTime().msec());
-    task.createScene(scene, popSize);
-    //scene->setSceneRect(scene->items().at(0)->boundingRect());
-    scene->setSceneRect(-100000, -100000, 200000, 200000);
+Generation::Generation(unsigned int g_popSize)
+    : popSize(g_popSize),
+      pop(QVector<Individual>(g_popSize)) {
+
 }
 
-Experiment::~Experiment() {
-    delete scene;
+Experiment::Experiment(unsigned int e_popSize)
+    : popSize(e_popSize),
+      gens(QVector<Generation>()),
+      currentGen(0),
+      t(0),
+      tMax(1800),
+      selected(-1) {
+
 }
 
 Individual *Experiment::getIndividual(int i) {
     return gens[currentGen].pop.data() + i;
 }
 
-void Experiment::stepAll(bool updateGraphics) {
+void Experiment::stepAll() {
     if (t >= tMax) return;
-    QList<QGraphicsItem *> items = scene->items();
     for (unsigned int i = 0; i < popSize; i++) {
-        getIndividual(i)->step(updateGraphics ? items[i] : NULL);
+        getIndividual(i)->step();
     }
     t++;
 }
@@ -53,9 +45,9 @@ void Experiment::resetGen() {
 
 void Experiment::evaluateGen() {
     while(t < tMax - 1) {
-        stepAll(false);
+        stepAll();
     }
-    stepAll(true);
+    stepAll();
 }
 
 void Experiment::newGen() {
@@ -65,5 +57,20 @@ void Experiment::newGen() {
 }
 
 void Experiment::draw(QPainter *painter) {
-    painter->drawRect(0, 0, 100, 100);
+    task.draw(painter);
+    for (unsigned int i = 0; i < popSize; i++) {
+        QPen pen(QColor(128, 128, 128, 128));
+        painter->setPen(pen);
+        getIndividual(i)->draw(painter);
+    }
+    if (selected != -1) {
+        QPen pen(Qt::white);
+        pen.setWidth(2);
+        painter->setPen(pen);
+        getIndividual(selected)->draw(painter);
+    }
+}
+
+void Experiment::setSelected(int i) {
+    selected = i;
 }

@@ -67,7 +67,6 @@ QTabBar::tab {
 	background: #282828;
 	border: 1px solid gray;
 }
-
 QTabBar::tab:top {
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
@@ -88,15 +87,12 @@ QTabBar::tab:right {
 	border-bottom-left-radius: 4px;
 	padding: 4px 2px;
 }
-
 QTabBar::tab:hover {
 	background: #323232;
 }
-
 QTabBar::tab:selected {
 	background: #282828;
 }
-
 QTabBar::tab:selected:top {
 	border-bottom-color: #282828;
 	/*margin-left: -1px;
@@ -117,7 +113,6 @@ QTabBar::tab:selected:right {
 	/*margin-top: -1px;
 	margin-bottom: -1px;*/
 }
-
 QTabBar::tab:!selected:top {
 	margin-top: 2px;
 }
@@ -155,6 +150,14 @@ QProgressBar {
 QProgressBar::chunk {
 	background-color: #3c3c3c;
 	margin: -1px;
+}
+
+QTableView{
+	outline: 0;
+}
+QTableView::item:selected {
+	background-color: #3c3c3c;
+	color: white;
 }</string>
   </property>
   <property name="locale">
@@ -216,6 +219,9 @@ QProgressBar::chunk {
        </item>
        <item row="0" column="0">
         <widget class="MainView" name="mainView">
+         <property name="styleSheet">
+          <string notr="true">background: black;</string>
+         </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>
@@ -352,7 +358,7 @@ font: 8pt;</string>
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuView">
@@ -424,7 +430,7 @@ font: 8pt;</string>
           <x>0</x>
           <y>0</y>
           <width>252</width>
-          <height>247</height>
+          <height>252</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
@@ -562,6 +568,9 @@ font: 8pt;</string>
       <widget class="QTableView" name="tableView">
        <property name="frameShape">
         <enum>QFrame::Box</enum>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
        </property>
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectRows</enum>

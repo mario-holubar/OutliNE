@@ -4,6 +4,7 @@
 #include <QVector>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
+#include <QPainter>
 
 class Individual {
 public:
@@ -12,7 +13,8 @@ public:
     float pos, vel;
 
     void init();
-    void step(QGraphicsItem *item);
+    void step();
+    void draw(QPainter *painter);
 };
 
 class Task {
@@ -20,7 +22,7 @@ private:
 public:
     Task();
     ~Task();
-    void createScene(QGraphicsScene *scene, unsigned int popSize);
+    void draw(QPainter *painter);
 };
 
 #endif // TASK_H

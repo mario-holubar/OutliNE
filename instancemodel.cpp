@@ -31,7 +31,7 @@ int InstanceModel::columnCount(const QModelIndex &parent) const {
 
 QVariant InstanceModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::DisplayRole) {
-        if (index.column() == 0) return index.row();
+        if (index.column() == 0) return QString::number(index.row() + 1);
         return fitness.at(index.row());
     }
     return QVariant();
