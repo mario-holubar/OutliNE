@@ -16,24 +16,24 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
 private:
     Experiment experiment;
 
     Ui::MainWindow *ui;
     QTimer *timer;
-    bool play;
+    bool play; //Kind of unnecessary
     InstanceModel *instanceTableModel;
     QSortFilterProxyModel *proxyModel;
 
     void initMenu();
     void initConnections();
+    void initViews();
 
-    void setPlaying(bool playing);
     void updateInstanceTable();
+
+public:
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
 
 private slots:
     void update();

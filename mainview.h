@@ -8,17 +8,16 @@
 
 class MainView : public QGraphicsView {
     Q_OBJECT
+private:
+    Experiment *experiment;
+    QItemSelection selected;
+    float zoom;
 public:
     MainView(QWidget *parent = 0, Experiment *experiment = NULL);
-    ~MainView();
-
-    Experiment *experiment;
-
+    void setExperiment(Experiment *experiment);
 protected:
     void paintEvent(QPaintEvent *event) override;
-
-private:
-    QItemSelection selected;
+    void wheelEvent(QWheelEvent *event) override;
 };
 
 #endif // MAINVIEW_H

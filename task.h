@@ -1,28 +1,25 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include <QVector>
-#include <QGraphicsScene>
-#include <QGraphicsItem>
 #include <QPainter>
+
+class Task {
+public:
+    Task();
+    virtual void draw(QPainter *painter) = 0;
+};
 
 class Individual {
 public:
+    Task *task;
+
     Individual();
-    float fitness;
-    float pos, vel;
-
-    void init();
-    void step();
-    void draw(QPainter *painter);
-};
-
-class Task {
-private:
-public:
-    Task();
-    ~Task();
-    void draw(QPainter *painter);
+    virtual void init() = 0;
+    virtual void stepRandom() = 0;
+    virtual void step(std::vector<double> inputs) = 0;
+    virtual float getFitness() = 0;
+    virtual QPointF getPos() = 0;
+    virtual void draw(QPainter *painter)= 0;
 };
 
 #endif // TASK_H

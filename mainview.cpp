@@ -4,24 +4,30 @@
 MainView::MainView(QWidget *parent, Experiment *experiment)
     : QGraphicsView(parent),
       experiment(experiment),
-      selected(QItemSelection()) {
+      selected(QItemSelection()),
+      zoom(1.0f) {
 
 }
 
-MainView::~MainView() {
-
+void MainView::setExperiment(Experiment *experiment) {
+    this->experiment = experiment;
 }
 
 void MainView::paintEvent(QPaintEvent *event) {
     QGraphicsView::paintEvent(event);
 
-    //save / restore painter state?
-
     QPainter painter(viewport());
 
-    QTransform transform;
-    transform.translate(viewport()->size().width() / 2, viewport()->size().height() / 2);
-    painter.setTransform(transform, false);
+    QTransform t = transform();
+    t.translate(viewport()->size().width() / 2, viewport()->size().height() / 2);
+    t.scale(zoom, zoom);
+    painter.setTransform(t, false);
+    painter.setRenderHints(renderHints());
 
     experiment->draw(&painter);
+}
+
+void MainView::wheelEvent(QWheelEvent *event) {
+    zoom *= 1 + event->angleDelta().y() / 650.0f;
+    update();
 }

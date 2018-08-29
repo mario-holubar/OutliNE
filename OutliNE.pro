@@ -26,10 +26,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    task.cpp \
     experiment.cpp \
     mainview.cpp \
-    instancemodel.cpp
+    instancemodel.cpp \
+    neuralnet.cpp \
+    task_racing.cpp \
+    task.cpp \
 
 HEADERS += \
         mainwindow.h \
@@ -37,7 +39,11 @@ HEADERS += \
     experiment.h \
     mainview.h \
     mainview.h \
-    instancemodel.h
+    instancemodel.h \
+    neuralnet.h \
+    task_racing.h \
+    tinyann.hpp \
+    tinyneat.hpp
 
 FORMS += \
     mainwindow.ui
