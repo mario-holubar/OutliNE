@@ -5,13 +5,10 @@
 #include <QTime>
 #include <mainview.h>
 
-#include <tinyann.hpp>
-#include <tinyneat.hpp>
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      experiment(64) {
+      experiment(240) {
     ui->setupUi(this);
 
     initMenu();
@@ -24,11 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     newGen();
 
-    srand(time(NULL));
-    neat::pool p(2, 2, 1, false);
-    for (int i = 0; i < 8; i++) {
-        qDebug() << p.species.size();
-        unsigned int max_fitness = 0;
+    /*for (int i = 0; i < 8; i++) {
+        unsigned int total = 0;
         for (auto s = p.species.begin(); s != p.species.end(); s++) {
             for (size_t i = 0; i < (*s).genomes.size(); i++) {
                 ann::neuralnet n;
@@ -36,13 +30,13 @@ MainWindow::MainWindow(QWidget *parent)
                 n.from_genome(g);
 
                 std::vector<double> input(2, 0.0);
-                std::vector<double> output(2, 0.0);
+                std::vector<double> output(1, 0.0);
                 unsigned int fitness = 0;
 
-                RacingIndividual *a = experiment.getIndividual(i);
+                TestIndividual *a = experiment.getIndividual(i);
                 for (int t = 0; t < experiment.getTMax() / 8; t++) {
-                    input[0] = a->speed;
-                    input[1] = a->angle / 180.0f;
+                    input[0] = a->x / 50.0f;
+                    input[1] = a->target / 50.0f;
                     n.evaluate(input, output);
                     //qDebug() << input[0] << input[1];
                     //qDebug() << output[0] << output[1];
@@ -51,14 +45,14 @@ MainWindow::MainWindow(QWidget *parent)
                 }
                 fitness = a->getFitness();
 
-                if (fitness > max_fitness) max_fitness = fitness;
+                total += fitness;
                 g.fitness = fitness;
             }
         }
-        qDebug() << "Generation" << i + 1 << ":" << max_fitness;
+        qDebug() << "Generation" << i + 1 << ":" << total / 240;
         p.new_generation();
         experiment.newGen();
-    }
+    }*/
 }
 
 void MainWindow::initMenu() {
@@ -109,7 +103,7 @@ void MainWindow::update() {
 
 void MainWindow::updateInstanceTable() {
     for (unsigned int i = 0; i < experiment.getPopSize(); i++) {
-        instanceTableModel->fitness[i] = experiment.getGen(experiment.getCurrentGen()).pop[i].getFitness();
+        instanceTableModel->fitness[i] = experiment.getIndividual(i)->getFitness();
     }
     proxyModel->invalidate();
     ui->tableView->repaint();

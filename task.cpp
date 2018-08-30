@@ -5,5 +5,5 @@ Task::Task() {
 }
 
 Individual::Individual() {
-
+    seed = qrand();
 }

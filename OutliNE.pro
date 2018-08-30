@@ -29,9 +29,10 @@ SOURCES += \
     experiment.cpp \
     mainview.cpp \
     instancemodel.cpp \
-    neuralnet.cpp \
-    task_racing.cpp \
     task.cpp \
+    testtask.cpp \
+    tinyann.cpp \
+    tinyneat.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -40,10 +41,9 @@ HEADERS += \
     mainview.h \
     mainview.h \
     instancemodel.h \
-    neuralnet.h \
-    task_racing.h \
-    tinyann.hpp \
-    tinyneat.hpp
+    testtask.h \
+    tinyann.h \
+    tinyneat.h
 
 FORMS += \
     mainwindow.ui

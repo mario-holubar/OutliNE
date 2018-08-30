@@ -5,16 +5,9 @@
 #include <QGraphicsScene>
 #include <QPainter>
 #include <QItemSelectionModel>
-#include "task_racing.h"
-
-class Generation {
-private:
-    const unsigned int popSize;
-public:
-    Generation();
-    Generation(unsigned int g_popSize, Task *task);
-    QVector<RacingIndividual> pop;
-};
+#include "testtask.h"
+#include "tinyneat.h"
+#include "tinyann.h"
 
 class Experiment {
 private:
@@ -24,15 +17,16 @@ private:
     unsigned int currentGen;
     unsigned int t;
     int selected;
-    RacingTask task;
-    QVector<Generation> gens;
+    TestTask task;
+    QVector<TestIndividual> individuals;
+    neat::pool pool;
 public:
     Experiment(unsigned int e_popSize);
-    RacingIndividual *getIndividual(int i);
+    TestIndividual *getIndividual(int i);
     void stepAll();
     void resetGen();
-    void evaluateGen();
     void newGen();
+    void evaluateGen();
     void draw(QPainter *painter);
     unsigned int getPopSize();
     unsigned int getTMax();
@@ -40,7 +34,6 @@ public:
     unsigned int getT();
     int getSelected();
     void setSelected(int i);
-    Generation getGen(int i);
 };
 
 #endif // EXPERIMENT_H
