@@ -17,9 +17,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private:
-    Experiment experiment;
-
     Ui::MainWindow *ui;
+    Experiment experiment;
     QTimer *timer;
     bool play; //Kind of unnecessary
     InstanceModel *instanceTableModel;
@@ -32,7 +31,7 @@ private:
     void updateInstanceTable();
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:

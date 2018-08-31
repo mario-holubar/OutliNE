@@ -8,21 +8,26 @@
 class TestTask : public Task {
 public:
     TestTask();
+    ~TestTask();
     void draw(QPainter *painter);
 };
 
 class TestIndividual : public Individual {
 public:
+    TestIndividual();
+    ~TestIndividual();
+
     float x;
     float target;
     float fitness;
-    void newGoal();
     QRandomGenerator rand;
+    void newGoal();
 
     void init();
     void step(std::vector<double> inputs);
     float getFitness();
     QPointF getPos();
+    std::vector<double> getInputs();
     void draw(QPainter *painter);
 };
 

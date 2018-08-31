@@ -7,6 +7,8 @@ class InstanceModel : public QAbstractTableModel
 {
     Q_OBJECT
 
+private:
+    int rows;
 public:
     QVector<float> fitness;
 
@@ -19,8 +21,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-private:
-    int rows;
 };
 
 #endif // INSTANCEMODEL_H

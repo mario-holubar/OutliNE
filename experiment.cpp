@@ -1,20 +1,28 @@
 #include "experiment.h"
 #include <QTime>
-#include <qDebug>
+#include <QDebug>
 
 Experiment::Experiment(unsigned int e_popSize)
     : popSize(e_popSize),
-      currentGen(-1),
+      currentGen(0),
       t(0),
       tMax(240),
       selected(-1),
-      pool(2, 1, 1, false),
-      individuals(popSize) {
+      task(new TestTask),
+      individuals(int(e_popSize)),
+      pool(2, 1, 1, false) {
+    neat::speciating_parameter_container spec;
+    spec.population = popSize;
+    pool.speciating_parameters = spec;
+    pool.new_generation();
 
+    for (int i = 0; i < int(popSize); i++) {
+        individuals[i] = new TestIndividual();
+    }
 }
 
-TestIndividual *Experiment::getIndividual(int i) {
-    return individuals.data() + i;
+Individual *Experiment::getIndividual(int i) {
+    return individuals[i];
 }
 
 void Experiment::stepAll() {
@@ -25,18 +33,12 @@ void Experiment::stepAll() {
             ann::neuralnet n;
             neat::genome& g = (*s).genomes[i];
             n.from_genome(g);
-
-            std::vector<double> input(2, 0.0);
+            Individual *a = getIndividual(ind++);
+            std::vector<double> input = a->getInputs();
             std::vector<double> output(1, 0.0);
-            unsigned int fitness = 0;
-
-            TestIndividual *a = getIndividual(ind++);
-            input[0] = a->x / 50.0f;
-            input[1] = a->target / 50.0f;
             n.evaluate(input, output);
             a->step(output);
-            fitness = a->getFitness();
-
+            unsigned int fitness = unsigned(a->getFitness());
             g.fitness = fitness;
         }
     }
@@ -46,12 +48,16 @@ void Experiment::stepAll() {
 void Experiment::resetGen() {
     t = 0;
     for (unsigned int i = 0; i < popSize; i++) {
-        getIndividual(i)->init();
+        getIndividual(int(i))->init();
     }
 }
 
 void Experiment::newGen() {
+    if (t < tMax) evaluateGen();
     pool.new_generation();
+    for (unsigned int i = 0; i < popSize; i++) {
+        getIndividual(int(i))->seed = unsigned(qrand());
+    }
     resetGen();
 }
 
@@ -66,24 +72,16 @@ void Experiment::evaluateGen() {
             ann::neuralnet n;
             neat::genome& g = (*s).genomes[i];
             n.from_genome(g);
-
-            std::vector<double> input(2, 0.0);
             std::vector<double> output(1, 0.0);
-            unsigned int fitness = 0;
-
-            TestIndividual *a = getIndividual(ind++);
-            for (int tt = t; tt < tMax; tt++) {
-                input[0] = a->x / 50.0f;
-                input[1] = a->target / 50.0f;
-                n.evaluate(input, output);
+            Individual *a = getIndividual(ind++);
+            for (int tt = int(t); tt < int(tMax); tt++) {
+                n.evaluate(a->getInputs(), output);
                 a->step(output);
             }
-            fitness = a->getFitness();
-
+            unsigned int fitness = unsigned(a->getFitness());
             g.fitness = fitness;
         }
     }
-    //pool.new_generation();
     t = tMax;
 }
 
@@ -99,12 +97,12 @@ void Experiment::draw(QPainter *painter) {
     pen.setCosmetic(true);
     painter->setPen(pen);
     painter->setBrush(QBrush(QColor(8, 8, 8)));
-    task.draw(painter);
+    task->draw(painter);
 
     pen.setColor(QColor(128, 128, 128, 128));
     painter->setPen(pen);
     painter->setBrush(QBrush(QColor(32, 32, 32, 128)));
-    for (unsigned int i = 0; i < popSize; i++) {
+    for (int i = 0; i < int(popSize); i++) {
         if (i == selected) continue;
         painter->setTransform(transform);
         getIndividual(i)->draw(painter);

@@ -13,7 +13,7 @@ private:
     QItemSelection selected;
     float zoom;
 public:
-    MainView(QWidget *parent = 0, Experiment *experiment = NULL);
+    MainView(QWidget *parent = nullptr, Experiment *experiment = nullptr);
     void setExperiment(Experiment *experiment);
 protected:
     void paintEvent(QPaintEvent *event) override;

@@ -20,7 +20,7 @@ void MainView::paintEvent(QPaintEvent *event) {
 
     QTransform t = transform();
     t.translate(viewport()->size().width() / 2, viewport()->size().height() / 2);
-    t.scale(zoom, zoom);
+    t.scale(double(zoom), double(zoom));
     painter.setTransform(t, false);
     painter.setRenderHints(renderHints());
 

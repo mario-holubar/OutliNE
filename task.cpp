@@ -4,6 +4,14 @@ Task::Task() {
 
 }
 
+Task::~Task() {
+
+}
+
 Individual::Individual() {
-    seed = qrand();
+    seed = unsigned(qrand());
+}
+
+Individual::~Individual() {
+
 }

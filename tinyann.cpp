@@ -128,11 +128,11 @@ void neuralnet::from_genome(const neat::genome& a){
         neuron n;
         if (table.find((*it).second.from_node) == table.end()){
             nodes.push_back(n);
-            table[(*it).second.from_node] = nodes.size()-1;
+            table[(*it).second.from_node] = unsigned(nodes.size())-1;
         }
         if (table.find((*it).second.to_node) == table.end()){
             nodes.push_back(n);
-            table[(*it).second.to_node] = nodes.size()-1;
+            table[(*it).second.to_node] = unsigned(nodes.size())-1;
         }
     }
 
@@ -184,7 +184,7 @@ void neuralnet::import_fromfile(std::string filename){
             if (type == 3)
                 bias_nodes.push_back(i);
 
-            nodes[i].type = type;
+            nodes[i].type = int(type);
 
             o >> input_size;
             for (unsigned int j=0; j<input_size; j++){

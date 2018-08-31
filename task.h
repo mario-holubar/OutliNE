@@ -6,19 +6,22 @@
 class Task {
 public:
     Task();
+    virtual ~Task() = 0;
     virtual void draw(QPainter *painter) = 0;
 };
 
 class Individual {
 public:
     Task *task;
-    int seed;
+    unsigned int seed;
 
     Individual();
+    virtual ~Individual() = 0;
     virtual void init() = 0;
     virtual void step(std::vector<double> inputs) = 0;
     virtual float getFitness() = 0;
     virtual QPointF getPos() = 0;
+    virtual std::vector<double> getInputs() = 0;
     virtual void draw(QPainter *painter)= 0;
 };
 

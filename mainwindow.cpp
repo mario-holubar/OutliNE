@@ -8,7 +8,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      experiment(240) {
+      experiment(128) {
     ui->setupUi(this);
 
     initMenu();
@@ -20,39 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
     play = false;
 
     newGen();
-
-    /*for (int i = 0; i < 8; i++) {
-        unsigned int total = 0;
-        for (auto s = p.species.begin(); s != p.species.end(); s++) {
-            for (size_t i = 0; i < (*s).genomes.size(); i++) {
-                ann::neuralnet n;
-                neat::genome& g = (*s).genomes[i];
-                n.from_genome(g);
-
-                std::vector<double> input(2, 0.0);
-                std::vector<double> output(1, 0.0);
-                unsigned int fitness = 0;
-
-                TestIndividual *a = experiment.getIndividual(i);
-                for (int t = 0; t < experiment.getTMax() / 8; t++) {
-                    input[0] = a->x / 50.0f;
-                    input[1] = a->target / 50.0f;
-                    n.evaluate(input, output);
-                    //qDebug() << input[0] << input[1];
-                    //qDebug() << output[0] << output[1];
-                    //qDebug() << "";
-                    a->step(output);
-                }
-                fitness = a->getFitness();
-
-                total += fitness;
-                g.fitness = fitness;
-            }
-        }
-        qDebug() << "Generation" << i + 1 << ":" << total / 240;
-        p.new_generation();
-        experiment.newGen();
-    }*/
 }
 
 void MainWindow::initMenu() {
@@ -72,9 +39,9 @@ void MainWindow::initConnections() {
 void MainWindow::initViews() {
     ui->mainView->setExperiment(&experiment);
 
-    ui->progressBar->setMaximum(experiment.getTMax());
+    ui->progressBar->setMaximum(int(experiment.getTMax()));
 
-    instanceTableModel = new InstanceModel(this, experiment.getPopSize());
+    instanceTableModel = new InstanceModel(this, int(experiment.getPopSize()));
     proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(instanceTableModel);
     proxyModel->setDynamicSortFilter(true);
@@ -97,12 +64,12 @@ void MainWindow::update() {
         experiment.stepAll();
     }
     ui->mainView->update();
-    ui->progressBar->setValue(experiment.getT());
+    ui->progressBar->setValue(int(experiment.getT()));
     updateInstanceTable();
 }
 
 void MainWindow::updateInstanceTable() {
-    for (unsigned int i = 0; i < experiment.getPopSize(); i++) {
+    for (int i = 0; i < int(experiment.getPopSize()); i++) {
         instanceTableModel->fitness[i] = experiment.getIndividual(i)->getFitness();
     }
     proxyModel->invalidate();
@@ -113,7 +80,7 @@ void MainWindow::newGen() {
     experiment.newGen();
     ui->tableView->clearSelection();
     updateInstanceTable();
-    ui->progressBar->setValue(experiment.getT());
+    ui->progressBar->setValue(int(experiment.getT()));
     if (play) playPause();
     ui->mainView->update();
 }
@@ -122,7 +89,7 @@ void MainWindow::playPause() {
     play = !play;
     if (experiment.getT() >= experiment.getTMax()) play = false;
     if (play) {
-        timer->start(1000.0f / 60.0f);
+        timer->start(1000 / 60);
         ui->playButton->setText("◼");
     }
     else {
@@ -135,14 +102,14 @@ void MainWindow::evaluateGen() {
     experiment.evaluateGen();
     updateInstanceTable();
     ui->mainView->update();
-    ui->progressBar->setValue(experiment.getT());
+    ui->progressBar->setValue(int(experiment.getT()));
 }
 
 void MainWindow::resetGen() {
     experiment.resetGen();
     updateInstanceTable();
     ui->mainView->update();
-    ui->progressBar->setValue(experiment.getT());
+    ui->progressBar->setValue(int(experiment.getT()));
 }
 
 void MainWindow::setSelected(const QItemSelection &selection) {

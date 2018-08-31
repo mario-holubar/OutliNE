@@ -1,5 +1,5 @@
-#ifndef __TINYNEAT_HPP__
-#define __TINYNEAT_HPP__
+#ifndef TINYNEAT_H
+#define TINYNEAT_H
 
 /* custom defines:
  * INCLUDE_ENABLED_GENES_IF_POSSIBLE  - if during experiment you found that too many genes are
@@ -40,7 +40,7 @@ namespace neat {
 	} mutation_rate_container;
 
 	typedef struct {
-		unsigned int population = 240;
+        unsigned int population = 240;
 		double delta_disjoint = 2.0;
 		double delta_weights = 0.4;
 		double delta_threshold = 1.3;
@@ -59,9 +59,9 @@ namespace neat {
 	} network_info_container;
 
 	typedef struct {	
-		unsigned int innovation_num = -1;
-		unsigned int from_node = -1;
-		unsigned int to_node = -1;
+        unsigned int innovation_num = unsigned(-1);
+        unsigned int from_node = unsigned(-1);
+        unsigned int to_node = unsigned(-1);
 		double weight = 0.0;
 		bool enabled = true;
 	} gene;

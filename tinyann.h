@@ -1,5 +1,5 @@
-#ifndef _ARTIFICIAL_NEURAL_NETWORK_HPP_
-#define _ARTIFICIAL_NEURAL_NETWORK_HPP_
+#ifndef ARTIFICIAL_NEURAL_NETWORK_H
+#define ARTIFICIAL_NEURAL_NETWORK_H
 
 #include <unordered_map>
 #include <cmath>

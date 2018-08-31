@@ -12,17 +12,16 @@
 class Experiment {
 private:
     unsigned int popSize;
-    unsigned int tMax;
-
     unsigned int currentGen;
     unsigned int t;
+    unsigned int tMax;
     int selected;
-    TestTask task;
-    QVector<TestIndividual> individuals;
+    Task *task;
+    QVector<Individual *> individuals;
     neat::pool pool;
 public:
     Experiment(unsigned int e_popSize);
-    TestIndividual *getIndividual(int i);
+    Individual *getIndividual(int i);
     void stepAll();
     void resetGen();
     void newGen();
