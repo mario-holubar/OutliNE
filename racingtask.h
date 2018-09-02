@@ -34,7 +34,7 @@ public:
     float getFitness();
     QPointF getPos();
     std::vector<double> getInputs();
-    void draw(QPainter *painter);
+    void draw(QPainter *painter, bool selected);
 };
 
 #endif // RACINGTASK_H

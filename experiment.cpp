@@ -77,12 +77,23 @@ void Experiment::newGen() {
     }
 
     pool.new_generation();
-    for (unsigned int i = 0; i < popSize; i++) {
+    /*for (unsigned int i = 0; i < popSize; i++) {
         getIndividual(int(i))->seed = unsigned(qrand());
+    }*/
+    int ind = 0;
+    int species = 0;
+    for (auto s = pool.species.begin(); s != pool.species.end(); s++) { // int counter?
+        for (size_t i = 0; i < (*s).genomes.size(); i++) {
+            getIndividual(ind)->seed = unsigned(qrand());
+            getIndividual(ind)->species = species;
+            ind++;
+        }
+        species++;
     }
+
     resetGen();
     currentGen++;
-    newMap();
+    //newMap();
     evaluateGen();
 }
 
@@ -132,22 +143,32 @@ void Experiment::draw(QPainter *painter) {
     painter->setBrush(QBrush(QColor(8, 8, 8)));
     task->draw(painter);
 
-    pen.setColor(QColor(128, 128, 128, 128));
+    /*pen.setColor(QColor(128, 128, 128, 128));
     painter->setPen(pen);
     painter->setBrush(QBrush(QColor(32, 32, 32, 128)));
     for (int i = 0; i < int(popSize); i++) {
         if (i == selected) continue;
         painter->setTransform(transform);
         getIndividual(i)->draw(painter);
+    }*/
+    for (int i = 0; i < int(popSize); i++) {
+        if (i == selected) continue;
+        int hue = getIndividual(i)->species * 256 / int(pool.species.size());
+        pen.setColor(QColor::fromHsv(hue, 255, 128, 128));
+        painter->setPen(pen);
+        painter->setBrush(QBrush(QColor::fromHsv(hue, 255, 32, 128)));
+        painter->setTransform(transform);
+        getIndividual(i)->draw(painter, false);
     }
 
     if (selected != -1) {
-        pen.setColor(Qt::white);
+        int hue = getIndividual(selected)->species * 256 / int(pool.species.size());
+        pen.setColor(QColor::fromHsv(hue, 255, 255, 255));
         pen.setWidth(2);
         painter->setPen(pen);
-        painter->setBrush(QBrush(QColor(64, 64, 64, 128)));
+        painter->setBrush(QBrush(QColor::fromHsv(hue, 255, 128, 255)));
         painter->setTransform(transform);
-        getIndividual(selected)->draw(painter);
+        getIndividual(selected)->draw(painter, true);
     }
 
     painter->setTransform(transform);
@@ -159,12 +180,12 @@ void Experiment::drawNet(QPainter *painter) {
     ann::neuralnet n;
     for (auto s = pool.species.begin(); s != pool.species.end(); s++) {
         for (size_t i = 0; i < (*s).genomes.size(); i++) {
-            ind--;
             if (!ind) {
                 neat::genome& g = (*s).genomes[i];
                 n.from_genome(g);
                 break;
             }
+            ind--;
         }
         if (!ind) break;
     }
@@ -172,12 +193,9 @@ void Experiment::drawNet(QPainter *painter) {
     painter->setPen(pen);
     painter->setBrush(QBrush(QColor(32, 32, 32, 128)));
     for (size_t i = 0; i < n.nodes.size(); i++) {
-        painter->drawEllipse(QRect(int(i) * 5, 0, 20, 20));
-        for (int j = 0; j < int(n.nodes[i].in_nodes.size()); j++) {
-            painter->drawText(QPointF(0, 0), "WIP");
-            // DRAWING
-        }
+        painter->drawEllipse(QRect(0, int((float(i) - float(n.nodes.size()) / 2) * 25), 20, 20));
     }
+    painter->drawText(QPointF(-25, 0), "WIP");
 }
 
 unsigned int Experiment::getPopSize() {

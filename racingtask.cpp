@@ -26,7 +26,7 @@ RacingTask::RacingTask() {
         double a = path.angleAtPercent(i);
         QPointF newL = p + QPointF(qCos(qDegreesToRadians(a + 90)) * trackWidth, -qSin(qDegreesToRadians(a + 90)) * trackWidth);
         QPointF newR = p + QPointF(qCos(qDegreesToRadians(a - 90)) * trackWidth, -qSin(qDegreesToRadians(a - 90)) * trackWidth);
-        track.prepend(QLineF(newL, lastL));
+        track.append(QLineF(newL, lastL));
         track.append(QLineF(lastR, newR));
         QPolygonF c;
         c << lastL << lastR << newR << newL << lastL;
@@ -85,8 +85,9 @@ double RacingIndividual::collisionDist(double angle) {
 }
 
 void RacingIndividual::step(std::vector<double> inputs) {
-    speed += inputs[0] / 10;
-    angle -= inputs[1] * 2;
+    if (float(inputs[0]) * 15 > speed) speed += (float(inputs[0] * 15) - speed) * 0.05f;
+    else speed += (float(inputs[0] * 15) - speed) * 0.35f;
+    angle -= inputs[1] * 3;
     x += qCos(qDegreesToRadians(double(angle))) * double(speed);
     y -= qSin(qDegreesToRadians(double(angle))) * double(speed);
 
@@ -97,11 +98,12 @@ void RacingIndividual::step(std::vector<double> inputs) {
     }
 
     QPolygonF poly = c[checkpoint - 1];
-    if (!poly.containsPoint(getPos(), Qt::OddEvenFill)) {
-        QPointF center = (poly[0] + poly[1] + poly[2] + poly[3]) / 4;
+    if (checkpoint < c.size() - 1 && !poly.containsPoint(getPos(), Qt::OddEvenFill)) {
+        QPointF center = (poly[0] + poly[1]) / 2;
         x = float(center.x());
         y = float(center.y());
         speed = 0.0f;
+        angle = float(QLineF(poly[0], poly[1]).angle() + 90.0);
         fitness -= 4;
     }
 }
@@ -123,18 +125,21 @@ std::vector<double> RacingIndividual::getInputs() {
     return inputs;
 }
 
-void RacingIndividual::draw(QPainter *painter) {
+void RacingIndividual::draw(QPainter *painter, bool selected) {
+    QPen pen = painter->pen();
     painter->translate(double(x), double(y));
     painter->rotate(double(-angle));
-    painter->drawRect(-15, -10, 30, 20);
-
-    if (painter->pen().width() == 2) {
-        QPen pen = painter->pen();
-        pen.setWidth(0);
-        pen.setColor(QColor(255, 255, 255, 128));
-        painter->setPen(pen);
+    if (selected) {
+        QPen rayPen = painter->pen();
+        rayPen.setWidth(0);
+        QColor c = pen.color();
+        c.setAlpha(32);
+        rayPen.setColor(c);
+        painter->setPen(rayPen);
         for (int i = 0; i < rays.size(); i++) {
             painter->drawLine(QLineF::fromPolar(collisionDist(double(angle + rays[i])), double(rays[i])));
         }
+        painter->setPen(pen);
     }
+    painter->drawRect(-15, -10, 30, 20);
 }

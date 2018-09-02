@@ -101,7 +101,9 @@ void MainWindow::newExperiment() {
 
 void MainWindow::playPause() {
     play = !play;
-    if (experiment.getT() >= experiment.getTMax()) play = false;
+    if (play && experiment.getT() >= experiment.getTMax()) {
+        experiment.resetGen();
+    }
     if (play) {
         timer->start(1000 / 60);
         ui->button_play->setText("◼");
