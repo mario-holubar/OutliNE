@@ -30,8 +30,10 @@ namespace ann {
 	};
 
 	class neuralnet {
-	private:
+    private:
+    public:
 		std::vector<neuron> nodes;
+    private:
 		bool recurrent = false;
 
 		std::vector<size_t> input_nodes;

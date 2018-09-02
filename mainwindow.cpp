@@ -8,7 +8,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      experiment(128) {
+      experiment(64) {
     ui->setupUi(this);
 
     initMenu();
@@ -23,21 +23,24 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::initMenu() {
-    ui->menuView->addAction(ui->settings->toggleViewAction());
+    ui->menuView->addAction(ui->control->toggleViewAction());
     ui->menuView->addAction(ui->performance->toggleViewAction());
     ui->menuView->addAction(ui->instances->toggleViewAction());
     ui->menuView->addAction(ui->net->toggleViewAction());
 }
 
 void MainWindow::initConnections() {
-    connect(ui->pushButton_2, SIGNAL(released()), SLOT(newGen()));
-    connect(ui->playButton, SIGNAL(released()), SLOT(playPause()));
-    connect(ui->resetButton, SIGNAL(released()), SLOT(resetGen()));
-    connect(ui->evaluateButton, SIGNAL(released()), SLOT(evaluateGen()));
+    connect(ui->button_newGen, SIGNAL(released()), SLOT(newGen()));
+    connect(ui->button_newMap, SIGNAL(released()), SLOT(newMap()));
+    connect(ui->button_newExperiment, SIGNAL(released()), SLOT(newExperiment()));
+    connect(ui->button_play, SIGNAL(released()), SLOT(playPause()));
+    connect(ui->button_reset, SIGNAL(released()), SLOT(resetGen()));
+    connect(ui->button_evaluate, SIGNAL(released()), SLOT(evaluateGen()));
 }
 
 void MainWindow::initViews() {
     ui->mainView->setExperiment(&experiment);
+    ui->netView->setExperiment(&experiment);
 
     ui->progressBar->setMaximum(int(experiment.getTMax()));
 
@@ -85,16 +88,27 @@ void MainWindow::newGen() {
     ui->mainView->update();
 }
 
+void MainWindow::newMap() {
+    experiment.newMap();
+    update();
+}
+
+void MainWindow::newExperiment() {
+    MainWindow *n = new MainWindow();
+    n->show();
+    close();
+}
+
 void MainWindow::playPause() {
     play = !play;
     if (experiment.getT() >= experiment.getTMax()) play = false;
     if (play) {
         timer->start(1000 / 60);
-        ui->playButton->setText("◼");
+        ui->button_play->setText("◼");
     }
     else {
         timer->stop();
-        ui->playButton->setText("►");
+        ui->button_play->setText("►");
     }
 }
 
@@ -119,4 +133,5 @@ void MainWindow::setSelected(const QItemSelection &selection) {
         experiment.setSelected(realSelection.indexes().at(0).row());
     }
     ui->mainView->update();
+    ui->netView->update();
 }

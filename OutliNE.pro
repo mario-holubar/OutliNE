@@ -32,7 +32,9 @@ SOURCES += \
     task.cpp \
     testtask.cpp \
     tinyann.cpp \
-    tinyneat.cpp
+    tinyneat.cpp \
+    netview.cpp \
+    racingtask.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,7 +45,9 @@ HEADERS += \
     instancemodel.h \
     testtask.h \
     tinyann.h \
-    tinyneat.h
+    tinyneat.h \
+    netview.h \
+    racingtask.h
 
 FORMS += \
     mainwindow.ui

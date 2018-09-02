@@ -5,7 +5,6 @@
 #include <QGraphicsScene>
 #include <QPainter>
 #include <QItemSelectionModel>
-#include "testtask.h"
 #include "tinyneat.h"
 #include "tinyann.h"
 
@@ -21,12 +20,15 @@ private:
     neat::pool pool;
 public:
     Experiment(unsigned int e_popSize);
+    ~Experiment();
     Individual *getIndividual(int i);
     void stepAll();
     void resetGen();
     void newGen();
+    void newMap();
     void evaluateGen();
     void draw(QPainter *painter);
+    void drawNet(QPainter *painter);
     unsigned int getPopSize();
     unsigned int getTMax();
     unsigned int getCurrentGen();

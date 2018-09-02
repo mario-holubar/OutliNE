@@ -1,6 +1,7 @@
 #include "experiment.h"
 #include <QTime>
 #include <QDebug>
+#include "racingtask.h"
 
 Experiment::Experiment(unsigned int e_popSize)
     : popSize(e_popSize),
@@ -8,17 +9,23 @@ Experiment::Experiment(unsigned int e_popSize)
       t(0),
       tMax(240),
       selected(-1),
-      task(new TestTask),
+      task(new RacingTask),
       individuals(int(e_popSize)),
-      pool(2, 1, 1, false) {
+      pool(3, 2, 1, false) {
     neat::speciating_parameter_container spec;
     spec.population = popSize;
     pool.speciating_parameters = spec;
     pool.new_generation();
 
     for (int i = 0; i < int(popSize); i++) {
-        individuals[i] = new TestIndividual();
+        individuals[i] = new RacingIndividual();
+        individuals[i]->task = task;
     }
+}
+
+Experiment::~Experiment() {
+    foreach(Individual *i, individuals) delete i;
+    delete task;
 }
 
 Individual *Experiment::getIndividual(int i) {
@@ -35,7 +42,7 @@ void Experiment::stepAll() {
             n.from_genome(g);
             Individual *a = getIndividual(ind++);
             std::vector<double> input = a->getInputs();
-            std::vector<double> output(1, 0.0);
+            std::vector<double> output(pool.network_info.output_size, 0.0);
             n.evaluate(input, output);
             a->step(output);
             unsigned int fitness = unsigned(a->getFitness());
@@ -53,12 +60,38 @@ void Experiment::resetGen() {
 }
 
 void Experiment::newGen() {
-    if (t < tMax) evaluateGen();
+    if (currentGen > 0) {
+        if (t < tMax) evaluateGen();
+        int max = 0;
+        int min = INT_MAX;
+        int avg = 0;
+        for (int i = 0; i < int(popSize); i++) {
+            int f = int(individuals[i]->getFitness());
+            avg += f;
+            if (f < min) min = f;
+            if (f > max) max = f;
+        }
+        avg = avg / int(popSize);
+        qDebug() << "Generation" << currentGen << "concluded.";
+        qDebug() << "Min:" << min << ", Avg:" << avg << ", Max:" << max;
+    }
+
     pool.new_generation();
     for (unsigned int i = 0; i < popSize; i++) {
         getIndividual(int(i))->seed = unsigned(qrand());
     }
     resetGen();
+    currentGen++;
+    newMap();
+    evaluateGen();
+}
+
+void Experiment::newMap() {
+    delete task;
+    task = new RacingTask;
+    for (int i = 0; i < int(popSize); i++) {
+        individuals[i]->task = task;
+    }
 }
 
 void Experiment::evaluateGen() {
@@ -72,7 +105,7 @@ void Experiment::evaluateGen() {
             ann::neuralnet n;
             neat::genome& g = (*s).genomes[i];
             n.from_genome(g);
-            std::vector<double> output(1, 0.0);
+            std::vector<double> output(pool.network_info.output_size, 0.0);
             Individual *a = getIndividual(ind++);
             for (int tt = int(t); tt < int(tMax); tt++) {
                 n.evaluate(a->getInputs(), output);
@@ -118,6 +151,33 @@ void Experiment::draw(QPainter *painter) {
     }
 
     painter->setTransform(transform);
+}
+
+void Experiment::drawNet(QPainter *painter) {
+    if (selected == -1) return;
+    int ind = selected;
+    ann::neuralnet n;
+    for (auto s = pool.species.begin(); s != pool.species.end(); s++) {
+        for (size_t i = 0; i < (*s).genomes.size(); i++) {
+            ind--;
+            if (!ind) {
+                neat::genome& g = (*s).genomes[i];
+                n.from_genome(g);
+                break;
+            }
+        }
+        if (!ind) break;
+    }
+    QPen pen(QColor(128, 128, 128, 128));
+    painter->setPen(pen);
+    painter->setBrush(QBrush(QColor(32, 32, 32, 128)));
+    for (size_t i = 0; i < n.nodes.size(); i++) {
+        painter->drawEllipse(QRect(int(i) * 5, 0, 20, 20));
+        for (int j = 0; j < int(n.nodes[i].in_nodes.size()); j++) {
+            painter->drawText(QPointF(0, 0), "WIP");
+            // DRAWING
+        }
+    }
 }
 
 unsigned int Experiment::getPopSize() {
