@@ -18,6 +18,7 @@ private:
     Task *task;
     QVector<Individual *> individuals;
     neat::pool pool;
+    std::vector<double> outputs; //debug
 public:
     Experiment(unsigned int e_popSize);
     ~Experiment();

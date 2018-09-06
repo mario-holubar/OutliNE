@@ -36,6 +36,7 @@ void MainWindow::initConnections() {
     connect(ui->button_play, SIGNAL(released()), SLOT(playPause()));
     connect(ui->button_reset, SIGNAL(released()), SLOT(resetGen()));
     connect(ui->button_evaluate, SIGNAL(released()), SLOT(evaluateGen()));
+    connect(ui->button_step, SIGNAL(released()), SLOT(step()));
 }
 
 void MainWindow::initViews() {
@@ -106,7 +107,7 @@ void MainWindow::playPause() {
     }
     if (play) {
         timer->start(1000 / 60);
-        ui->button_play->setText("◼");
+        ui->button_play->setText("◼"); // Resets widget sizes unless one of them has been moved
     }
     else {
         timer->stop();
@@ -123,6 +124,13 @@ void MainWindow::evaluateGen() {
 
 void MainWindow::resetGen() {
     experiment.resetGen();
+    updateInstanceTable();
+    ui->mainView->update();
+    ui->progressBar->setValue(int(experiment.getT()));
+}
+
+void MainWindow::step() {
+    experiment.stepAll();
     updateInstanceTable();
     ui->mainView->update();
     ui->progressBar->setValue(int(experiment.getT()));

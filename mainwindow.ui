@@ -204,19 +204,6 @@ QTableView::item:selected {
        <property name="spacing">
         <number>0</number>
        </property>
-       <item row="2" column="0">
-        <widget class="QProgressBar" name="progressBar">
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-         <property name="format">
-          <string> %v / %m </string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="MainView" name="mainView">
          <property name="styleSheet">
@@ -245,6 +232,19 @@ QTableView::item:selected {
          </property>
          <property name="viewportUpdateMode">
           <enum>QGraphicsView::NoViewportUpdate</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QProgressBar" name="progressBar">
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="format">
+          <string> %v / %m </string>
          </property>
         </widget>
        </item>
@@ -315,6 +315,13 @@ font: 8pt;</string>
             </property>
             <property name="checkable">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="button_step">
+            <property name="text">
+             <string>🞂</string>
             </property>
            </widget>
           </item>

@@ -42,6 +42,7 @@ private slots:
     void playPause();
     void evaluateGen();
     void resetGen();
+    void step();
     void setSelected(const QItemSelection &selection);
 };
 

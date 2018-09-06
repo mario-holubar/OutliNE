@@ -20,13 +20,14 @@ public:
     RacingIndividual();
     ~RacingIndividual();
 
-    const double rayLength = 500.0;
+    const double rayLength = 750.0;
     QVector<float> rays;
 
     float x, y;
     float speed, angle;
     float fitness;
     int checkpoint;
+    int respawnTimer;
 
     void init();
     double collisionDist(double angle);

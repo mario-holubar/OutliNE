@@ -11,7 +11,8 @@ Experiment::Experiment(unsigned int e_popSize)
       selected(-1),
       task(new RacingTask),
       individuals(int(e_popSize)),
-      pool(3, 2, 1, false) {
+      pool(3, 2, 1, false),
+      outputs(2) {
     neat::speciating_parameter_container spec;
     spec.population = popSize;
     pool.speciating_parameters = spec;
@@ -47,6 +48,7 @@ void Experiment::stepAll() {
             a->step(output);
             unsigned int fitness = unsigned(a->getFitness());
             g.fitness = fitness;
+            if (ind - 1 == selected) outputs = output;
         }
     }
     t++;
@@ -124,6 +126,7 @@ void Experiment::evaluateGen() {
             }
             unsigned int fitness = unsigned(a->getFitness());
             g.fitness = fitness;
+            if (ind - 1 == selected) outputs = output;
         }
     }
     t = tMax;
@@ -169,6 +172,25 @@ void Experiment::draw(QPainter *painter) {
         painter->setBrush(QBrush(QColor::fromHsv(hue, 255, 128, 255)));
         painter->setTransform(transform);
         getIndividual(selected)->draw(painter, true);
+
+        // Lags one frame behind
+        /*painter->resetTransform();
+        QPen debug;
+        debug.setColor(QColor(Qt::white));
+        painter->setPen(debug);
+        painter->drawLine(QLine(70, 20, 70, 120));
+        painter->drawLine(QLine(20, 70, 120, 70));
+        painter->drawLine(QLine(66, 70 - int(outputs[0] * 50), 74, 70 - int(outputs[0] * 50)));
+        painter->drawLine(QLine(70 + int(outputs[1] * 50), 66, 70 + int(outputs[1] * 50), 74));*/
+        QPen debug;
+        debug.setColor(QColor(Qt::white));
+        painter->setPen(debug);
+        //painter->drawLine(QLine(-10, 0, 10, 0));
+        //painter->drawLine(QLine(0, -10, 0, 10));
+        painter->drawLine(QLine(int(outputs[0] * 10), -2, int(outputs[0] * 10), 2));
+        painter->drawLine(QLine(-2, int(outputs[1] * 10), 2, int(outputs[1] * 10)));
+        //painter->drawLine(QLine(66, 70 - int(outputs[0] * 50), 74, 70 - int(outputs[0] * 50)));
+        //painter->drawLine(QLine(70 + int(outputs[1] * 50), 66, 70 + int(outputs[1] * 50), 74));
     }
 
     painter->setTransform(transform);

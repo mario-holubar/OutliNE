@@ -8,7 +8,7 @@ RacingTask::RacingTask() {
     QPainterPath path = QPainterPath(QPointF(0.0, 0.0));
     QPointF offset(0.0, -200.0);
     float lastAngle = 90.0f;
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 16; i++) {
         float dist = float(qrand()) / RAND_MAX * 100.0f + 100.0f;
         float angle = lastAngle + float(qrand()) / RAND_MAX * 180.0f - 90.0f;
         QPointF newOffset(qCos(qDegreesToRadians(double(angle))) * double(dist), -qSin(qDegreesToRadians(double(angle))) * double(dist));
@@ -68,6 +68,7 @@ void RacingIndividual::init() {
     x = y = speed = fitness = 0.0f;
     angle = 90.0f;
     checkpoint = 1;
+    respawnTimer = -1;
 }
 
 double RacingIndividual::collisionDist(double angle) {
@@ -85,31 +86,50 @@ double RacingIndividual::collisionDist(double angle) {
 }
 
 void RacingIndividual::step(std::vector<double> inputs) {
-    if (float(inputs[0]) * 15 > speed) speed += (float(inputs[0] * 15) - speed) * 0.05f;
-    else speed += (float(inputs[0] * 15) - speed) * 0.35f;
-    angle -= inputs[1] * 3;
+    QVector<QPolygonF> c = dynamic_cast<RacingTask *>(task)->checkpoints;
+    if (respawnTimer > 0) {
+        respawnTimer--;
+        return;
+    }
+    else if (respawnTimer == 0) {
+        QPolygonF poly = c[checkpoint - 1];
+        QPointF center = (poly[0] + poly[1]) / 2;
+        x = float(center.x());
+        y = float(center.y());
+        speed = 0.0f;
+        angle = float(QLineF(poly[0], poly[1]).angle() + 90.0);
+        respawnTimer--;
+    }
+
+    //inputs[0] = inputs[0] / 2 + 0.5;
+    if (float(inputs[0]) * 20 > speed) speed += (float(inputs[0] * 20) - speed) * 0.035f;
+    else speed += (float(inputs[0] * 20) - speed) * 0.1f;
+    //if (speed < 0) speed = 0;
+    //if (inputs[0] > 0.0) speed += (20 - speed) * 0.035f * float(inputs[0]);
+    //else speed += speed * 0.35f * float(inputs[0]);
+
+    //angle -= inputs[1] * 2;
+    //angle -= 2;
+    angle -= float(inputs[1]) * speed / (qMax(speed * speed * 0.5f, 40.0f) * 2 * float(M_PI)) * 360 * 0.5f;
+
     x += qCos(qDegreesToRadians(double(angle))) * double(speed);
     y -= qSin(qDegreesToRadians(double(angle))) * double(speed);
 
-    QVector<QPolygonF> c = dynamic_cast<RacingTask *>(task)->checkpoints;
-    if (c[checkpoint % 64].containsPoint(getPos(), Qt::OddEvenFill)) {
+    if (c[checkpoint % c.size()].containsPoint(getPos(), Qt::OddEvenFill)) { // can cause phantom car crashes if they skip a checkpoint
         checkpoint++;
         fitness++;
     }
 
     QPolygonF poly = c[checkpoint - 1];
     if (checkpoint < c.size() - 1 && !poly.containsPoint(getPos(), Qt::OddEvenFill)) {
-        QPointF center = (poly[0] + poly[1]) / 2;
-        x = float(center.x());
-        y = float(center.y());
-        speed = 0.0f;
-        angle = float(QLineF(poly[0], poly[1]).angle() + 90.0);
-        fitness -= 4;
+        //checkpoint = qMax(checkpoint - 2, 2);
+        fitness -= 4; // punish later generations more?
+        respawnTimer = 60;
     }
 }
 
 float RacingIndividual::getFitness() {
-    return fitness > 0 ? fitness : 0;
+    return qMax(fitness, 0.0f);
 }
 
 QPointF RacingIndividual::getPos() {
@@ -121,11 +141,12 @@ std::vector<double> RacingIndividual::getInputs() {
     for (int i = 0; i < rays.size(); i++) {
         inputs.push_back(double(collisionDist(double(angle + rays[i]))) / rayLength);
     }
-    inputs.push_back(double(speed));
+    inputs.push_back(double(speed) / 10.0);
     return inputs;
 }
 
 void RacingIndividual::draw(QPainter *painter, bool selected) {
+    //if (respawnTimer) return;
     QPen pen = painter->pen();
     painter->translate(double(x), double(y));
     painter->rotate(double(-angle));
@@ -142,4 +163,10 @@ void RacingIndividual::draw(QPainter *painter, bool selected) {
         painter->setPen(pen);
     }
     painter->drawRect(-15, -10, 30, 20);
+    if (selected) {
+        painter->setPen(QPen(QColor(Qt::red)));
+        painter->drawRect(QRect(-10, -3, 20, 6));
+        painter->setBrush(QBrush(QColor(Qt::green)));
+        painter->drawRect(QRect(-10, -3, int(speed), 6));
+    }
 }
