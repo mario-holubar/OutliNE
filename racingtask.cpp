@@ -8,7 +8,7 @@ RacingTask::RacingTask() {
     QPainterPath path = QPainterPath(QPointF(0.0, 0.0));
     QPointF offset(0.0, -200.0);
     float lastAngle = 90.0f;
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 15; i++) {
         float dist = float(qrand()) / RAND_MAX * 100.0f + 100.0f;
         float angle = lastAngle + float(qrand()) / RAND_MAX * 180.0f - 90.0f;
         QPointF newOffset(qCos(qDegreesToRadians(double(angle))) * double(dist), -qSin(qDegreesToRadians(double(angle))) * double(dist));
@@ -21,7 +21,7 @@ RacingTask::RacingTask() {
     track.append(QLineF(-trackWidth, 50, trackWidth, 50));
     QPointF lastL = QPointF(-trackWidth, 50);
     QPointF lastR = QPointF(trackWidth, 50);
-    for (double i = 0.0; i < 1.0; i += 1.0 / 64) {
+    for (double i = 0.0; i < 1.0; i += 1.0 / 50) {
         QPointF p = path.pointAtPercent(i);
         double a = path.angleAtPercent(i);
         QPointF newL = p + QPointF(qCos(qDegreesToRadians(a + 90)) * trackWidth, -qSin(qDegreesToRadians(a + 90)) * trackWidth);
@@ -121,11 +121,13 @@ void RacingIndividual::step(std::vector<double> inputs) {
     }
 
     QPolygonF poly = c[checkpoint - 1];
-    if (checkpoint < c.size() - 1 && !poly.containsPoint(getPos(), Qt::OddEvenFill)) {
+    if (checkpoint < c.size() && !poly.containsPoint(getPos(), Qt::OddEvenFill)) {
         //checkpoint = qMax(checkpoint - 2, 2);
         fitness -= 4; // punish later generations more?
         respawnTimer = 60;
     }
+
+    //fitness += speed / 100;
 }
 
 float RacingIndividual::getFitness() {

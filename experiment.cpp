@@ -35,22 +35,18 @@ Individual *Experiment::getIndividual(int i) {
 
 void Experiment::stepAll() {
     if (t >= tMax) return;
-    int ind = 0;
-    for (auto s = pool.species.begin(); s != pool.species.end(); s++) {
-        for (size_t i = 0; i < (*s).genomes.size(); i++) {
-            ann::neuralnet n;
-            neat::genome& g = (*s).genomes[i];
-            n.from_genome(g);
-            Individual *a = getIndividual(ind++);
-            std::vector<double> input = a->getInputs();
+    ann::neuralnet n;
+        auto genomes = pool.get_genomes();
+        for (unsigned int i = 0; i < popSize; i++) {
+            n.from_genome(*(genomes[i].second));
             std::vector<double> output(pool.network_info.output_size, 0.0);
-            n.evaluate(input, output);
+            Individual *a = getIndividual(int(i));
+            n.evaluate(a->getInputs(), output);
             a->step(output);
             unsigned int fitness = unsigned(a->getFitness());
-            g.fitness = fitness;
-            if (ind - 1 == selected) outputs = output;
+            genomes[i].second->fitness = fitness;
+            if (int(i) == selected) outputs = output;
         }
-    }
     t++;
 }
 
@@ -108,37 +104,33 @@ void Experiment::newMap() {
 }
 
 void Experiment::evaluateGen() {
-    /*while(t < tMax - 1) {
+    /*while(t < tMax) {
         stepAll();
-    }
-    stepAll();*/
-    int ind = 0;
-    for (auto s = pool.species.begin(); s != pool.species.end(); s++) {
-        for (size_t i = 0; i < (*s).genomes.size(); i++) {
-            ann::neuralnet n;
-            neat::genome& g = (*s).genomes[i];
-            n.from_genome(g);
-            std::vector<double> output(pool.network_info.output_size, 0.0);
-            Individual *a = getIndividual(ind++);
-            for (int tt = int(t); tt < int(tMax); tt++) {
-                n.evaluate(a->getInputs(), output);
-                a->step(output);
-            }
-            unsigned int fitness = unsigned(a->getFitness());
-            g.fitness = fitness;
-            if (ind - 1 == selected) outputs = output;
+    }*/
+    ann::neuralnet n;
+    auto genomes = pool.get_genomes();
+    for (unsigned int i = 0; i < popSize; i++) {
+        n.from_genome(*(genomes[i].second));
+        std::vector<double> output(pool.network_info.output_size, 0.0);
+        Individual *a = getIndividual(int(i));
+        for (int tt = int(t); tt < int(tMax); tt++) {
+            n.evaluate(a->getInputs(), output);
+            a->step(output);
         }
+        unsigned int fitness = unsigned(a->getFitness());
+        genomes[i].second->fitness = fitness;
+        if (int(i) == selected) outputs = output;
     }
     t = tMax;
 }
 
 void Experiment::draw(QPainter *painter) {
     QTransform transform = painter->transform();
-    if (selected != -1) {
+    /*if (selected != -1) {
         QPointF p = getIndividual(selected)->getPos();
         transform.translate(-p.x(), -p.y());
         painter->setTransform(transform);
-    }
+    }*/
 
     QPen pen(QColor(128, 128, 128));
     pen.setCosmetic(true);
@@ -173,7 +165,6 @@ void Experiment::draw(QPainter *painter) {
         painter->setTransform(transform);
         getIndividual(selected)->draw(painter, true);
 
-        // Lags one frame behind
         /*painter->resetTransform();
         QPen debug;
         debug.setColor(QColor(Qt::white));
@@ -185,12 +176,8 @@ void Experiment::draw(QPainter *painter) {
         QPen debug;
         debug.setColor(QColor(Qt::white));
         painter->setPen(debug);
-        //painter->drawLine(QLine(-10, 0, 10, 0));
-        //painter->drawLine(QLine(0, -10, 0, 10));
         painter->drawLine(QLine(int(outputs[0] * 10), -2, int(outputs[0] * 10), 2));
         painter->drawLine(QLine(-2, int(outputs[1] * 10), 2, int(outputs[1] * 10)));
-        //painter->drawLine(QLine(66, 70 - int(outputs[0] * 50), 74, 70 - int(outputs[0] * 50)));
-        //painter->drawLine(QLine(70 + int(outputs[1] * 50), 66, 70 + int(outputs[1] * 50), 74));
     }
 
     painter->setTransform(transform);
@@ -198,24 +185,18 @@ void Experiment::draw(QPainter *painter) {
 
 void Experiment::drawNet(QPainter *painter) {
     if (selected == -1) return;
-    int ind = selected;
-    ann::neuralnet n;
-    for (auto s = pool.species.begin(); s != pool.species.end(); s++) {
-        for (size_t i = 0; i < (*s).genomes.size(); i++) {
-            if (!ind) {
-                neat::genome& g = (*s).genomes[i];
-                n.from_genome(g);
-                break;
-            }
-            ind--;
-        }
-        if (!ind) break;
-    }
+    ann::neuralnet net;
+    net.from_genome(*(pool.get_genomes()[unsigned(selected)].second));
     QPen pen(QColor(128, 128, 128, 128));
     painter->setPen(pen);
     painter->setBrush(QBrush(QColor(32, 32, 32, 128)));
-    for (size_t i = 0; i < n.nodes.size(); i++) {
-        painter->drawEllipse(QRect(0, int((float(i) - float(n.nodes.size()) / 2) * 25), 20, 20));
+    for (size_t i = 0; i < net.nodes.size(); i++) {
+        ann::neuron n = net.nodes[i];
+        int s = int(n.in_nodes.size());
+        for (int j = 0; j < s; j++) {
+            painter->drawLine(QLine(10, int((float(i) - float(net.nodes.size()) / 2) * 25) + 10, 50, int((float(i) - float(net.nodes.size()) / 2) * 25) - 5 * (s - 1) + 10 * j + 10));
+        }
+        painter->drawEllipse(QRect(0, int((float(i) - float(net.nodes.size()) / 2) * 25), 20, 20));
     }
     painter->drawText(QPointF(-25, 0), "WIP");
 }

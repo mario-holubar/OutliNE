@@ -12,12 +12,16 @@ private:
     Experiment *experiment;
     QItemSelection selected;
     float zoom;
+    QPointF lastPos;
+    QPointF offset;
 public:
     MainView(QWidget *parent = nullptr, Experiment *experiment = nullptr);
     void setExperiment(Experiment *experiment);
 protected:
     void paintEvent(QPaintEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 };
 
 #endif // MAINVIEW_H
