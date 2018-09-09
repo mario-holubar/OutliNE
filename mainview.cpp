@@ -5,7 +5,8 @@ MainView::MainView(QWidget *parent, Experiment *experiment)
     : QGraphicsView(parent),
       experiment(experiment),
       selected(QItemSelection()),
-      zoom(1.0f) {
+      zoom(1.0f),
+      following(false) {
 
 }
 
@@ -19,7 +20,7 @@ void MainView::paintEvent(QPaintEvent *event) {
     QTransform t = transform();
     t.translate(viewport()->size().width() / 2, viewport()->size().height() / 2);
     t.scale(double(zoom), double(zoom));
-    if (experiment->getSelected() != -1) {
+    if (following) {
         offset = -experiment->getIndividual(experiment->getSelected())->getPos();
     }
     t.translate(offset.x(), offset.y());
@@ -35,7 +36,8 @@ void MainView::wheelEvent(QWheelEvent *event) {
 
 void MainView::mousePressEvent(QMouseEvent *event) {
     lastPos = event->pos();
-    experiment->setSelected(-1);
+    //experiment->setSelected(-1);
+    following = false;
 }
 
 void MainView::mouseMoveEvent(QMouseEvent *event) {

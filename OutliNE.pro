@@ -34,7 +34,13 @@ SOURCES += \
     tinyann.cpp \
     tinyneat.cpp \
     netview.cpp \
-    racingtask.cpp
+    racingtask.cpp \
+    SANE/sane-analyze.c \
+    SANE/sane-critic.c \
+    SANE/sane-ea.c \
+    SANE/sane-nn.c \
+    SANE/sane-seed.c \
+    SANE/sane-util.c
 
 HEADERS += \
         mainwindow.h \
@@ -47,7 +53,13 @@ HEADERS += \
     tinyann.h \
     tinyneat.h \
     netview.h \
-    racingtask.h
+    racingtask.h \
+    SANE/sane-critic.h \
+    SANE/sane-ea.h \
+    SANE/sane-nn.h \
+    SANE/sane-seed.h \
+    SANE/sane-util.h \
+    SANE/sane.h
 
 FORMS += \
     mainwindow.ui

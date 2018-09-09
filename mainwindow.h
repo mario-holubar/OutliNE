@@ -18,9 +18,9 @@ class MainWindow : public QMainWindow
 
 private:
     Ui::MainWindow *ui;
-    Experiment experiment;
+    Experiment *experiment;
     QTimer *timer;
-    bool play; //Kind of unnecessary
+    bool play; //Kind of unnecessary (timer) (?)
     InstanceModel *instanceTableModel;
     QSortFilterProxyModel *proxyModel;
 

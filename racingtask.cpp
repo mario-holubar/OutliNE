@@ -47,9 +47,12 @@ QVector<QLineF> *RacingTask::getTrack() {
 void RacingTask::draw(QPainter *painter) {
     QPen pen = painter->pen();
     pen.setCapStyle(Qt::FlatCap);
+    pen.setWidth(2);
     painter->setPen(pen);
     painter->drawLines(track);
-    pen.setColor(QColor(32, 32, 32, 32));
+    pen.setColor(QColor(16, 16, 16));
+    pen.setWidth(0);
+    //pen.setColor(QColor(32, 32, 32, 32));
     painter->setPen(pen);
     for (int i = 0; i < checkpoints.size(); i++) {
         painter->drawConvexPolygon(checkpoints[i]);
@@ -76,13 +79,15 @@ double RacingIndividual::collisionDist(double angle) {
     double rayY = -qSin(qDegreesToRadians(angle)) * rayLength;
     QLineF ray(getPos(), getPos() + QPointF(rayX, rayY));
     QVector<QLineF> *track = dynamic_cast<RacingTask *>(task)->getTrack();
-    QPointF intersection(rayLength, 0.0);
-    for (int i = 0; i < track->size(); i++) {
+    QPointF intersection(99999, 0.0);
+    for (int i = checkpoint * 2 - 1; i < track->size(); i++) {
         if (ray.intersect((*track)[i], &intersection) == QLineF::BoundedIntersection) {
             ray.setP2(intersection);
+            if (ray.length() > rayLength) return rayLength;
+            return ray.length();
         }
     }
-    return ray.length();
+    return rayLength;
 }
 
 void RacingIndividual::step(std::vector<double> inputs) {

@@ -75,12 +75,9 @@ void Experiment::newGen() {
     }
 
     pool.new_generation();
-    /*for (unsigned int i = 0; i < popSize; i++) {
-        getIndividual(int(i))->seed = unsigned(qrand());
-    }*/
     int ind = 0;
     int species = 0;
-    for (auto s = pool.species.begin(); s != pool.species.end(); s++) { // int counter?
+    for (auto s = pool.species.begin(); s != pool.species.end(); s++) {
         for (size_t i = 0; i < (*s).genomes.size(); i++) {
             getIndividual(ind)->seed = unsigned(qrand());
             getIndividual(ind)->species = species;
@@ -135,7 +132,7 @@ void Experiment::draw(QPainter *painter) {
     QPen pen(QColor(128, 128, 128));
     pen.setCosmetic(true);
     painter->setPen(pen);
-    painter->setBrush(QBrush(QColor(8, 8, 8)));
+    painter->setBrush(QBrush(QColor(12, 12, 12)));
     task->draw(painter);
 
     /*pen.setColor(QColor(128, 128, 128, 128));

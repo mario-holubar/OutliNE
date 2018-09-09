@@ -17,6 +17,7 @@ private:
 public:
     MainView(QWidget *parent = nullptr, Experiment *experiment = nullptr);
     void setExperiment(Experiment *experiment);
+    bool following;
 protected:
     void paintEvent(QPaintEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;

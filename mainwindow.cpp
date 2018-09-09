@@ -8,7 +8,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      experiment(64) {
+      experiment(new Experiment(64)) {
     ui->setupUi(this);
 
     initMenu();
@@ -40,12 +40,12 @@ void MainWindow::initConnections() {
 }
 
 void MainWindow::initViews() {
-    ui->mainView->setExperiment(&experiment);
-    ui->netView->setExperiment(&experiment);
+    ui->mainView->setExperiment(experiment);
+    ui->netView->setExperiment(experiment);
 
-    ui->progressBar->setMaximum(int(experiment.getTMax()));
+    ui->progressBar->setMaximum(int(experiment->getTMax()));
 
-    instanceTableModel = new InstanceModel(this, int(experiment.getPopSize()));
+    instanceTableModel = new InstanceModel(this, int(experiment->getPopSize()));
     proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(instanceTableModel);
     proxyModel->setDynamicSortFilter(true);
@@ -61,49 +61,52 @@ MainWindow::~MainWindow() {
 
 void MainWindow::update() {
     if (play) {
-        if (experiment.getT() >= experiment.getTMax()) {
+        if (experiment->getT() >= experiment->getTMax()) {
             playPause();
             return;
         }
-        experiment.stepAll();
+        experiment->stepAll();
     }
     ui->mainView->update();
-    ui->progressBar->setValue(int(experiment.getT()));
+    ui->progressBar->setValue(int(experiment->getT()));
     updateInstanceTable();
 }
 
 void MainWindow::updateInstanceTable() {
-    for (int i = 0; i < int(experiment.getPopSize()); i++) {
-        instanceTableModel->fitness[i] = experiment.getIndividual(i)->getFitness();
+    for (int i = 0; i < int(experiment->getPopSize()); i++) {
+        instanceTableModel->fitness[i] = experiment->getIndividual(i)->getFitness();
     }
     proxyModel->invalidate();
     ui->tableView->repaint();
 }
 
 void MainWindow::newGen() {
-    experiment.newGen();
+    experiment->newGen();
+    ui->mainView->following = false;
     ui->tableView->clearSelection();
     updateInstanceTable();
-    ui->progressBar->setValue(int(experiment.getT()));
+    ui->progressBar->setValue(int(experiment->getT()));
     if (play) playPause();
     ui->mainView->update();
 }
 
 void MainWindow::newMap() {
-    experiment.newMap();
+    experiment->newMap();
     update();
 }
 
 void MainWindow::newExperiment() {
-    MainWindow *n = new MainWindow();
-    n->show();
-    close();
+    delete experiment;
+    experiment = new Experiment(64);
+    initViews();
+    newGen();
+    update();
 }
 
 void MainWindow::playPause() {
     play = !play;
-    if (play && experiment.getT() >= experiment.getTMax()) {
-        experiment.resetGen();
+    if (play && experiment->getT() >= experiment->getTMax()) {
+        experiment->resetGen();
     }
     if (play) {
         timer->start(1000 / 60);
@@ -116,31 +119,32 @@ void MainWindow::playPause() {
 }
 
 void MainWindow::evaluateGen() {
-    experiment.evaluateGen();
+    experiment->evaluateGen();
     updateInstanceTable();
     ui->mainView->update();
-    ui->progressBar->setValue(int(experiment.getT()));
+    ui->progressBar->setValue(int(experiment->getT()));
 }
 
 void MainWindow::resetGen() {
-    experiment.resetGen();
+    experiment->resetGen();
     updateInstanceTable();
     ui->mainView->update();
-    ui->progressBar->setValue(int(experiment.getT()));
+    ui->progressBar->setValue(int(experiment->getT()));
 }
 
 void MainWindow::step() {
-    experiment.stepAll();
+    experiment->stepAll();
     updateInstanceTable();
     ui->mainView->update();
-    ui->progressBar->setValue(int(experiment.getT()));
+    ui->progressBar->setValue(int(experiment->getT()));
 }
 
 void MainWindow::setSelected(const QItemSelection &selection) {
-    if (selection.indexes().size() == 0) experiment.setSelected(-1);
+    if (selection.indexes().size() == 0) experiment->setSelected(-1);
     else {
         QItemSelection realSelection = proxyModel->mapSelectionToSource(selection);
-        experiment.setSelected(realSelection.indexes().at(0).row());
+        experiment->setSelected(realSelection.indexes().at(0).row());
+        ui->mainView->following = true;
     }
     ui->mainView->update();
     ui->netView->update();
