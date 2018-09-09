@@ -111,10 +111,12 @@ void MainWindow::playPause() {
     if (play) {
         timer->start(1000 / 60);
         ui->button_play->setText("◼"); // Resets widget sizes unless one of them has been moved
+        //ui->button_play->setIcon(QIcon(":/icons/pause-16.ico"));
     }
     else {
         timer->stop();
         ui->button_play->setText("►");
+        //ui->button_play->setIcon(QIcon(":/icons/play-16.ico"));
     }
 }
 

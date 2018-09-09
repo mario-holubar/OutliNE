@@ -35,12 +35,6 @@ SOURCES += \
     tinyneat.cpp \
     netview.cpp \
     racingtask.cpp \
-    SANE/sane-analyze.c \
-    SANE/sane-critic.c \
-    SANE/sane-ea.c \
-    SANE/sane-nn.c \
-    SANE/sane-seed.c \
-    SANE/sane-util.c
 
 HEADERS += \
         mainwindow.h \
@@ -54,14 +48,11 @@ HEADERS += \
     tinyneat.h \
     netview.h \
     racingtask.h \
-    SANE/sane-critic.h \
-    SANE/sane-ea.h \
-    SANE/sane-nn.h \
-    SANE/sane-seed.h \
-    SANE/sane-util.h \
-    SANE/sane.h
 
 FORMS += \
     mainwindow.ui
 
 DISTFILES +=
+
+RESOURCES += \
+    icons.qrc

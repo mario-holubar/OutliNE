@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>pause-16.ico</file>
+        <file>play-16.ico</file>
+    </qresource>
+</RCC>

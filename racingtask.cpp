@@ -107,15 +107,15 @@ void RacingIndividual::step(std::vector<double> inputs) {
     }
 
     //inputs[0] = inputs[0] / 2 + 0.5;
-    if (float(inputs[0]) * 20 > speed) speed += (float(inputs[0] * 20) - speed) * 0.035f;
-    else speed += (float(inputs[0] * 20) - speed) * 0.1f;
+    //if (float(inputs[0]) * 20 > speed) speed += (float(inputs[0] * 20) - speed) * 0.015f;
+    //else speed += (float(inputs[0] * 20) - speed) * 0.1f;
     //if (speed < 0) speed = 0;
-    //if (inputs[0] > 0.0) speed += (20 - speed) * 0.035f * float(inputs[0]);
-    //else speed += speed * 0.35f * float(inputs[0]);
+    if (inputs[0] > 0.0) speed += (20 - speed) * 0.025f * float(inputs[0]);
+    else speed += speed * 0.1f * float(inputs[0]);
 
     //angle -= inputs[1] * 2;
     //angle -= 2;
-    angle -= float(inputs[1]) * speed / (qMax(speed * speed * 0.5f, 40.0f) * 2 * float(M_PI)) * 360 * 0.5f;
+    angle -= float(inputs[1]) * speed / (qMax(speed * speed * 1.0f, 40.0f) * 2 * float(M_PI)) * 360 * 1.0f;
 
     x += qCos(qDegreesToRadians(double(angle))) * double(speed);
     y -= qSin(qDegreesToRadians(double(angle))) * double(speed);
