@@ -1,25 +1,30 @@
 #include "experiment.h"
 #include <QTime>
 #include <QDebug>
+#include "testtask.h"
 #include "racingtask.h"
+#include "creaturestask.h"
+
+#define TASK RacingTask
+#define INDIVIDUAL RacingIndividual
+#define IO 5, 2
+#define TMAX 240
 
 Experiment::Experiment(unsigned int e_popSize)
     : popSize(e_popSize),
       currentGen(0),
       t(0),
-      tMax(240),
+      tMax(TMAX),
       selected(-1),
-      task(new RacingTask),
+      task(new TASK),
       individuals(int(e_popSize)),
-      pool(3, 2, 1, false),
-      outputs(2) {
-    neat::speciating_parameter_container spec;
-    spec.population = popSize;
-    pool.speciating_parameters = spec;
+      pool(IO, 1, false),
+      outputs(pool.network_info.output_size) {
+    pool.speciating_parameters.population = popSize;
     pool.new_generation();
 
     for (int i = 0; i < int(popSize); i++) {
-        individuals[i] = new RacingIndividual();
+        individuals[i] = new INDIVIDUAL();
         individuals[i]->task = task;
     }
 }

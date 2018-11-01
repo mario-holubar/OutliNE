@@ -28,7 +28,7 @@ void TestIndividual::init() {
 }
 
 void TestIndividual::newGoal() {
-    while (abs(target - x) < 5.0f) {
+    while (abs(target - x) < 10.0f) {
         target = rand.generate() * 100.0f / UINT32_MAX - 50.0f;
     }
 }
@@ -36,7 +36,7 @@ void TestIndividual::newGoal() {
 void TestIndividual::step(std::vector<double> inputs) {
     x += inputs[0] * 5.0;
     x = qBound(-50.0f, x, 50.0f);
-    if (abs(target - x) < 5.0f) {
+    if (abs(target - x) < 10.0f) {
         fitness += 1;
         newGoal();
     }
@@ -52,13 +52,14 @@ QPointF TestIndividual::getPos() {
 }
 
 std::vector<double> TestIndividual::getInputs() {
-    std::vector<double> inputs(2);
+    std::vector<double> inputs(3);
     inputs[0] = double(x / 50.0f);
     inputs[1] = double(target / 50.0f);
     return inputs;
 }
 
-void TestIndividual::draw(QPainter *painter) {
+void TestIndividual::draw(QPainter *painter, bool selected) {
+    Q_UNUSED(selected);
     painter->translate(double(target), 0.0);
     painter->drawRect(-10, -10, 20, 20);
     painter->translate(double(-target), 0.0);

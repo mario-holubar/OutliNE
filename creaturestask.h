@@ -1,27 +1,23 @@
-#ifndef TESTTASK_H
-#define TESTTASK_H
+#ifndef CREATURESTASK_H
+#define CREATURESTASK_H
 
 #include "task.h"
 #include <QPainter>
 #include <QRandomGenerator>
 
-class TestTask : public Task {
+class CreaturesTask : public Task {
 public:
-    TestTask();
-    ~TestTask();
+    CreaturesTask();
+    ~CreaturesTask();
     void draw(QPainter *painter);
 };
 
-class TestIndividual : public Individual {
+class CreaturesIndividual : public Individual {
 public:
-    TestIndividual();
-    ~TestIndividual();
+    CreaturesIndividual();
+    ~CreaturesIndividual();
 
-    float x;
-    float target;
-    float fitness;
-    QRandomGenerator rand;
-    void newGoal();
+    float x, y, angle;
 
     void init();
     void step(std::vector<double> inputs);
@@ -31,4 +27,4 @@ public:
     void draw(QPainter *painter, bool selected);
 };
 
-#endif // TESTTASK_H
+#endif // CREATURESTASK_H

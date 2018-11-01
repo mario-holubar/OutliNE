@@ -109,7 +109,7 @@ void MainWindow::playPause() {
         experiment->resetGen();
     }
     if (play) {
-        timer->start(1000 / 60);
+        timer->start(1000 / 30);
         ui->button_play->setText("◼"); // Resets widget sizes unless one of them has been moved
         //ui->button_play->setIcon(QIcon(":/icons/pause-16.ico"));
     }
