@@ -35,7 +35,9 @@ SOURCES += \
     tinyneat.cpp \
     netview.cpp \
     racingtask.cpp \
-    creaturestask.cpp
+    creaturestask.cpp \
+    neuralnet.cpp \
+    sane.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -49,7 +51,9 @@ HEADERS += \
     tinyneat.h \
     netview.h \
     racingtask.h \
-    creaturestask.h
+    creaturestask.h \
+    neuralnet.h \
+    sane.h
 
 FORMS += \
     mainwindow.ui

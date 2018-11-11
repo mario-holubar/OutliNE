@@ -4,10 +4,11 @@
 #include "testtask.h"
 #include "racingtask.h"
 #include "creaturestask.h"
+#include "neuralnet.h"
 
 #define TASK RacingTask
 #define INDIVIDUAL RacingIndividual
-#define IO 5, 2
+#define IO 6, 2
 #define TMAX 240
 
 Experiment::Experiment(unsigned int e_popSize)
@@ -18,10 +19,8 @@ Experiment::Experiment(unsigned int e_popSize)
       selected(-1),
       task(new TASK),
       individuals(int(e_popSize)),
-      pool(IO, 1, false),
-      outputs(pool.network_info.output_size) {
-    pool.speciating_parameters.population = popSize;
-    pool.new_generation();
+      pool(popSize, IO),
+      outputs(pool.outputs) {
 
     for (int i = 0; i < int(popSize); i++) {
         individuals[i] = new INDIVIDUAL();
@@ -40,16 +39,14 @@ Individual *Experiment::getIndividual(int i) {
 
 void Experiment::stepAll() {
     if (t >= tMax) return;
-    ann::neuralnet n;
-        auto genomes = pool.get_genomes();
+    NeuralNet n;
         for (unsigned int i = 0; i < popSize; i++) {
-            n.from_genome(*(genomes[i].second));
-            std::vector<double> output(pool.network_info.output_size, 0.0);
+            n.from_genome(pool.genomes[i]);
             Individual *a = getIndividual(int(i));
-            n.evaluate(a->getInputs(), output);
+            std::vector<double> output = n.evaluate(a->getInputs());
             a->step(output);
             unsigned int fitness = unsigned(a->getFitness());
-            genomes[i].second->fitness = fitness;
+            pool.genomes[i].fitness = fitness;
             if (int(i) == selected) outputs = output;
         }
     t++;
@@ -77,18 +74,12 @@ void Experiment::newGen() {
         avg = avg / int(popSize);
         qDebug() << "Generation" << currentGen << "concluded.";
         qDebug() << "Min:" << min << ", Avg:" << avg << ", Max:" << max;
+        pool.new_generation();
     }
 
-    pool.new_generation();
-    int ind = 0;
-    int species = 0;
-    for (auto s = pool.species.begin(); s != pool.species.end(); s++) {
-        for (size_t i = 0; i < (*s).genomes.size(); i++) {
-            getIndividual(ind)->seed = unsigned(qrand());
-            getIndividual(ind)->species = species;
-            ind++;
-        }
-        species++;
+    pool.makeGenomes();
+    for (unsigned int i = 0; i < pool.genomes.size(); i++) {
+        getIndividual(int(i))->seed = unsigned(qrand());
     }
 
     resetGen();
@@ -109,18 +100,19 @@ void Experiment::evaluateGen() {
     /*while(t < tMax) {
         stepAll();
     }*/
-    ann::neuralnet n;
-    auto genomes = pool.get_genomes();
+    NeuralNet n;
     for (unsigned int i = 0; i < popSize; i++) {
-        n.from_genome(*(genomes[i].second));
-        std::vector<double> output(pool.network_info.output_size, 0.0);
+        std::vector<double> output;
+        n.from_genome(pool.genomes[i]);
         Individual *a = getIndividual(int(i));
         for (int tt = int(t); tt < int(tMax); tt++) {
-            n.evaluate(a->getInputs(), output);
+            //qDebug() << a->getInputs().size();
+            output = n.evaluate(a->getInputs());
             a->step(output);
         }
-        unsigned int fitness = unsigned(a->getFitness());
-        genomes[i].second->fitness = fitness;
+        //unsigned int fitness = unsigned(a->getFitness());
+        //pool.genomes[i].fitness = fitness;
+        pool.setFitness(i, a->getFitness());
         if (int(i) == selected) outputs = output;
     }
     t = tMax;
@@ -150,7 +142,7 @@ void Experiment::draw(QPainter *painter) {
     }*/
     for (int i = 0; i < int(popSize); i++) {
         if (i == selected) continue;
-        int hue = getIndividual(i)->species * 256 / int(pool.species.size());
+        int hue = int(i * 256.0f / popSize);
         pen.setColor(QColor::fromHsv(hue, 255, 128, 128));
         painter->setPen(pen);
         painter->setBrush(QBrush(QColor::fromHsv(hue, 255, 32, 128)));
@@ -159,7 +151,7 @@ void Experiment::draw(QPainter *painter) {
     }
 
     if (selected != -1) {
-        int hue = getIndividual(selected)->species * 256 / int(pool.species.size());
+        int hue = int(selected * 256.0f / popSize);
         pen.setColor(QColor::fromHsv(hue, 255, 255, 255));
         pen.setWidth(2);
         painter->setPen(pen);
@@ -187,20 +179,29 @@ void Experiment::draw(QPainter *painter) {
 
 void Experiment::drawNet(QPainter *painter) {
     if (selected == -1) return;
-    ann::neuralnet net;
-    net.from_genome(*(pool.get_genomes()[unsigned(selected)].second));
+    NeuralNet net;
+    net.from_genome(pool.genomes[unsigned(selected)]);
     QPen pen(QColor(128, 128, 128, 128));
     painter->setPen(pen);
-    painter->setBrush(QBrush(QColor(32, 32, 32, 128)));
-    for (size_t i = 0; i < net.nodes.size(); i++) {
-        ann::neuron n = net.nodes[i];
-        int s = int(n.in_nodes.size());
-        for (int j = 0; j < s; j++) {
-            painter->drawLine(QLine(10, int((float(i) - float(net.nodes.size()) / 2) * 25) + 10, 50, int((float(i) - float(net.nodes.size()) / 2) * 25) - 5 * (s - 1) + 10 * j + 10));
+    painter->setBrush(QBrush(QColor(32, 32, 32, 255)));
+
+    for (unsigned int i = 0; i < net.neurons.size(); i++) {
+        int y = int((float(i) - float(net.neurons.size()) / 2) * 25);
+        Neuron *n = net.neurons[i];
+        for (unsigned int j = 0; j < n->inputs.size(); j++) {
+            painter->drawLine(QLine(0, y, -50, int((float(n->inputs[j].first) - float(net.n_inputs) / 2) * 25)));
         }
-        painter->drawEllipse(QRect(0, int((float(i) - float(net.nodes.size()) / 2) * 25), 20, 20));
+        for (unsigned int j = 0; j < n->outputs.size(); j++) {
+            painter->drawLine(QLine(0, y, 50, int((float(n->outputs[j].first) - float(net.n_outputs) / 2) * 25)));
+        }
+        painter->drawEllipse(QRect(-10, y - 10, 20, 20));
     }
-    painter->drawText(QPointF(-25, 0), "WIP");
+    for (unsigned int i = 0; i < net.n_inputs; i++) {
+        painter->drawEllipse(QRect(-60, int((float(i) - float(net.n_inputs) / 2) * 25) - 10, 20, 20));
+    }
+    for (unsigned int i = 0; i < net.n_outputs; i++) {
+        painter->drawEllipse(QRect(40, int((float(i) - float(net.n_outputs) / 2) * 25) - 10, 20, 20));
+    }
 }
 
 unsigned int Experiment::getPopSize() {

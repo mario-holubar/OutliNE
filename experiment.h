@@ -6,7 +6,7 @@
 #include <QPainter>
 #include <QItemSelectionModel>
 #include "tinyneat.h"
-#include "tinyann.h"
+#include "sane.h"
 
 class Experiment {
 private:
@@ -17,7 +17,7 @@ private:
     int selected;
     Task *task;
     QVector<Individual *> individuals;
-    neat::pool pool;
+    Pool pool;
     std::vector<double> outputs; //debug
 public:
     Experiment(unsigned int e_popSize);

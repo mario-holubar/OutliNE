@@ -132,7 +132,7 @@ void RacingIndividual::step(std::vector<double> inputs) {
     QPolygonF poly = c[checkpoint - 1];
     if (checkpoint < c.size() && !poly.containsPoint(getPos(), Qt::OddEvenFill)) {
         //checkpoint = qMax(checkpoint - 2, 2);
-        fitness -= 4; // punish later generations more?
+        //fitness -= 4; // punish later generations more?
         respawnTimer = 60;
     }
 

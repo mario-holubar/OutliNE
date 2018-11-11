@@ -24,7 +24,7 @@
 
 namespace neat {
 
-	typedef struct {		
+    typedef struct {
 		double connection_mutate_chance = 0.25;
 		double perturb_chance = 0.90;
 		double crossover_chance = 0.75;
@@ -33,7 +33,7 @@ namespace neat {
 		double bias_mutation_chance = 0.40;
 		double step_size = 0.1;
 		double disable_mutation_chance = 0.4;
-		double enable_mutation_chance = 0.2;			
+        double enable_mutation_chance = 0.2;
 
 		void read(std::ifstream& o);
 		void write(std::ofstream& o, std::string prefix);
@@ -169,7 +169,7 @@ namespace neat {
 		network_info_container network_info;		
 
 		// pool's local random number generator
-		std::random_device rd;		
+        std::random_device rd;
 		std::mt19937 generator;
 
 		/* species */
