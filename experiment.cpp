@@ -20,7 +20,7 @@ Experiment::Experiment(unsigned int e_popSize)
       task(new TASK),
       individuals(int(e_popSize)),
       pool(popSize, IO),
-      outputs(pool.outputs) {
+      outputs(pool.n_outputs) {
 
     for (int i = 0; i < int(popSize); i++) {
         individuals[i] = new INDIVIDUAL();
@@ -181,19 +181,32 @@ void Experiment::drawNet(QPainter *painter) {
     if (selected == -1) return;
     NeuralNet net;
     net.from_genome(pool.genomes[unsigned(selected)]);
-    QPen pen(QColor(128, 128, 128, 128));
+    QPen pen(QColor(128, 128, 128));
+    pen.setWidth(2);
     painter->setPen(pen);
-    painter->setBrush(QBrush(QColor(32, 32, 32, 255)));
+    painter->setBrush(QBrush(QColor(32, 32, 32)));
 
     for (unsigned int i = 0; i < net.neurons.size(); i++) {
         int y = int((float(i) - float(net.neurons.size()) / 2) * 25);
         Neuron *n = net.neurons[i];
         for (unsigned int j = 0; j < n->inputs.size(); j++) {
+            QColor c(255, 255, 0);
+            if (n->inputs[j].second > 0.0) c.setRed(qMax(int(256 * (1 - n->inputs[j].second)), 0));
+            else c.setGreen(int(256 * (1 + n->inputs[j].second)));
+            pen.setColor(c);
+            painter->setPen(pen);
             painter->drawLine(QLine(0, y, -50, int((float(n->inputs[j].first) - float(net.n_inputs) / 2) * 25)));
         }
         for (unsigned int j = 0; j < n->outputs.size(); j++) {
+            QColor c(255, 255, 0);
+            if (n->outputs[j].second > 0.0) c.setRed(qMax(int(256 * (1 - n->outputs[j].second)), 0));
+            else c.setGreen(int(256 * (1 + n->outputs[j].second)));
+            pen.setColor(c);
+            painter->setPen(pen);
             painter->drawLine(QLine(0, y, 50, int((float(n->outputs[j].first) - float(net.n_outputs) / 2) * 25)));
         }
+        QPen pen(QColor(128, 128, 128));
+        painter->setPen(pen);
         painter->drawEllipse(QRect(-10, y - 10, 20, 20));
     }
     for (unsigned int i = 0; i < net.n_inputs; i++) {

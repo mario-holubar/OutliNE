@@ -4,12 +4,13 @@
 #include <vector>
 #include "QRandomGenerator"
 
-//TODO ENCAPSULATE!
+//TODO Encapsulate!
 
 class Neuron {
 public:
     std::vector<std::pair<unsigned int, double>> inputs;
     std::vector<std::pair<unsigned int, double>> outputs;
+    double value;
     float fitness = 0.0f;
     unsigned int n_genomes = 0;
     Neuron();
@@ -38,8 +39,7 @@ class Pool {
 private:
     QRandomGenerator rand;
 public:
-    unsigned int inputs, outputs, biases;
-    unsigned int pop;
+    unsigned int n_inputs, n_outputs, n_genomes, n_neurons;
     std::vector<Neuron> neurons;
     std::vector<Genome> genomes;
 

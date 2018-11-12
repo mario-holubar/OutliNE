@@ -113,7 +113,9 @@ void RacingIndividual::step(std::vector<double> inputs) {
     //if (inputs[0] > 0.0) speed += (20 - speed) * 0.025f * float(inputs[0]);
     //if (inputs[0] > 0.0) speed += 0.5f * float(inputs[0]);
     //else speed += speed * 0.1f * float(inputs[0]);
-    float targetSpeed = (float(inputs[0]) / 2 + 0.5f) * 20;
+
+    //float targetSpeed = (float(inputs[0]) / 2 + 0.5f) * 20;
+    float targetSpeed = float(inputs[0]) * 20;
     speed += (targetSpeed - speed) * 0.05f;
     //speed *= 0.98f;
 
@@ -132,7 +134,7 @@ void RacingIndividual::step(std::vector<double> inputs) {
     QPolygonF poly = c[checkpoint - 1];
     if (checkpoint < c.size() && !poly.containsPoint(getPos(), Qt::OddEvenFill)) {
         //checkpoint = qMax(checkpoint - 2, 2);
-        //fitness -= 4; // punish later generations more?
+        fitness -= 4; // punish later generations more?
         respawnTimer = 60;
     }
 
