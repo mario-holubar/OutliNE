@@ -177,43 +177,50 @@ void Experiment::draw(QPainter *painter) {
     painter->setTransform(transform);
 }
 
+QColor activationColor(double a) {
+    QColor c(255, 255, 0);
+    if (a > 0.0) c.setRed(qMax(int(255 * (1 - a)), 0));
+    else c.setGreen(int(255 * (1 + a)));
+    return c;
+}
+
 void Experiment::drawNet(QPainter *painter) {
     if (selected == -1) return;
     NeuralNet net;
     net.from_genome(pool.genomes[unsigned(selected)]);
     QPen pen(QColor(128, 128, 128));
-    pen.setWidth(2);
     painter->setPen(pen);
     painter->setBrush(QBrush(QColor(32, 32, 32)));
 
     for (unsigned int i = 0; i < net.neurons.size(); i++) {
         int y = int((float(i) - float(net.neurons.size()) / 2) * 25);
-        Neuron *n = net.neurons[i];
-        for (unsigned int j = 0; j < n->inputs.size(); j++) {
-            QColor c(255, 255, 0);
-            if (n->inputs[j].second > 0.0) c.setRed(qMax(int(256 * (1 - n->inputs[j].second)), 0));
-            else c.setGreen(int(256 * (1 + n->inputs[j].second)));
-            pen.setColor(c);
-            painter->setPen(pen);
-            painter->drawLine(QLine(0, y, -50, int((float(n->inputs[j].first) - float(net.n_inputs) / 2) * 25)));
+        //Neuron *n = net.neurons[i];
+        for (unsigned int j = 0; j < net.n_inputs; j++) {
+            painter->drawLine(QLine(0, y, -70, int((j - net.n_inputs / 2.0) * 25)));
         }
-        for (unsigned int j = 0; j < n->outputs.size(); j++) {
-            QColor c(255, 255, 0);
-            if (n->outputs[j].second > 0.0) c.setRed(qMax(int(256 * (1 - n->outputs[j].second)), 0));
-            else c.setGreen(int(256 * (1 + n->outputs[j].second)));
-            pen.setColor(c);
-            painter->setPen(pen);
-            painter->drawLine(QLine(0, y, 50, int((float(n->outputs[j].first) - float(net.n_outputs) / 2) * 25)));
+        for (unsigned int j = 0; j < net.n_outputs; j++) {
+            painter->drawLine(QLine(0, y, 70, int((j - net.n_outputs / 2.0) * 25)));
         }
-        QPen pen(QColor(128, 128, 128));
-        painter->setPen(pen);
-        painter->drawEllipse(QRect(-10, y - 10, 20, 20));
     }
+    pen.setColor(QColor(128, 128, 128));
+    painter->setPen(pen);
+    painter->translate(QPointF(-10, -10));
+    for (unsigned int i = 0; i < net.neurons.size(); i++) {
+        int y = int((float(i) - float(net.neurons.size()) / 2) * 25);
+        painter->setBrush(QBrush(activationColor(net.neurons[i]->value)));
+        painter->drawEllipse(QRect(0, y, 20, 20));
+    }
+    std::vector<double> inputs = individuals[selected]->getInputs();
     for (unsigned int i = 0; i < net.n_inputs; i++) {
-        painter->drawEllipse(QRect(-60, int((float(i) - float(net.n_inputs) / 2) * 25) - 10, 20, 20));
+        double a = 1.0;
+        if (i < inputs.size()) a = inputs[i];
+        painter->setBrush(QBrush(activationColor(a)));
+        painter->drawEllipse(QRect(-70, int((i - net.n_inputs / 2.0) * 25), 20, 20));
     }
+    std::vector<double> outputs = net.evaluate(inputs);
     for (unsigned int i = 0; i < net.n_outputs; i++) {
-        painter->drawEllipse(QRect(40, int((float(i) - float(net.n_outputs) / 2) * 25) - 10, 20, 20));
+        painter->setBrush(QBrush(activationColor(outputs[i])));
+        painter->drawEllipse(QRect(70, int((i - net.n_outputs / 2.0) * 25), 20, 20));
     }
 }
 

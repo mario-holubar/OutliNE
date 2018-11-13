@@ -38,18 +38,16 @@ std::vector<double> NeuralNet::evaluate(std::vector<double> inputs) {
     for (unsigned int n = 0; n < neurons.size(); n++) {
         //double value = 0.0;
         neurons[n]->value = 0.0;
-        for (unsigned int i = 0; i < neurons[n]->inputs.size(); i++) {
-            auto w = neurons[n]->inputs[i];
-            neurons[n]->value += inputs[w.first] * w.second;
+        for (unsigned int i = 0; i < n_inputs; i++) {
+            neurons[n]->value += inputs[i] * neurons[n]->w_in[i];
         }
     }
-    /*for (unsigned int n = 0; n < neurons.size(); n++) {
-        neurons[n]->value = sigmoid(neurons[n]->value);
-    }*/
     for (unsigned int n = 0; n < neurons.size(); n++) {
-        for (unsigned int i = 0; i < neurons[n]->outputs.size(); i++) {
-            auto w = neurons[n]->outputs[i];
-            outputs[w.first] += neurons[n]->value * w.second;
+        neurons[n]->value = sigmoid(neurons[n]->value);
+    }
+    for (unsigned int n = 0; n < neurons.size(); n++) {
+        for (unsigned int i = 0; i < n_outputs; i++) {
+            outputs[i] += neurons[n]->value * neurons[n]->w_out[i];
         }
     }
     for (unsigned int i = 0; i < n_outputs; i++) {
@@ -66,29 +64,17 @@ Pool::Pool(unsigned int pop, unsigned int inputs, unsigned int outputs) {
     rand.seed(unsigned(qrand()));
 
     // Generate random neurons
+    std::default_random_engine generator;
+    std::normal_distribution<double> dist(0.0, 1.0);
     for (unsigned int i = 0; i < n_neurons; i++) {//pop?
         Neuron n;
-        for (int i = 0; i < 2; i++) {
-            unsigned int index = rand.generate() % n_inputs;
-            /*for (unsigned int j = 0; j < n.inputs.size(); j++) {
-                if (n.inputs[j].first == index) {
-                    i--;
-                    continue;
-                }
-            }*/
-            double weight = double(rand.generate()) / UINT32_MAX * 2 - 1;
-            n.inputs.push_back(std::make_pair(index, weight));
+        for (unsigned int i = 0; i < n_inputs; i++) {
+            double weight = dist(generator);
+            n.w_in.push_back(weight);
         }
-        for (int i = 0; i < 1; i++) {
-            unsigned int index = rand.generate() % n_outputs;
-            /*for (unsigned int j = 0; j < n.outputs.size(); j++) {
-                if (n.outputs[j].first == index) {
-                    i--;
-                    continue;
-                }
-            }*/
-            double weight = double(rand.generate()) / UINT32_MAX * 2 - 1;
-            n.outputs.push_back(std::make_pair(index, weight));
+        for (unsigned int i = 0; i < n_outputs; i++) {
+            double weight = dist(generator);
+            n.w_out.push_back(weight);
         }
         neurons.push_back(n);
     }
@@ -126,24 +112,24 @@ void Pool::new_generation() {
     for (unsigned int p1 = 0; p1 < n_neurons / 4; p1++) {//pop?
         unsigned int p2 = rand.generate() % (p1 + 1); // p2 is equal or better than p1
         Neuron c1, c2;
-        for (unsigned int i = 0; i < 2; i++) {
+        for (unsigned int i = 0; i < n_inputs; i++) {
             if (double(rand.generate()) / INT32_MAX < 0.5) {
-                c1.inputs.push_back(neurons[p1].inputs[i]);
-                c2.inputs.push_back(neurons[p2].inputs[i]);
+                c1.w_in.push_back(neurons[p1].w_in[i]);
+                c2.w_in.push_back(neurons[p2].w_in[i]);
             }
             else {
-                c1.inputs.push_back(neurons[p2].inputs[i]);
-                c2.inputs.push_back(neurons[p1].inputs[i]);
+                c1.w_in.push_back(neurons[p2].w_in[i]);
+                c2.w_in.push_back(neurons[p1].w_in[i]);
             }
         }
-        for (unsigned int i = 0; i < 1; i++) {
+        for (unsigned int i = 0; i < n_outputs; i++) {
             if (double(rand.generate()) / INT32_MAX < 0.5) {
-                c1.outputs.push_back(neurons[p1].outputs[i]);
-                c2.outputs.push_back(neurons[p2].outputs[i]);
+                c1.w_out.push_back(neurons[p1].w_out[i]);
+                c2.w_out.push_back(neurons[p2].w_out[i]);
             }
             else {
-                c1.outputs.push_back(neurons[p2].outputs[i]);
-                c2.outputs.push_back(neurons[p1].outputs[i]);
+                c1.w_out.push_back(neurons[p2].w_out[i]);
+                c2.w_out.push_back(neurons[p1].w_out[i]);
             }
         }
         neurons.push_back(c1);
@@ -188,29 +174,29 @@ void Pool::new_generation() {
 
     // Mutation
     for (unsigned int i = 0; i < n_neurons; i++) {
-        for (unsigned int j = 0; j < neurons[i].inputs.size(); j++) {
+        for (unsigned int j = 0; j < n_inputs; j++) {
             if (double(rand.generate()) / INT32_MAX < 0.1) {
-                unsigned int index = rand.generate() % n_inputs;
                 double weight = double(rand.generate()) / UINT32_MAX * 2 - 1;
-                neurons[i].inputs[j] = std::make_pair(index, weight);
+                neurons[i].w_in[j] = weight;
             }
         }
-        for (unsigned int j = 0; j < neurons[i].outputs.size(); j++) {
+        for (unsigned int j = 0; j < n_outputs; j++) {
             if (double(rand.generate()) / INT32_MAX < 0.1) {
-                unsigned int index = rand.generate() % n_outputs;
                 double weight = double(rand.generate()) / UINT32_MAX * 2 - 1;
-                neurons[i].outputs[j] = std::make_pair(index, weight);
+                neurons[i].w_out[j] = weight;
             }
         }
     }
 
     // Noise
+    std::default_random_engine generator;
+    std::normal_distribution<double> dist(0.0, 0.1);
     for (unsigned int i = 0; i < n_neurons; i++) {
-        for (unsigned int j = 0; j < neurons[i].inputs.size(); j++) {
-            neurons[i].inputs[j].second += double(rand.generate()) / INT32_MAX * 0.05;
+        for (unsigned int j = 0; j < n_inputs; j++) {
+            neurons[i].w_in[j] += dist(generator);
         }
-        for (unsigned int j = 0; j < neurons[i].outputs.size(); j++) {
-            neurons[i].outputs[j].second += double(rand.generate()) / INT32_MAX * 0.05;
+        for (unsigned int j = 0; j < n_outputs; j++) {
+            neurons[i].w_out[j] += dist(generator);
         }
     }
 }

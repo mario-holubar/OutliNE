@@ -8,8 +8,8 @@
 
 class Neuron {
 public:
-    std::vector<std::pair<unsigned int, double>> inputs;
-    std::vector<std::pair<unsigned int, double>> outputs;
+    std::vector<double> w_in;
+    std::vector<double> w_out;
     double value;
     float fitness = 0.0f;
     unsigned int n_genomes = 0;

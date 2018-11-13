@@ -68,6 +68,7 @@ void MainWindow::update() {
         experiment->stepAll();
     }
     ui->mainView->update();
+    ui->netView->update();
     ui->progressBar->setValue(int(experiment->getT()));
     updateInstanceTable();
 }
@@ -138,6 +139,7 @@ void MainWindow::step() {
     experiment->stepAll();
     updateInstanceTable();
     ui->mainView->update();
+    ui->netView->update();
     ui->progressBar->setValue(int(experiment->getT()));
 }
 
