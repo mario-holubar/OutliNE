@@ -60,7 +60,7 @@ void RacingTask::draw(QPainter *painter) {
 }
 
 RacingIndividual::RacingIndividual() {
-    rays.append({-45, -22.5f, 0, 22.5f, 45});
+    rays.append({45, 22.5f, 0, -22.5f, -45});
 }
 
 RacingIndividual::~RacingIndividual() {
@@ -101,7 +101,6 @@ void RacingIndividual::step(std::vector<double> inputs) {
         QPointF center = (poly[0] + poly[1]) / 2;
         x = float(center.x());
         y = float(center.y());
-        speed = 0.0f;
         angle = float(QLineF(poly[0], poly[1]).angle() + 90.0);
         respawnTimer--;
     }
@@ -136,6 +135,7 @@ void RacingIndividual::step(std::vector<double> inputs) {
         //checkpoint = qMax(checkpoint - 2, 2);
         fitness -= 4; // punish later generations more?
         respawnTimer = 60;
+        speed = 0.0f;
     }
 
     //fitness += speed / 100;
@@ -154,7 +154,7 @@ std::vector<double> RacingIndividual::getInputs() {
     for (int i = 0; i < rays.size(); i++) {
         inputs.push_back(double(collisionDist(double(angle + rays[i]))) / rayLength);
     }
-    inputs.push_back(double(speed) / 10.0);
+    inputs.push_back(double(speed) / 20.0);
     return inputs;
 }
 

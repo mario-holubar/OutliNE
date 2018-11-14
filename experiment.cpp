@@ -194,7 +194,6 @@ void Experiment::drawNet(QPainter *painter) {
 
     for (unsigned int i = 0; i < net.neurons.size(); i++) {
         int y = int((float(i) - float(net.neurons.size()) / 2) * 25);
-        //Neuron *n = net.neurons[i];
         for (unsigned int j = 0; j < net.n_inputs; j++) {
             painter->drawLine(QLine(0, y, -70, int((j - net.n_inputs / 2.0) * 25)));
         }

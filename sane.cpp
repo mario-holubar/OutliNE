@@ -104,89 +104,60 @@ void Pool::new_generation() {
     for (unsigned int i = 0; i < n_neurons; i++) {//pop?
         neurons[i].fitness /= neurons[i].n_genomes;
     }
-    // Only keep top 50%
-    sort(neurons.begin(), neurons.end(), fitnessSort);
-    for (unsigned int i = 0; i < n_neurons / 2; i++) neurons.pop_back();
 
     // Crossover
-    for (unsigned int p1 = 0; p1 < n_neurons / 4; p1++) {//pop?
-        unsigned int p2 = rand.generate() % (p1 + 1); // p2 is equal or better than p1
+    std::vector<Neuron> newNeurons;
+    Neuron p1, p2;
+    for (unsigned int n = 0; n < n_neurons / 2; n++) {
+        // Tournament selection for both parents
+        float bestFitness = -1.0f;
+        unsigned int bestIndex = 0;
+        for (unsigned int k = 0; k < 5; k++) { // Tournament size (selection pressure)
+            unsigned int c = rand.generate() % n_neurons;
+            if (neurons[c].fitness > bestFitness) {
+                bestFitness = neurons[c].fitness;
+                bestIndex = c;
+            }
+        }
+        p1 = neurons[bestIndex];
+        bestFitness = -1.0f;
+        bestIndex = 0;
+        for (unsigned int k = 0; k < 5; k++) { // Tournament size (selection pressure)
+            unsigned int c = rand.generate() % n_neurons;
+            if (neurons[c].fitness > bestFitness) {
+                bestFitness = neurons[c].fitness;
+                bestIndex = c;
+            }
+        }
+        p2 = neurons[bestIndex];
+
+        // Random crossover
         Neuron c1, c2;
         for (unsigned int i = 0; i < n_inputs; i++) {
-            if (double(rand.generate()) / INT32_MAX < 0.5) {
-                c1.w_in.push_back(neurons[p1].w_in[i]);
-                c2.w_in.push_back(neurons[p2].w_in[i]);
+            if (rand.generate() % 2) {
+                c1.w_in.push_back(p1.w_in[i]);
+                c2.w_in.push_back(p2.w_in[i]);
             }
             else {
-                c1.w_in.push_back(neurons[p2].w_in[i]);
-                c2.w_in.push_back(neurons[p1].w_in[i]);
+                c1.w_in.push_back(p2.w_in[i]);
+                c2.w_in.push_back(p1.w_in[i]);
             }
         }
         for (unsigned int i = 0; i < n_outputs; i++) {
-            if (double(rand.generate()) / INT32_MAX < 0.5) {
-                c1.w_out.push_back(neurons[p1].w_out[i]);
-                c2.w_out.push_back(neurons[p2].w_out[i]);
+            if (rand.generate() % 2) {
+                c1.w_out.push_back(p1.w_out[i]);
+                c2.w_out.push_back(p2.w_out[i]);
             }
             else {
-                c1.w_out.push_back(neurons[p2].w_out[i]);
-                c2.w_out.push_back(neurons[p1].w_out[i]);
+                c1.w_out.push_back(p2.w_out[i]);
+                c2.w_out.push_back(p1.w_out[i]);
             }
         }
-        neurons.push_back(c1);
-        neurons.push_back(c2);
+        newNeurons.push_back(c1);
+        newNeurons.push_back(c2);
     }
-
-    /*std::vector<Neuron> newNeurons;
-    float total = 0;
-    for (unsigned int i = 0; i < neurons.size(); i++) {
-        total += neurons[i].fitness;
-    }
-    for (unsigned int p1 = 0; p1 < neurons.size() / 2; p1++) {
-        float c = float(rand.generate()) / INT32_MAX * total;
-        for (unsigned int p2 = 0; p2 < neurons.size(); p2++) {
-            c -= neurons[p2].fitness;
-            if (c < 0.0f) {
-                total -= neurons[p2].fitness;
-                break;
-            }
-        }
-
-    }*/
-
-    /*for (unsigned int i = 0; i < n_neurons / 2; i++) neurons.pop_back();
-    for (unsigned int p1 = 0; p1 < n_neurons / 2; p1++) {//pop?
-        unsigned int p2 = rand.generate() % (p1 + 1); // p2 is equal or better than p1
-        Neuron c;
-        for (unsigned int i = 0; i < neurons[p1].inputs.size(); i++) {
-            c.inputs.push_back(neurons[p1].inputs[i]);
-        }
-        for (unsigned int i = 0; i < neurons[p2].inputs.size(); i++) {
-            c.inputs.push_back(neurons[p2].inputs[i]);
-        }
-        for (unsigned int i = 0; i < neurons[p1].outputs.size(); i++) {
-            c.outputs.push_back(neurons[p1].outputs[i]);
-        }
-        for (unsigned int i = 0; i < neurons[p2].outputs.size(); i++) {
-            c.outputs.push_back(neurons[p2].outputs[i]);
-        }
-        neurons.push_back(c);
-    }*/
-
-    // Mutation
-    for (unsigned int i = 0; i < n_neurons; i++) {
-        for (unsigned int j = 0; j < n_inputs; j++) {
-            if (double(rand.generate()) / INT32_MAX < 0.1) {
-                double weight = double(rand.generate()) / UINT32_MAX * 2 - 1;
-                neurons[i].w_in[j] = weight;
-            }
-        }
-        for (unsigned int j = 0; j < n_outputs; j++) {
-            if (double(rand.generate()) / INT32_MAX < 0.1) {
-                double weight = double(rand.generate()) / UINT32_MAX * 2 - 1;
-                neurons[i].w_out[j] = weight;
-            }
-        }
-    }
+    neurons.clear();
+    neurons = newNeurons;
 
     // Noise
     std::default_random_engine generator;
