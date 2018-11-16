@@ -8,7 +8,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      experiment(new Experiment(64)) {
+      experiment(new Experiment()) {
     ui->setupUi(this);
 
     initMenu();
@@ -98,7 +98,7 @@ void MainWindow::newMap() {
 
 void MainWindow::newExperiment() {
     delete experiment;
-    experiment = new Experiment(64);
+    experiment = new Experiment();
     initViews();
     newGen();
     update();

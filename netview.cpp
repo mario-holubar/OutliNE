@@ -18,8 +18,11 @@ void NetView::paintEvent(QPaintEvent *event) {
     QPainter painter(viewport());
 
     QTransform t = transform();
-    t.translate(viewport()->size().width() / 2, viewport()->size().height() / 2);
-    t.scale(1.0, 1.0); //
+    int w = width();
+    int h = height();
+    t.translate(w / 2, h / 2);
+    double scale = qMin(w, h) / 300.0;
+    t.scale(scale, scale);
     painter.setTransform(t, false);
     painter.setRenderHints(renderHints());
 

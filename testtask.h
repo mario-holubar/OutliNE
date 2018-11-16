@@ -9,6 +9,7 @@ class TestTask : public Task {
 public:
     TestTask();
     ~TestTask();
+    void init();
     void draw(QPainter *painter);
 };
 

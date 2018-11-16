@@ -9,6 +9,10 @@ TestTask::~TestTask() {
 
 }
 
+void TestTask::init() {
+
+}
+
 void TestTask::draw(QPainter *painter) {
     Q_UNUSED(painter);
 }

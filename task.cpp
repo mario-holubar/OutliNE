@@ -1,10 +1,23 @@
 #include "task.h"
+#include "ctime"
 
-Task::Task() {
+Params::Params() {
 
 }
 
+Params::~Params() {
+
+}
+
+Task::Task() {
+    seed = unsigned(time(nullptr));
+}
+
 Task::~Task() {
+
+}
+
+void Task::init() {
 
 }
 

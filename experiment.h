@@ -10,7 +10,7 @@
 
 class Experiment {
 private:
-    unsigned int popSize;
+    Params *params;
     unsigned int currentGen;
     unsigned int t;
     unsigned int tMax;
@@ -18,9 +18,8 @@ private:
     Task *task;
     QVector<Individual *> individuals;
     Pool pool;
-    std::vector<double> outputs; //debug
 public:
-    Experiment(unsigned int e_popSize);
+    Experiment();
     ~Experiment();
     Individual *getIndividual(int i);
     void stepAll();

@@ -3,18 +3,30 @@
 
 #include <QPainter>
 
+class Params {
+public:
+    unsigned int popSize = 64;
+    unsigned int tMax = 240;
+    unsigned int n_inputs = 0;
+    unsigned int n_outputs = 0;
+
+    Params();
+    virtual ~Params();
+};
+
 class Task {
 public:
+    unsigned int seed;
     Task();
     virtual ~Task() = 0;
+    virtual void init();
     virtual void draw(QPainter *painter) = 0;
 };
 
 class Individual {
 public:
-    Task *task;
     unsigned int seed;
-    int species;
+    std::vector<double> outputs;
 
     Individual();
     virtual ~Individual() = 0;
