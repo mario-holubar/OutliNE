@@ -1,7 +1,7 @@
 #include "sane.h"
 #include "QDebug"
 
-SANEParams::SANEParams(unsigned int inputs, unsigned int outputs) {
+SANEParams::SANEParams(unsigned inputs, unsigned outputs) {
     n_inputs = inputs + 0; // 0 bias neurons
     n_outputs = outputs;
 }
@@ -11,6 +11,10 @@ void SANEParams::paramDialog(ParamDialog *d) {
     d->addSpinBox("Number of neurons", &n_neurons, 8, 128);
     d->addSpinBox("Number of individuals", &n_genomes, 16, 128);
     d->addSpinBox("Neurons per individual", &neuronsPerGenome, 1, 32);
+    d->addDoubleSpinBox("Initial weight variance", &initialWeightVariance, 0.01f, 1.0f);
+    d->addDoubleSpinBox("Mutation noise variance", &mutationNoiseVariance, 0.0f, 1.0f);
+    d->addDoubleSpinBox("Sigmoid steepness", &sigmoidSteepness, 1.0f, 10.0f);
+    d->addSpinBox("Selection pressure (tournament size)", &tournamentSize, 1, 16);
 }
 
 Genome::Genome(SANEParams *p) {
@@ -20,7 +24,7 @@ Genome::Genome(SANEParams *p) {
 void NeuralNet::from_genome(Genome g) {
     params = g.params;
     neurons.clear();
-    for (unsigned int i = 0; i < g.genes.size(); i++) {
+    for (unsigned i = 0; i < g.genes.size(); i++) {
         neurons.push_back(g.genes[i]);
     }
 }
@@ -38,24 +42,24 @@ std::vector<double> NeuralNet::evaluate(std::vector<double> inputs) {
     while (inputs.size() < params->n_inputs) inputs.push_back(1.0);
 
     // Sum inputs
-    for (unsigned int n = 0; n < neurons.size(); n++) {
+    for (unsigned n = 0; n < neurons.size(); n++) {
         neurons[n]->value = 0.0;
-        for (unsigned int i = 0; i < params->n_inputs; i++) {
+        for (unsigned i = 0; i < params->n_inputs; i++) {
             neurons[n]->value += inputs[i] * neurons[n]->w_in[i];
         }
     }
     // Neuron activation function
-    for (unsigned int n = 0; n < neurons.size(); n++) {
+    for (unsigned n = 0; n < neurons.size(); n++) {
         neurons[n]->value = sigmoid(neurons[n]->value);
     }
     // Sum outputs
-    for (unsigned int n = 0; n < neurons.size(); n++) {
-        for (unsigned int i = 0; i < params->n_outputs; i++) {
+    for (unsigned n = 0; n < neurons.size(); n++) {
+        for (unsigned i = 0; i < params->n_outputs; i++) {
             outputs[i] += neurons[n]->value * neurons[n]->w_out[i];
         }
     }
     // Output activation function
-    for (unsigned int i = 0; i < params->n_outputs; i++) {
+    for (unsigned i = 0; i < params->n_outputs; i++) {
         outputs[i] = sigmoid(outputs[i]);
     }
 
@@ -69,13 +73,13 @@ Pool::Pool(SANEParams *p) {
     std::random_device rd;
     std::mt19937 generator {rd()};
     std::normal_distribution<double> dist(0.0, double(params->initialWeightVariance));
-    for (unsigned int i = 0; i < params->n_neurons; i++) {
+    for (unsigned i = 0; i < params->n_neurons; i++) {
         Neuron n;
-        for (unsigned int i = 0; i < params->n_inputs; i++) {
+        for (unsigned i = 0; i < params->n_inputs; i++) {
             double weight = dist(generator);
             n.w_in.push_back(weight);
         }
-        for (unsigned int i = 0; i < params->n_outputs; i++) {
+        for (unsigned i = 0; i < params->n_outputs; i++) {
             double weight = dist(generator);
             n.w_out.push_back(weight);
         }
@@ -87,10 +91,10 @@ Pool::Pool(SANEParams *p) {
 
 void Pool::makeGenomes() {
     genomes.clear();
-    for (unsigned int i = 0; i < params->n_genomes; i++) {
+    for (unsigned i = 0; i < params->n_genomes; i++) {
         Genome g(params);
-        for(unsigned int j = 0; j < params->neuronsPerGenome; j++) {
-            unsigned int index = unsigned(qrand()) % params->n_neurons;
+        for(unsigned j = 0; j < params->neuronsPerGenome; j++) {
+            unsigned index = unsigned(qrand()) % params->n_neurons;
             neurons[index].n_genomes++;
             g.genes.push_back(&neurons[index]);
         }
@@ -104,20 +108,20 @@ bool fitnessSort(Neuron a, Neuron b) {
 
 void Pool::new_generation() {
     // Normalize fitnesses
-    for (unsigned int i = 0; i < params->n_neurons; i++) {
+    for (unsigned i = 0; i < params->n_neurons; i++) {
         neurons[i].fitness /= neurons[i].n_genomes;
     }
 
     // Crossover
     std::vector<Neuron> newNeurons;
     Neuron p1, p2;
-    unsigned int tournamentSize = params->tournamentSize;
-    for (unsigned int n = 0; n < params->n_neurons / 2; n++) {
+    unsigned tournamentSize = params->tournamentSize;
+    for (unsigned n = 0; n < params->n_neurons / 2; n++) {
         // Tournament selection for both parents
         float bestFitness = -1.0f;
-        unsigned int bestIndex = 0;
-        for (unsigned int k = 0; k < tournamentSize; k++) {
-            unsigned int c = unsigned(qrand()) % params->n_neurons;
+        unsigned bestIndex = 0;
+        for (unsigned k = 0; k < tournamentSize; k++) {
+            unsigned c = unsigned(qrand()) % params->n_neurons;
             if (neurons[c].fitness > bestFitness) {
                 bestFitness = neurons[c].fitness;
                 bestIndex = c;
@@ -126,8 +130,8 @@ void Pool::new_generation() {
         p1 = neurons[bestIndex];
         bestFitness = -1.0f;
         bestIndex = 0;
-        for (unsigned int k = 0; k < tournamentSize; k++) {
-            unsigned int c = unsigned(qrand()) % params->n_neurons;
+        for (unsigned k = 0; k < tournamentSize; k++) {
+            unsigned c = unsigned(qrand()) % params->n_neurons;
             if (neurons[c].fitness > bestFitness) {
                 bestFitness = neurons[c].fitness;
                 bestIndex = c;
@@ -137,7 +141,7 @@ void Pool::new_generation() {
 
         // Random crossover
         Neuron c1, c2;
-        for (unsigned int i = 0; i < params->n_inputs; i++) {
+        for (unsigned i = 0; i < params->n_inputs; i++) {
             if (qrand() % 2) {
                 c1.w_in.push_back(p1.w_in[i]);
                 c2.w_in.push_back(p2.w_in[i]);
@@ -147,7 +151,7 @@ void Pool::new_generation() {
                 c2.w_in.push_back(p1.w_in[i]);
             }
         }
-        for (unsigned int i = 0; i < params->n_outputs; i++) {
+        for (unsigned i = 0; i < params->n_outputs; i++) {
             if (qrand() % 2) {
                 c1.w_out.push_back(p1.w_out[i]);
                 c2.w_out.push_back(p2.w_out[i]);
@@ -164,24 +168,26 @@ void Pool::new_generation() {
     neurons = newNeurons;
 
     // Noise
-    std::default_random_engine generator;
-    std::normal_distribution<double> dist(0.0, double(params->mutationNoiseVariance));
-    for (unsigned int i = 0; i < params->n_neurons; i++) {
-        for (unsigned int j = 0; j < params->n_inputs; j++) {
-            neurons[i].w_in[j] += dist(generator);
-            //if (neurons[i].w_in[j] > 1.0) neurons[i].w_in[j] = 1.0;
-            //if (neurons[i].w_in[j] < -1.0) neurons[i].w_in[j] = -1.0;
-        }
-        for (unsigned int j = 0; j < params->n_outputs; j++) {
-            neurons[i].w_out[j] += dist(generator);
-            //if (neurons[i].w_out[j] > 1.0) neurons[i].w_out[j] = 1.0;
-            //if (neurons[i].w_out[j] < -1.0) neurons[i].w_out[j] = -1.0;
+    if (params->mutationNoiseVariance > 0.0f) {
+        std::default_random_engine generator;
+        std::normal_distribution<double> dist(0.0, double(params->mutationNoiseVariance));
+        for (unsigned i = 0; i < params->n_neurons; i++) {
+            for (unsigned j = 0; j < params->n_inputs; j++) {
+                neurons[i].w_in[j] += dist(generator);
+                //if (neurons[i].w_in[j] > 1.0) neurons[i].w_in[j] = 1.0;
+                //if (neurons[i].w_in[j] < -1.0) neurons[i].w_in[j] = -1.0;
+            }
+            for (unsigned j = 0; j < params->n_outputs; j++) {
+                neurons[i].w_out[j] += dist(generator);
+                //if (neurons[i].w_out[j] > 1.0) neurons[i].w_out[j] = 1.0;
+                //if (neurons[i].w_out[j] < -1.0) neurons[i].w_out[j] = -1.0;
+            }
         }
     }
 }
 
-void Pool::setFitness(unsigned int genome, float fitness) {
-    for (unsigned int i = 0; i < genomes[genome].genes.size(); i++) {
+void Pool::setFitness(unsigned genome, float fitness) {
+    for (unsigned i = 0; i < genomes[genome].genes.size(); i++) {
         genomes[genome].genes[i]->fitness += fitness;
     }
 }

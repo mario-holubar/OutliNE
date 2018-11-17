@@ -57,7 +57,7 @@ void Experiment::newGen() {
 
     // Make new cars
     pool->makeGenomes();
-    for (unsigned int i = 0; i < params->n_genomes; i++) {
+    for (unsigned i = 0; i < params->n_genomes; i++) {
         getIndividual(int(i))->seed = unsigned(qrand());
         getIndividual(int(i))->net.from_genome(pool->getGenome(i));
     }
@@ -66,14 +66,14 @@ void Experiment::newGen() {
     resetGen();
     currentGen++;
 
-    //evaluateGen();
+    if (immediateEvaluation) evaluateGen();
 }
 
 // Reinitialize everything
 void Experiment::resetGen() {
     t = 0;
     task->init();
-    for (unsigned int i = 0; i < params->n_genomes; i++) {
+    for (unsigned i = 0; i < params->n_genomes; i++) {
         getIndividual(int(i))->init();
     }
 }
@@ -82,11 +82,14 @@ void Experiment::resetGen() {
 void Experiment::newPool(ParamDialog *d) {
     params->paramDialog(d);
     if (d->exec()) {
+        while (int(params->n_genomes) > individuals.size()) individuals.append(new INDIVIDUAL(task));
+        while (individuals.size() > int(params->n_genomes)) individuals.pop_back();
         delete pool;
         pool = new Pool(params);
         selected = -1;
         t = params->tMax; // current generation doesn't need to be evaluated
         currentGen = 0;
+        resetGen();
         newGen();
     }
 }
@@ -96,7 +99,7 @@ void Experiment::newTask(ParamDialog *d) {
     taskparams->paramDialog(d);
     if (d->exec()) {
         resetGen();
-        //evaluateGen();
+        if (immediateEvaluation) evaluateGen();
     }
 }
 
@@ -104,7 +107,7 @@ void Experiment::newTask(ParamDialog *d) {
 void Experiment::randomizeTask() {
     task->seed = unsigned(rand());
     resetGen();
-    //evaluateGen();
+    if (immediateEvaluation) evaluateGen();
 }
 
 // Helper function, being called by stepAll and evaluateGen
@@ -116,7 +119,7 @@ void individualStep(Individual *a) {
 void Experiment::stepAll() {
     if (t >= params->tMax) return;
 
-    for (unsigned int i = 0; i < params->n_genomes; i++) {
+    for (unsigned i = 0; i < params->n_genomes; i++) {
         Individual *a = getIndividual(int(i));
         individualStep(a);
         pool->setFitness(i, a->getFitness());
@@ -126,9 +129,9 @@ void Experiment::stepAll() {
 
 // Completely evaluate the current generation
 void Experiment::evaluateGen() {
-    for (unsigned int i = 0; i < params->n_genomes; i++) {
+    for (unsigned i = 0; i < params->n_genomes; i++) {
         Individual *a = getIndividual(int(i));
-        for (unsigned int tt = t; tt < params->tMax; tt++) {
+        for (unsigned tt = t; tt < params->tMax; tt++) {
             individualStep(a);
         }
         pool->setFitness(i, a->getFitness());
@@ -170,7 +173,7 @@ void Experiment::draw(QPainter *painter) {
 }
 
 // Helper function for net view
-QColor activationColor(double lerp) {
+QColor Experiment::activationColorNeuron(double lerp) {
     QColor pos(255, 128, 0);
     QColor neg(0, 128, 255);
     QColor background(40, 40, 40);
@@ -189,10 +192,10 @@ QColor activationColor(double lerp) {
 }
 
 // Helper function for net view
-QColor activationColorAlpha(double v, double a) {
-    v = 2.0 / (1.0 + exp(-4.0 * v)) - 1; // exp: draw strength
+QColor Experiment::activationColorWeight(double v, double a) {
+    v = 2.0 / (1.0 + exp(-double(params->sigmoidSteepness) * v)) - 1;
     double val = v * a;
-    QColor c = activationColor(val > 0.0 ? 1 : -1);
+    QColor c = activationColorNeuron(val > 0.0 ? 1 : -1);
     int alpha = int(abs(val * 255));
     c.setAlpha(alpha);
     return c;
@@ -212,19 +215,19 @@ void Experiment::drawNet(QPainter *painter) {
     std::vector<double> inputs = individuals[selected]->getInputs();
     std::vector<double> outputs = individuals[selected]->net.evaluate(inputs);
 
-    for (unsigned int i = 0; i < net.neurons.size(); i++) {
+    for (unsigned i = 0; i < net.neurons.size(); i++) {
         int y = int((float(i) + 0.5f - float(net.neurons.size()) / 2) * 50);
-        for (unsigned int j = 0; j < params->n_inputs; j++) {
+        for (unsigned j = 0; j < params->n_inputs; j++) {
             double a;
             if (j >= inputs.size()) a = 1.0;
             else a = inputs[j];
-            QColor c = activationColorAlpha(net.neurons[i]->w_in[j], a);
+            QColor c = activationColorWeight(net.neurons[i]->w_in[j], a);
             pen.setColor(c);
             painter->setPen(pen);
             painter->drawLine(QLine(0, y, -100, int((j + 0.5f - params->n_inputs / 2.0f) * 50)));
         }
-        for (unsigned int j = 0; j < params->n_outputs; j++) {
-            QColor c = activationColorAlpha(net.neurons[i]->w_out[j], net.neurons[i]->value);
+        for (unsigned j = 0; j < params->n_outputs; j++) {
+            QColor c = activationColorWeight(net.neurons[i]->w_out[j], net.neurons[i]->value);
             pen.setColor(c);
             painter->setPen(pen);
             painter->drawLine(QLine(0, y, 100, int((j + 0.5f - params->n_outputs / 2.0f) * 50)));
@@ -233,19 +236,19 @@ void Experiment::drawNet(QPainter *painter) {
     pen.setColor(QColor(0, 0, 0));
     painter->setPen(pen);
     painter->translate(QPointF(-10, -10));
-    for (unsigned int i = 0; i < net.neurons.size(); i++) {
+    for (unsigned i = 0; i < net.neurons.size(); i++) {
         int y = int((float(i) + 0.5f - float(net.neurons.size()) / 2) * 50);
-        painter->setBrush(QBrush(activationColor(net.neurons[i]->value)));
+        painter->setBrush(QBrush(activationColorNeuron(net.neurons[i]->value)));
         painter->drawEllipse(QRect(0, y, 20, 20));
     }
-    for (unsigned int i = 0; i < params->n_inputs; i++) {
+    for (unsigned i = 0; i < params->n_inputs; i++) {
         double a = 1.0;
         if (i < inputs.size()) a = inputs[i];
-        painter->setBrush(QBrush(activationColor(a)));
+        painter->setBrush(QBrush(activationColorNeuron(a)));
         painter->drawEllipse(QRect(-100, int((i + 0.5f - params->n_inputs / 2.0f) * 50), 20, 20));
     }
-    for (unsigned int i = 0; i < params->n_outputs; i++) {
-        painter->setBrush(QBrush(activationColor(outputs[i])));
+    for (unsigned i = 0; i < params->n_outputs; i++) {
+        painter->setBrush(QBrush(activationColorNeuron(outputs[i])));
         painter->drawEllipse(QRect(100, int((i + 0.5f - params->n_outputs / 2.0f) * 50), 20, 20));
     }
 }

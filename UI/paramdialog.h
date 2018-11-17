@@ -20,8 +20,9 @@ private:
     int r = 0;
 public:
     ParamDialog(QWidget *parent, Qt::WindowFlags f);
-    void addSpinBox(QString s, unsigned int *n, unsigned int min, unsigned int max);
+    void addSpinBox(QString s, unsigned *n, unsigned min, unsigned max);
     void addDoubleSpinBox(QString s, float *n, float min, float max);
+    void addSpacer();
     int exec() override;
 };
 

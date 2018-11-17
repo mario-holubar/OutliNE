@@ -7,20 +7,20 @@
 
 class RacingParams : public Params {
 public:
-    unsigned int trackSegments = 15;
+    unsigned trackSegments = 15;
     float trackPrecision = 3.0f;
-    unsigned int trackWidth = 75;
-    unsigned int trackSegmentOffsetMin = 100;
-    unsigned int trackSegmentOffsetMax = 200;
-    unsigned int trackSegmentAngleOffsetMax = 90;
+    unsigned trackWidth = 75;
+    unsigned trackSegmentOffsetMin = 100;
+    unsigned trackSegmentOffsetMax = 200;
+    unsigned trackSegmentAngleOffsetMax = 90;
     std::vector<std::pair<int, int>> rays;
 
     float maxSpeed = 20.0f;
     float acceleration = 0.05f;
     float turnRate = 1.0f;
-    float minTurnRadius = 75.0f;
-    unsigned int crashFitnessLoss = 4;
-    unsigned int respawnTime = 60;
+    unsigned minTurnRadius = 75;
+    unsigned crashFitnessLoss = 4;
+    unsigned respawnTime = 30;
 
     RacingParams();
     ~RacingParams();

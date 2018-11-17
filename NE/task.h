@@ -14,7 +14,7 @@ public:
 
 class Task {
 public:
-    unsigned int seed;
+    unsigned seed;
     Task();
     virtual ~Task() = 0;
     virtual void init() = 0;
@@ -23,7 +23,7 @@ public:
 
 class Individual {
 public:
-    unsigned int seed;
+    unsigned seed;
     NeuralNet net;
 
     Individual();

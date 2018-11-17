@@ -8,20 +8,20 @@ genome::genome(network_info_container& info, mutation_rate_container& rates){
     max_neuron = network_info.functional_nodes;
 }
 
-void innovation_container::set_innovation_number(unsigned int num){ _number = num; reset(); }
+void innovation_container::set_innovation_number(unsigned num){ _number = num; reset(); }
 
 void innovation_container::reset(){ track.clear(); }
 
-unsigned int innovation_container::add_gene(gene& g){
+unsigned innovation_container::add_gene(gene& g){
     auto it = track.find(std::make_pair(g.from_node, g.to_node));
     if (it == track.end())
         return track[std::make_pair(g.from_node, g.to_node)] = ++_number;
     else
         return (*it).second;
 }
-unsigned int innovation_container::number(){ return _number; }
+unsigned innovation_container::number(){ return _number; }
 
-pool::pool(unsigned int input, unsigned int output, unsigned int bias,
+pool::pool(unsigned input, unsigned output, unsigned bias,
            bool rec){
     this->network_info.input_size = input;
     this->network_info.output_size = output;
@@ -34,7 +34,7 @@ pool::pool(unsigned int input, unsigned int output, unsigned int bias,
     generator.seed(rd());
 
     // create a basic generation with default genomes
-    for (unsigned int i = 0; i<this->speciating_parameters.population; i++){
+    for (unsigned i = 0; i<this->speciating_parameters.population; i++){
         genome new_genome(this->network_info, this->mutation_rates);
         this->mutate(new_genome);
         this->add_to_species(new_genome);
@@ -42,7 +42,7 @@ pool::pool(unsigned int input, unsigned int output, unsigned int bias,
 
 }
 
-unsigned int pool::generation() { return this->generation_number; }
+unsigned pool::generation() { return this->generation_number; }
 
 std::vector<std::pair<specie*, genome*>> pool::get_genomes(){
     std::vector<std::pair<specie*, genome*>> genomes;
@@ -133,20 +133,20 @@ void pool::mutate_link(genome& g, bool force_bias){
     /* network encoding:
      * | input nodes | bias | output nodes |
      */
-    auto is_input = [&](unsigned int node) -> bool {
+    auto is_input = [&](unsigned node) -> bool {
             return node < this->network_info.input_size; };
-    auto is_output = [&](unsigned int node) -> bool {
+    auto is_output = [&](unsigned node) -> bool {
             return node < this->network_info.functional_nodes && node >=
                 (this->network_info.input_size + this->network_info.bias_size); };
-    auto is_bias = [&](unsigned int node) -> bool {
+    auto is_bias = [&](unsigned node) -> bool {
             return node < (this->network_info.input_size + this->network_info.bias_size) && node >= this->network_info.input_size; };
 
-    std::uniform_int_distribution<unsigned int> distributor1(0, g.max_neuron-1);
-    unsigned int neuron1 = distributor1(this->generator);
+    std::uniform_int_distribution<unsigned> distributor1(0, g.max_neuron-1);
+    unsigned neuron1 = distributor1(this->generator);
 
-    std::uniform_int_distribution<unsigned int> distributor2
+    std::uniform_int_distribution<unsigned> distributor2
         (this->network_info.input_size + this->network_info.bias_size, g.max_neuron-1);
-    unsigned int neuron2 = distributor2(this->generator);
+    unsigned neuron2 = distributor2(this->generator);
 
     if (is_output(neuron1) && is_output(neuron2))
         return ;
@@ -158,7 +158,7 @@ void pool::mutate_link(genome& g, bool force_bias){
         std::swap(neuron1, neuron2);
 
     if (force_bias){
-        std::uniform_int_distribution<unsigned int> bias_choose
+        std::uniform_int_distribution<unsigned> bias_choose
             (this->network_info.input_size, this->network_info.input_size + this->network_info.output_size-1);
         neuron1 = bias_choose(this->generator);
     }
@@ -170,8 +170,8 @@ void pool::mutate_link(genome& g, bool force_bias){
             has_recurrence = false;
         else {
 
-            std::queue<unsigned int> que;
-            std::vector<std::vector<unsigned int>> connections(g.max_neuron);
+            std::queue<unsigned> que;
+            std::vector<std::vector<unsigned>> connections(g.max_neuron);
             for (auto it = g.genes.begin(); it != g.genes.end(); it++)
                 connections[(*it).second.from_node].push_back((*it).second.to_node);
             connections[neuron1].push_back(neuron2);
@@ -179,7 +179,7 @@ void pool::mutate_link(genome& g, bool force_bias){
             for (size_t i=0; i<connections[neuron1].size(); i++)
                 que.push(connections[neuron1][i]);
                 while (!que.empty()){
-                unsigned int tmp = que.front();
+                unsigned tmp = que.front();
                 if (tmp == neuron1){
                     has_recurrence = true;
                     break;
@@ -222,8 +222,8 @@ void pool::mutate_node(genome& g){
     g.max_neuron++;
 
     // randomly choose a gene to mutate
-    std::uniform_int_distribution<unsigned int> distributor(0, unsigned(g.genes.size()-1));
-    unsigned int gene_id = distributor(this->generator);
+    std::uniform_int_distribution<unsigned> distributor(0, unsigned(g.genes.size()-1));
+    unsigned gene_id = distributor(this->generator);
     auto it = g.genes.begin();
     std::advance(it, gene_id);
 
@@ -312,7 +312,7 @@ double pool::disjoint(const genome& g1, const genome& g2){
     auto it1 = g1.genes.begin();
     auto it2 = g2.genes.begin();
 
-    unsigned int disjoint_count = 0;
+    unsigned disjoint_count = 0;
     for (; it1 != g1.genes.end(); it1++)
         if (g2.genes.find((*it1).second.innovation_num) == g2.genes.end())
             disjoint_count++;
@@ -328,7 +328,7 @@ double pool::weights(const genome& g1, const genome& g2){
     auto it1 = g1.genes.begin();
 
     double sum = 0.0;
-    unsigned int coincident = 0;
+    unsigned coincident = 0;
 
     for (; it1 != g1.genes.end(); it1++){
         auto it2 = g2.genes.find((*it1).second.innovation_num);
@@ -361,14 +361,14 @@ void pool::rank_globally(){
 }
 
 void pool::calculate_average_fitness(specie& s){
-    unsigned int total = 0;
+    unsigned total = 0;
     for (size_t i=0; i<s.genomes.size(); i++)
         total += s.genomes[i].global_rank;
     s.average_fitness = unsigned(total / s.genomes.size());
 }
 
-unsigned int pool::total_average_fitness(){
-    unsigned int total = 0;
+unsigned pool::total_average_fitness(){
+    unsigned total = 0;
     for (auto s = this->species.begin(); s != this->species.end(); s++)
         total += (*s).average_fitness;
     return total;
@@ -379,7 +379,7 @@ void pool::cull_species(bool cut_to_one) {
         std::sort((*s).genomes.begin(), (*s).genomes.end(),
                 [](genome& a, genome& b){ return a.fitness > b.fitness; });
 
-        unsigned int remaining = unsigned(std::ceil((*s).genomes.size() * 1.0 / 2.0));
+        unsigned remaining = unsigned(std::ceil((*s).genomes.size() * 1.0 / 2.0));
         // this will leave the most fit genome in specie,
         // letting him make more and more babies (until someone in
         // specie beat him or he becomes weaker during mutations
@@ -393,9 +393,9 @@ void pool::cull_species(bool cut_to_one) {
 genome pool::breed_child(specie &s){
     genome child(this->network_info, this->mutation_rates);
     std::uniform_real_distribution<double> distributor(0.0, 1.0);
-    std::uniform_int_distribution<unsigned int> choose_genome(0, unsigned(s.genomes.size()-1));
+    std::uniform_int_distribution<unsigned> choose_genome(0, unsigned(s.genomes.size()-1));
     if (distributor(this->generator) < this->mutation_rates.crossover_chance){
-        unsigned int g1id, g2id;
+        unsigned g1id, g2id;
         genome& g1 = s.genomes[g1id = choose_genome(this->generator)];
         genome& g2 = s.genomes[g2id = choose_genome(this->generator)];
 
@@ -433,7 +433,7 @@ void pool::remove_stale_species(){
 }
 
 void pool::remove_weak_species(){
-    unsigned int sum = this->total_average_fitness();
+    unsigned sum = this->total_average_fitness();
     auto s = this->species.begin();
     while (s != this->species.end()){
         double breed = std::floor((1. * (*s).average_fitness)/(1. * sum)*1.*this->speciating_parameters.population);
@@ -473,18 +473,18 @@ void pool::new_generation(){
     this->remove_weak_species();
 
     std::vector<genome> children;
-    unsigned int sum = this->total_average_fitness();
+    unsigned sum = this->total_average_fitness();
     for (auto s = this->species.begin(); s != this->species.end(); s++){
-        unsigned int breed =
+        unsigned breed =
             unsigned(std::floor( ((1.*(*s).average_fitness) / (1.*sum))*1.*this->speciating_parameters.population) - 1);
-        for (unsigned int i = 0; i < breed; i++)
+        for (unsigned i = 0; i < breed; i++)
             children.push_back(this->breed_child(*s));
     }
 
     this->cull_species(true); // now in each species we have only one genome
 
     // preparing for MAKING BABIES <3
-    std::uniform_int_distribution<unsigned int> choose_specie(0, unsigned(this->species.size()-1));
+    std::uniform_int_distribution<unsigned> choose_specie(0, unsigned(this->species.size()-1));
     std::vector<specie*> species_pointer(0);
     for (auto s = this->species.begin(); s != this->species.end(); s++)
         species_pointer.push_back(&(*s));
@@ -511,7 +511,7 @@ void pool::import_fromfile(std::string filename){
     this->species.clear();
     try {
         // current state
-        unsigned int innovation_num;
+        unsigned innovation_num;
         input >> innovation_num;
         this->innovation.set_innovation_number(innovation_num);
         input >> this->generation_number;
@@ -536,11 +536,11 @@ void pool::import_fromfile(std::string filename){
         this->mutation_rates.read(input);
 
         // species information
-        unsigned int species_number;
+        unsigned species_number;
         input >> species_number;
         this->species.clear();
 
-        for (unsigned int c = 0; c < species_number; c++){
+        for (unsigned c = 0; c < species_number; c++){
             specie new_specie;
         #ifdef GIVING_NAMES_FOR_SPECIES
             input >> new_specie.name;
@@ -549,10 +549,10 @@ void pool::import_fromfile(std::string filename){
             input >> new_specie.average_fitness;
             input >> new_specie.staleness;
 
-            unsigned int specie_population;
+            unsigned specie_population;
             input >> specie_population;
 
-            for (unsigned int i=0; i<specie_population; i++){
+            for (unsigned i=0; i<specie_population; i++){
                 genome new_genome(this->network_info, this->mutation_rates);
                 input >> new_genome.fitness;
                 input >> new_genome.adjusted_fitness;
@@ -560,10 +560,10 @@ void pool::import_fromfile(std::string filename){
 
                 new_genome.mutation_rates.read(input);
 
-                unsigned int gene_number;
+                unsigned gene_number;
                 input >> new_genome.max_neuron >> gene_number;
 
-                for (unsigned int j=0; j<gene_number; j++){
+                for (unsigned j=0; j<gene_number; j++){
                     gene new_gene;
                     input >> new_gene.innovation_num;
                     input >> new_gene.from_node;

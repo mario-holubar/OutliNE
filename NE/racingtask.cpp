@@ -15,11 +15,11 @@ void RacingParams::paramDialog(ParamDialog *d) {
     d->addSpinBox("Track segments", &trackSegments, 8, 999);
     d->addDoubleSpinBox("Track precision", &trackPrecision, 1.0f, 8.0f);
     d->addSpinBox("Track width", &trackWidth, 50, 200);
-
+    d->addSpacer();
     d->addDoubleSpinBox("Max speed", &maxSpeed, 5.0f, 50.0f);
     d->addDoubleSpinBox("Acceleration", &acceleration, 0.0f, 1.0f);
     d->addDoubleSpinBox("Turning rate", &turnRate, 0.1f, 10.0f);
-    d->addDoubleSpinBox("Minimum turning radius", &minTurnRadius, 0.0f, 200.0f);
+    d->addSpinBox("Minimum turning radius", &minTurnRadius, 0, 200);
     d->addSpinBox("Fitness loss on crash", &crashFitnessLoss, 0, 999);
     d->addSpinBox("Respawn time", &respawnTime, 0, 999);
 }
@@ -41,7 +41,7 @@ void RacingTask::init() {
     QPainterPath path = QPainterPath(QPointF(0.0, 0.0));
     QPointF offset(0.0, -double(params->trackSegmentOffsetMax));
     float lastAngle = 90.0f;
-    for (unsigned int i = 0; i < params->trackSegments; i++) {
+    for (unsigned i = 0; i < params->trackSegments; i++) {
         float dist = float(qrand()) / RAND_MAX * (params->trackSegmentOffsetMax - params->trackSegmentOffsetMin) + params->trackSegmentOffsetMin;
         float angle = lastAngle + float(qrand()) / RAND_MAX * 2 * params->trackSegmentAngleOffsetMax - params->trackSegmentAngleOffsetMax;
         QPointF newOffset(qCos(qDegreesToRadians(double(angle))) * double(dist), -qSin(qDegreesToRadians(double(angle))) * double(dist));
@@ -143,7 +143,7 @@ void RacingIndividual::step(std::vector<double> outputs) {
     // Acceleration and turning
     float targetSpeed = float(outputs[0]) * task->params->maxSpeed;
     speed += (targetSpeed - speed) * task->params->acceleration;
-    angle -= float(outputs[1]) * speed / (qMax(speed * speed / task->params->turnRate, task->params->minTurnRadius) * 2 * float(M_PI)) * 360;
+    angle -= float(outputs[1]) * speed / (qMax(speed * speed / task->params->turnRate, float(task->params->minTurnRadius)) * 2 * float(M_PI)) * 360;
 
     // Apply movement
     x += qCos(qDegreesToRadians(double(angle))) * double(speed);
@@ -174,7 +174,7 @@ QPointF RacingIndividual::getPos() {
 
 std::vector<double> RacingIndividual::getInputs() {
     std::vector<double> inputs;
-    for (unsigned int i = 0; i < task->params->rays.size(); i++) {
+    for (unsigned i = 0; i < task->params->rays.size(); i++) {
         inputs.push_back(collisionDist(double(angle + task->params->rays[i].first), double(task->params->rays[i].second)) / double(task->params->rays[i].second));
     }
     inputs.push_back(double(speed / task->params->maxSpeed));
@@ -194,7 +194,7 @@ void RacingIndividual::draw(QPainter *painter, bool selected) {
         c.setAlpha(32);
         rayPen.setColor(c);
         painter->setPen(rayPen);
-        for (unsigned int i = 0; i < task->params->rays.size(); i++) {
+        for (unsigned i = 0; i < task->params->rays.size(); i++) {
             painter->drawLine(QLineF::fromPolar(collisionDist(double(angle + task->params->rays[i].first), double(task->params->rays[i].second)), double(task->params->rays[i].first)));
         }
         painter->setPen(pen);
@@ -209,10 +209,9 @@ void RacingIndividual::draw(QPainter *painter, bool selected) {
         painter->setPen(QPen(QColor(Qt::red)));
         painter->drawRect(QRect(-10, -3, 20, 6));
         painter->setBrush(QBrush(QColor(Qt::green)));
-        painter->drawRect(QRect(-10, -3, int(speed), 6));
-        QPen vis;
-        vis.setColor(QColor(Qt::white));
-        painter->setPen(vis);
+        painter->drawRect(QRect(-10, -3, int(speed * 20.0f / task->params->maxSpeed), 6));
+        pen.setColor(QColor(Qt::white));
+        painter->setPen(pen);
         painter->drawLine(QLine(int(outputs[0] * 10), -2, int(outputs[0] * 10), 2));
         painter->drawLine(QLine(-2, int(outputs[1] * 10), 2, int(outputs[1] * 10)));
     }

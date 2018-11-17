@@ -7,19 +7,19 @@
 
 class SANEParams {
 public:
-    unsigned int n_inputs = 0;
-    unsigned int n_outputs = 0;
+    unsigned n_inputs = 0;
+    unsigned n_outputs = 0;
 
-    unsigned int tMax = 240;
-    unsigned int n_neurons = 64; //NE population
-    unsigned int n_genomes = 64; //cars
-    unsigned int neuronsPerGenome = 6;
+    unsigned tMax = 240;
+    unsigned n_neurons = 64; //NE population
+    unsigned n_genomes = 64; //cars
+    unsigned neuronsPerGenome = 6;
     float initialWeightVariance = 0.5f;
     float mutationNoiseVariance = 0.1f;
     float sigmoidSteepness = 4.0f;
-    unsigned int tournamentSize = 5; //selection pressure
+    unsigned tournamentSize = 5; //selection pressure
 
-    SANEParams(unsigned int inputs, unsigned int outputs);
+    SANEParams(unsigned inputs, unsigned outputs);
     void paramDialog(ParamDialog *d);
 };
 
@@ -29,7 +29,7 @@ public:
     std::vector<double> w_out;
     double value;
     float fitness = 0.0f;
-    unsigned int n_genomes;
+    unsigned n_genomes;
 };
 
 class Genome {
@@ -62,9 +62,9 @@ public:
 
     void makeGenomes();
     void new_generation();
-    void setFitness(unsigned int Genome, float fitness);
+    void setFitness(unsigned Genome, float fitness);
 
-    Genome getGenome(unsigned int i) {return genomes[i];}
+    Genome getGenome(unsigned i) {return genomes[i];}
 };
 
 #endif // SANE_H

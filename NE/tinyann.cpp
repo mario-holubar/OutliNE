@@ -90,9 +90,9 @@ void neuralnet::evaluate_recurrent(const std::vector<double>& input, std::vector
 
 void neuralnet::from_genome(const neat::genome& a){
 
-    unsigned int input_size = a.network_info.input_size;
-    unsigned int output_size = a.network_info.output_size;
-    unsigned int bias_size = a.network_info.bias_size;
+    unsigned input_size = a.network_info.input_size;
+    unsigned output_size = a.network_info.output_size;
+    unsigned bias_size = a.network_info.bias_size;
 
     this->recurrent = a.network_info.recurrent;
 
@@ -102,24 +102,24 @@ void neuralnet::from_genome(const neat::genome& a){
     output_nodes.clear();
 
     neuron tmp;
-    for (unsigned int i=0; i<input_size; i++){
+    for (unsigned i=0; i<input_size; i++){
         nodes.push_back(tmp);
         nodes.back().type = 1;
         this->input_nodes.push_back(nodes.size()-1);
     }
-    for (unsigned int i=0; i<bias_size; i++){
+    for (unsigned i=0; i<bias_size; i++){
         nodes.push_back(tmp);
         nodes.back().type = 3;
         this->bias_nodes.push_back(nodes.size()-1);
     }
-    for (unsigned int i=0; i<output_size; i++){
+    for (unsigned i=0; i<output_size; i++){
         nodes.push_back(tmp);
         nodes.back().type = 2;
         this->output_nodes.push_back(nodes.size()-1);
     }
 
-    std::map<unsigned int, unsigned int> table;
-    for (unsigned int i = 0;
+    std::map<unsigned, unsigned> table;
+    for (unsigned i = 0;
             i<input_nodes.size() + output_nodes.size() + bias_nodes.size(); i++)
         table[i] = i;
 
@@ -169,12 +169,12 @@ void neuralnet::import_fromfile(std::string filename){
         if (rec == "non_recurrent")
             this->recurrent = false;
 
-        unsigned int neuron_number;
+        unsigned neuron_number;
         o >> neuron_number;
         this->nodes.resize(neuron_number);
 
-        for (unsigned int i=0; i<neuron_number; i++){
-            unsigned int input_size, type; // 0 = ordinal, 1 = input, 2 = output
+        for (unsigned i=0; i<neuron_number; i++){
+            unsigned input_size, type; // 0 = ordinal, 1 = input, 2 = output
             nodes[i].value = 0.0;
             nodes[i].visited = false;
 
@@ -189,8 +189,8 @@ void neuralnet::import_fromfile(std::string filename){
             nodes[i].type = int(type);
 
             o >> input_size;
-            for (unsigned int j=0; j<input_size; j++){
-                unsigned int t;
+            for (unsigned j=0; j<input_size; j++){
+                unsigned t;
                 double w;
                 o >> t >> w;
                 nodes[i].in_nodes.push_back(std::make_pair(t, w));
@@ -217,7 +217,7 @@ void neuralnet::export_tofile(std::string filename){
     for (size_t i=0; i<nodes.size(); i++){
         o << nodes[i].type << " ";
         o << nodes[i].in_nodes.size() << std::endl;
-        for (unsigned int j=0; j<nodes[i].in_nodes.size(); j++)
+        for (unsigned j=0; j<nodes[i].in_nodes.size(); j++)
             o << nodes[i].in_nodes[j].first << " "
                 << nodes[i].in_nodes[j].second << " ";
         o << std::endl << std::endl;

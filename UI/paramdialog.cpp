@@ -5,7 +5,7 @@ ParamDialog::ParamDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f
 
 }
 
-void ParamDialog::addSpinBox(QString s, unsigned int *n, unsigned int min, unsigned int max) {
+void ParamDialog::addSpinBox(QString s, unsigned *n, unsigned min, unsigned max) {
     labels.append(new QLabel(s));
     QSpinBox *w = new QSpinBox(this);
     w->setRange(int(min), int(max));
@@ -19,6 +19,7 @@ void ParamDialog::addSpinBox(QString s, unsigned int *n, unsigned int min, unsig
 void ParamDialog::addDoubleSpinBox(QString s, float *n, float min, float max) {
     labels.append(new QLabel(s));
     QDoubleSpinBox *w = new QDoubleSpinBox(this);
+    w->setSingleStep(0.1);
     w->setRange(double(min), double(max));
     w->setValue(double(*n));
     doubleSpinBoxes.append(std::make_pair(w, n));
@@ -27,9 +28,13 @@ void ParamDialog::addDoubleSpinBox(QString s, float *n, float min, float max) {
     r++;
 }
 
-int ParamDialog::exec() {
-    spacers.append(new QSpacerItem(0, 20));
+void ParamDialog::addSpacer() {
+    spacers.append(new QSpacerItem(0, 10));
     l.addItem(spacers.back(), r++, 0, 1, 2);
+}
+
+int ParamDialog::exec() {
+    addSpacer();
 
     QHBoxLayout h;
     l.addLayout(&h, r, 0, 1, 2);

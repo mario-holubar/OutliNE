@@ -20,7 +20,7 @@ void MainView::paintEvent(QPaintEvent *event) {
     QTransform t = transform();
     t.translate(viewport()->size().width() / 2, viewport()->size().height() / 2);
     t.scale(double(zoom), double(zoom));
-    if (following) {
+    if (following && experiment->getSelected() != -1) {
         offset = -experiment->getIndividual(experiment->getSelected())->getPos();
     }
     t.translate(offset.x(), offset.y());

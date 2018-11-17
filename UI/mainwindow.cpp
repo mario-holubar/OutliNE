@@ -18,7 +18,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     timer = new QTimer;
     connect(timer, SIGNAL(timeout()), SLOT(update()));
-    play = false;
 
     newGen();
 }
@@ -35,16 +34,18 @@ void MainWindow::initConnections() {
     connect(ui->button_newPool, SIGNAL(released()), SLOT(newPool()));
     connect(ui->button_newTask, SIGNAL(released()), SLOT(newTask()));
     connect(ui->button_randomizeTask, SIGNAL(released()), SLOT(randomizeTask()));
-    connect(ui->button_play, SIGNAL(released()), SLOT(playPause()));
+    connect(ui->button_play, SIGNAL(clicked(bool)), SLOT(playPause(bool)));
     connect(ui->button_reset, SIGNAL(released()), SLOT(resetGen()));
     connect(ui->button_evaluate, SIGNAL(released()), SLOT(evaluateGen()));
     connect(ui->button_step, SIGNAL(released()), SLOT(step()));
+    connect(ui->checkbox_evaluate, SIGNAL(stateChanged(int)), SLOT(immediateEvaluation(int)));
 }
 
 void MainWindow::initViews() {
     ui->mainView->setExperiment(experiment);
     ui->netView->setExperiment(experiment);
 
+    ui->progressBar->setValue(int(experiment->getT()));
     ui->progressBar->setMaximum(int(experiment->getTMax()));
 
     instanceTableModel = new InstanceModel(this, int(experiment->getPopSize()));
@@ -62,9 +63,9 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::update() {
-    if (play) {
+    if (ui->button_play->isChecked()) {
         if (experiment->getT() >= experiment->getTMax()) {
-            playPause();
+            playPause(false);
             return;
         }
         experiment->stepAll();
@@ -83,13 +84,19 @@ void MainWindow::updateInstanceTable() {
     ui->tableView->repaint();
 }
 
+// Necessary because of an actual bug (https://bugreports.qt.io/browse/QTBUG-68195)
+void MainWindow::showEvent(QShowEvent *event) {
+    QMainWindow::showEvent(event);
+    QMainWindow::restoreState(QMainWindow::saveState());
+}
+
 void MainWindow::newGen() {
     experiment->newGen();
     ui->mainView->following = false;
     ui->tableView->clearSelection();
     updateInstanceTable();
     ui->progressBar->setValue(int(experiment->getT()));
-    if (play) playPause();
+    playPause(false);
     ui->mainView->update();
 }
 
@@ -97,6 +104,7 @@ void MainWindow::newPool() {
     ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
     experiment->newPool(&d);
     initViews();
+    updateInstanceTable();
     update();
 }
 
@@ -111,20 +119,17 @@ void MainWindow::randomizeTask() {
     update();
 }
 
-void MainWindow::playPause() {
-    play = !play;
+void MainWindow::playPause(bool play) {
     if (play && experiment->getT() >= experiment->getTMax()) {
         experiment->resetGen();
     }
     if (play) {
         timer->start(1000 / 30);
-        ui->button_play->setText("◼"); // Resets widget sizes unless one of them has been moved
-        //ui->button_play->setIcon(QIcon(":/icons/pause-16.ico"));
+        ui->button_play->setIcon(QIcon(":/icons/pause.png"));
     }
     else {
         timer->stop();
-        ui->button_play->setText("►");
-        //ui->button_play->setIcon(QIcon(":/icons/play-16.ico"));
+        ui->button_play->setIcon(QIcon(":/icons/play.png"));
     }
 }
 
@@ -159,4 +164,8 @@ void MainWindow::setSelected(const QItemSelection &selection) {
     }
     ui->mainView->update();
     ui->netView->update();
+}
+
+void MainWindow::immediateEvaluation(int eval) {
+    experiment->immediateEvaluation = eval;
 }

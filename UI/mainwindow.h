@@ -20,7 +20,6 @@ private:
     Ui::MainWindow *ui;
     Experiment *experiment;
     QTimer *timer;
-    bool play; //Kind of unnecessary (timer) (?)
     InstanceModel *instanceTableModel;
     QSortFilterProxyModel *proxyModel;
 
@@ -29,6 +28,8 @@ private:
     void initViews();
 
     void updateInstanceTable();
+
+    void showEvent(QShowEvent *event);
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
@@ -40,11 +41,12 @@ private slots:
     void newPool();
     void newTask();
     void randomizeTask();
-    void playPause();
+    void playPause(bool play);
     void evaluateGen();
     void resetGen();
     void step();
     void setSelected(const QItemSelection &selection);
+    void immediateEvaluation(int eval);
 };
 
 #endif // MAINWINDOW_H
