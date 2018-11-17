@@ -3,11 +3,13 @@
 
 #include <QPainter>
 #include "sane.h"
+#include "UI/paramdialog.h"
 
 class Params {
 public:
     Params();
-    virtual ~Params();
+    virtual ~Params() = 0;
+    virtual void paramDialog(ParamDialog *d) = 0;
 };
 
 class Task {
@@ -15,7 +17,7 @@ public:
     unsigned int seed;
     Task();
     virtual ~Task() = 0;
-    virtual void init();
+    virtual void init() = 0;
     virtual void draw(QPainter *painter) = 0;
 };
 

@@ -9,6 +9,10 @@ Params::~Params() {
 
 }
 
+void Params::paramDialog(ParamDialog *d) {
+    Q_UNUSED(d);
+}
+
 Task::Task() {
     seed = unsigned(time(nullptr));
 }

@@ -7,27 +7,25 @@
 #define INDIVIDUAL RacingIndividual
 #define IO 5, 2
 
-Experiment::Experiment()
-    : params(new SANEParams(IO)),
-      individuals(int(params->n_genomes)),
-      pool(params) {
-    currentGen = 0;
-    t = 0;
-    tMax = params->tMax;
-    selected = -1;
-
+Experiment::Experiment() {
+    params = new SANEParams(IO);
+    pool = new Pool(params);
     taskparams = new PARAMS;
     task = new TASK(taskparams);
     for (int i = 0; i < int(params->n_genomes); i++) {
-        individuals[i] = new INDIVIDUAL(task);
+        individuals.append(new INDIVIDUAL(task));
     }
+
+    currentGen = 0;
+    t = 0;
+    selected = -1;
 }
 
 Experiment::~Experiment() {
-    for (Individual *i : individuals) delete i;
     delete task;
     delete params;
     delete taskparams;
+    delete pool;
 }
 
 Individual *Experiment::getIndividual(int i) {
@@ -37,7 +35,7 @@ Individual *Experiment::getIndividual(int i) {
 void Experiment::newGen() {
     if (currentGen > 0) {
         // Make sure fitnesses are correct
-        if (t < tMax) evaluateGen();
+        if (t < params->tMax) evaluateGen();
 
         // Print generation info
         int max = 0;
@@ -54,21 +52,21 @@ void Experiment::newGen() {
         qDebug() << "Min:" << min << ", Avg:" << avg << ", Max:" << max;
 
         // Evolve
-        pool.new_generation();
+        pool->new_generation();
     }
 
     // Make new cars
-    pool.makeGenomes();
+    pool->makeGenomes();
     for (unsigned int i = 0; i < params->n_genomes; i++) {
         getIndividual(int(i))->seed = unsigned(qrand());
-        getIndividual(int(i))->net.from_genome(pool.getGenome(i));
+        getIndividual(int(i))->net.from_genome(pool->getGenome(i));
     }
 
     // Initialize
     resetGen();
     currentGen++;
 
-    evaluateGen();
+    //evaluateGen();
 }
 
 // Reinitialize everything
@@ -80,12 +78,33 @@ void Experiment::resetGen() {
     }
 }
 
-// Reinitialize task
-void Experiment::newMap() {
-    task->seed = unsigned(qrand());
-    task->init();
+// Create new population
+void Experiment::newPool(ParamDialog *d) {
+    params->paramDialog(d);
+    if (d->exec()) {
+        delete pool;
+        pool = new Pool(params);
+        selected = -1;
+        t = params->tMax; // current generation doesn't need to be evaluated
+        currentGen = 0;
+        newGen();
+    }
+}
+
+// Redefine the task
+void Experiment::newTask(ParamDialog *d) {
+    taskparams->paramDialog(d);
+    if (d->exec()) {
+        resetGen();
+        //evaluateGen();
+    }
+}
+
+// Generate new task with same parameters
+void Experiment::randomizeTask() {
+    task->seed = unsigned(rand());
     resetGen();
-    evaluateGen();
+    //evaluateGen();
 }
 
 // Helper function, being called by stepAll and evaluateGen
@@ -95,12 +114,12 @@ void individualStep(Individual *a) {
 
 // Perform one step for all individuals
 void Experiment::stepAll() {
-    if (t >= tMax) return;
+    if (t >= params->tMax) return;
 
     for (unsigned int i = 0; i < params->n_genomes; i++) {
         Individual *a = getIndividual(int(i));
         individualStep(a);
-        pool.setFitness(i, a->getFitness());
+        pool->setFitness(i, a->getFitness());
     }
     t++;
 }
@@ -109,12 +128,12 @@ void Experiment::stepAll() {
 void Experiment::evaluateGen() {
     for (unsigned int i = 0; i < params->n_genomes; i++) {
         Individual *a = getIndividual(int(i));
-        for (unsigned int tt = t; tt < tMax; tt++) {
+        for (unsigned int tt = t; tt < params->tMax; tt++) {
             individualStep(a);
         }
-        pool.setFitness(i, a->getFitness());
+        pool->setFitness(i, a->getFitness());
     }
-    t = tMax;
+    t = params->tMax;
 }
 
 // Draw in main view
@@ -184,7 +203,7 @@ void Experiment::drawNet(QPainter *painter) {
     if (selected == -1) return;
 
     NeuralNet net;
-    net.from_genome(pool.getGenome(unsigned(selected)));
+    net.from_genome(pool->getGenome(unsigned(selected)));
     QPen pen(QColor(255, 255, 255));
     pen.setWidth(2);
     painter->setPen(pen);

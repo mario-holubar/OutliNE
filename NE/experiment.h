@@ -10,10 +10,9 @@ private:
     Params *taskparams;
     Task *task;
     QVector<Individual *> individuals;
-    Pool pool;
+    Pool *pool;
     unsigned int currentGen;
     unsigned int t;
-    unsigned int tMax;
     int selected;
 public:
     Experiment();
@@ -21,14 +20,16 @@ public:
     Individual *getIndividual(int i);
     void newGen();
     void resetGen();
-    void newMap();
+    void newPool(ParamDialog *d);
+    void newTask(ParamDialog *d);
+    void randomizeTask();
     void stepAll();
     void evaluateGen();
     void draw(QPainter *painter);
     void drawNet(QPainter *painter);
 
     unsigned int getPopSize() {return params->n_genomes;}
-    unsigned int getTMax() {return tMax;}
+    unsigned int getTMax() {return params->tMax;}
     unsigned int getCurrentGen() {return currentGen;}
     unsigned int getT() {return t;}
     int getSelected() {return selected;}

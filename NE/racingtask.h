@@ -7,23 +7,24 @@
 
 class RacingParams : public Params {
 public:
-    int trackSegments = 15;
-    float trackPrecision = 3;
-    int trackWidth = 75;
-    int trackSegmentOffsetMin = 100;
-    int trackSegmentOffsetMax = 200;
-    int trackSegmentAngleOffsetMax = 90;
+    unsigned int trackSegments = 15;
+    float trackPrecision = 3.0f;
+    unsigned int trackWidth = 75;
+    unsigned int trackSegmentOffsetMin = 100;
+    unsigned int trackSegmentOffsetMax = 200;
+    unsigned int trackSegmentAngleOffsetMax = 90;
     std::vector<std::pair<int, int>> rays;
 
     float maxSpeed = 20.0f;
     float acceleration = 0.05f;
     float turnRate = 1.0f;
     float minTurnRadius = 75.0f;
-    int crashFitnessLoss = 4;
-    int respawnTime = 60;
+    unsigned int crashFitnessLoss = 4;
+    unsigned int respawnTime = 60;
 
     RacingParams();
     ~RacingParams();
+    void paramDialog(ParamDialog *d);
 };
 
 class RacingTask : public Task {

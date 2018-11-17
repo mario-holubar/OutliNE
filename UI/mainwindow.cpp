@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <QTime>
 #include <UI/mainview.h>
+#include "paramdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -31,8 +32,9 @@ void MainWindow::initMenu() {
 
 void MainWindow::initConnections() {
     connect(ui->button_newGen, SIGNAL(released()), SLOT(newGen()));
-    connect(ui->button_newMap, SIGNAL(released()), SLOT(newMap()));
-    connect(ui->button_newExperiment, SIGNAL(released()), SLOT(newExperiment()));
+    connect(ui->button_newPool, SIGNAL(released()), SLOT(newPool()));
+    connect(ui->button_newTask, SIGNAL(released()), SLOT(newTask()));
+    connect(ui->button_randomizeTask, SIGNAL(released()), SLOT(randomizeTask()));
     connect(ui->button_play, SIGNAL(released()), SLOT(playPause()));
     connect(ui->button_reset, SIGNAL(released()), SLOT(resetGen()));
     connect(ui->button_evaluate, SIGNAL(released()), SLOT(evaluateGen()));
@@ -91,16 +93,21 @@ void MainWindow::newGen() {
     ui->mainView->update();
 }
 
-void MainWindow::newMap() {
-    experiment->newMap();
+void MainWindow::newPool() {
+    ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
+    experiment->newPool(&d);
+    initViews();
     update();
 }
 
-void MainWindow::newExperiment() {
-    delete experiment;
-    experiment = new Experiment();
-    initViews();
-    newGen();
+void MainWindow::newTask() {
+    ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
+    experiment->newTask(&d);
+    update();
+}
+
+void MainWindow::randomizeTask() {
+    experiment->randomizeTask();
     update();
 }
 

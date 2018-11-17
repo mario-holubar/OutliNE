@@ -37,8 +37,9 @@ public:
 private slots:
     void update();
     void newGen();
-    void newMap();
-    void newExperiment();
+    void newPool();
+    void newTask();
+    void randomizeTask();
     void playPause();
     void evaluateGen();
     void resetGen();

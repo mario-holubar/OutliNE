@@ -34,7 +34,8 @@ SOURCES += \
     UI/main.cpp \
     UI/mainview.cpp \
     UI/mainwindow.cpp \
-    UI/netview.cpp
+    UI/netview.cpp \
+    UI/paramdialog.cpp
 
 HEADERS += \
     NE/experiment.h \
@@ -46,7 +47,8 @@ HEADERS += \
     UI/instancemodel.h \
     UI/mainview.h \
     UI/mainwindow.h \
-    UI/netview.h
+    UI/netview.h \
+    UI/paramdialog.h
 
 FORMS += \
     mainwindow.ui

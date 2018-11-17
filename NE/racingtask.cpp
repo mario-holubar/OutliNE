@@ -11,6 +11,19 @@ RacingParams::~RacingParams() {
 
 }
 
+void RacingParams::paramDialog(ParamDialog *d) {
+    d->addSpinBox("Track segments", &trackSegments, 8, 999);
+    d->addDoubleSpinBox("Track precision", &trackPrecision, 1.0f, 8.0f);
+    d->addSpinBox("Track width", &trackWidth, 50, 200);
+
+    d->addDoubleSpinBox("Max speed", &maxSpeed, 5.0f, 50.0f);
+    d->addDoubleSpinBox("Acceleration", &acceleration, 0.0f, 1.0f);
+    d->addDoubleSpinBox("Turning rate", &turnRate, 0.1f, 10.0f);
+    d->addDoubleSpinBox("Minimum turning radius", &minTurnRadius, 0.0f, 200.0f);
+    d->addSpinBox("Fitness loss on crash", &crashFitnessLoss, 0, 999);
+    d->addSpinBox("Respawn time", &respawnTime, 0, 999);
+}
+
 RacingTask::RacingTask(Params *params) {
     this->params = dynamic_cast<RacingParams *>(params);
 }
@@ -28,7 +41,7 @@ void RacingTask::init() {
     QPainterPath path = QPainterPath(QPointF(0.0, 0.0));
     QPointF offset(0.0, -double(params->trackSegmentOffsetMax));
     float lastAngle = 90.0f;
-    for (int i = 0; i < params->trackSegments; i++) {
+    for (unsigned int i = 0; i < params->trackSegments; i++) {
         float dist = float(qrand()) / RAND_MAX * (params->trackSegmentOffsetMax - params->trackSegmentOffsetMin) + params->trackSegmentOffsetMin;
         float angle = lastAngle + float(qrand()) / RAND_MAX * 2 * params->trackSegmentAngleOffsetMax - params->trackSegmentAngleOffsetMax;
         QPointF newOffset(qCos(qDegreesToRadians(double(angle))) * double(dist), -qSin(qDegreesToRadians(double(angle))) * double(dist));
@@ -38,8 +51,8 @@ void RacingTask::init() {
     }
 
     // Convert path to polygons
-    track.append(QLineF(double(-params->trackWidth), 50, double(params->trackWidth), 50));
-    QPointF lastL = QPointF(-params->trackWidth, 50);
+    track.append(QLineF(-double(params->trackWidth), 50, double(params->trackWidth), 50));
+    QPointF lastL = QPointF(-double(params->trackWidth), 50);
     QPointF lastR = QPointF(params->trackWidth, 50);
     for (double i = 0.0; i < 1.0; i += 1.0 / double(params->trackSegments * params->trackPrecision)) {
         QPointF p = path.pointAtPercent(i);
@@ -146,7 +159,7 @@ void RacingIndividual::step(std::vector<double> outputs) {
     QPolygonF poly = task->checkpoints[checkpoint - 1];
     if (checkpoint < task->checkpoints.size() && !poly.containsPoint(getPos(), Qt::OddEvenFill)) {
         fitness -= task->params->crashFitnessLoss;
-        respawnTimer = task->params->respawnTime;
+        respawnTimer = int(task->params->respawnTime);
         speed = 0.0f;
     }
 }

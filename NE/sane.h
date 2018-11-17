@@ -3,12 +3,14 @@
 
 #include <vector>
 #include "QRandomGenerator"
+#include "UI/paramdialog.h"
 
 class SANEParams {
 public:
-    unsigned int tMax = 240;
     unsigned int n_inputs = 0;
     unsigned int n_outputs = 0;
+
+    unsigned int tMax = 240;
     unsigned int n_neurons = 64; //NE population
     unsigned int n_genomes = 64; //cars
     unsigned int neuronsPerGenome = 6;
@@ -18,6 +20,7 @@ public:
     unsigned int tournamentSize = 5; //selection pressure
 
     SANEParams(unsigned int inputs, unsigned int outputs);
+    void paramDialog(ParamDialog *d);
 };
 
 class Neuron {

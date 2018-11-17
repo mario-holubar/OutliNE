@@ -6,6 +6,13 @@ SANEParams::SANEParams(unsigned int inputs, unsigned int outputs) {
     n_outputs = outputs;
 }
 
+void SANEParams::paramDialog(ParamDialog *d) {
+    d->addSpinBox("Total steps per generation", &tMax, 1, 9999);
+    d->addSpinBox("Number of neurons", &n_neurons, 8, 128);
+    d->addSpinBox("Number of individuals", &n_genomes, 16, 128);
+    d->addSpinBox("Neurons per individual", &neuronsPerGenome, 1, 32);
+}
+
 Genome::Genome(SANEParams *p) {
     params = p;
 }
