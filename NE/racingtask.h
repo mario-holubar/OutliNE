@@ -24,7 +24,6 @@ public:
 
     RacingParams();
     ~RacingParams();
-    RacingParams(const RacingParams &p);
 };
 
 class RacingTask : public Task {
@@ -54,7 +53,7 @@ public:
 
     void init();
     double collisionDist(double angle, double maxDist);
-    void step(std::vector<double> inputs);
+    void step(std::vector<double> outputs);
     float getFitness();
     QPointF getPos();
     std::vector<double> getInputs();

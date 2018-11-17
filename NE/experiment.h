@@ -6,7 +6,8 @@
 
 class Experiment {
 private:
-    Params *params;
+    SANEParams *params;
+    Params *taskparams;
     Task *task;
     QVector<Individual *> individuals;
     Pool pool;
@@ -26,7 +27,7 @@ public:
     void draw(QPainter *painter);
     void drawNet(QPainter *painter);
 
-    unsigned int getPopSize() {return params->popSize;}
+    unsigned int getPopSize() {return params->n_genomes;}
     unsigned int getTMax() {return tMax;}
     unsigned int getCurrentGen() {return currentGen;}
     unsigned int getT() {return t;}

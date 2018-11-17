@@ -4,9 +4,6 @@
 #include <QTime>
 
 RacingParams::RacingParams() {
-    n_inputs = 5;
-    n_outputs = 2;
-
     rays = {{45, 200}, {15, 650}, {0, 750}, {-15, 650}, {-45, 200}};
 }
 
@@ -65,8 +62,8 @@ QVector<QLineF> *RacingTask::getTrack() {
 
 void RacingTask::draw(QPainter *painter) {
     // Draw track outline
-    QPen pen(QColor(128, 128, 128));
-    pen.setCosmetic(true);
+    QPen pen = painter->pen();
+    pen.setColor(QColor(128, 128, 128));
     painter->setBrush(QBrush(QColor(12, 12, 12)));
     pen.setCapStyle(Qt::FlatCap);
     pen.setWidth(2);
@@ -114,7 +111,7 @@ double RacingIndividual::collisionDist(double angle, double maxDist) {
     return maxDist;
 }
 
-void RacingIndividual::step(std::vector<double> inputs) {
+void RacingIndividual::step(std::vector<double> outputs) {
     if (respawnTimer > 0) {
         // Car is crashed
         respawnTimer--;
@@ -131,9 +128,9 @@ void RacingIndividual::step(std::vector<double> inputs) {
     }
 
     // Acceleration and turning
-    float targetSpeed = float(inputs[0]) * task->params->maxSpeed;
+    float targetSpeed = float(outputs[0]) * task->params->maxSpeed;
     speed += (targetSpeed - speed) * task->params->acceleration;
-    angle -= float(inputs[1]) * speed / (qMax(speed * speed / task->params->turnRate, task->params->minTurnRadius) * 2 * float(M_PI)) * 360;
+    angle -= float(outputs[1]) * speed / (qMax(speed * speed / task->params->turnRate, task->params->minTurnRadius) * 2 * float(M_PI)) * 360;
 
     // Apply movement
     x += qCos(qDegreesToRadians(double(angle))) * double(speed);

@@ -6,11 +6,6 @@
 
 class Params {
 public:
-    unsigned int popSize = 64;
-    unsigned int tMax = 240;
-    unsigned int n_inputs = 0;
-    unsigned int n_outputs = 0;
-
     Params();
     virtual ~Params();
 };
@@ -32,7 +27,7 @@ public:
     Individual();
     virtual ~Individual() = 0;
     virtual void init() = 0;
-    virtual void step(std::vector<double> inputs) = 0;
+    virtual void step(std::vector<double> outputs) = 0;
     virtual float getFitness() = 0;
     virtual QPointF getPos() = 0;
     virtual std::vector<double> getInputs() = 0;
