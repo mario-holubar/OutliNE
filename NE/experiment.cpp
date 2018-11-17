@@ -1,11 +1,7 @@
 #include "experiment.h"
-#include <QTime>
 #include <QDebug>
-#include "testtask.h"
-#include "racingtask.h"
-#include "creaturestask.h"
-#include "neuralnet.h"
 
+#include "racingtask.h"
 #define PARAMS RacingParams
 #define TASK RacingTask
 #define INDIVIDUAL RacingIndividual
@@ -22,12 +18,11 @@ Experiment::Experiment()
     task = new TASK(params);
     for (int i = 0; i < int(params->popSize); i++) {
         individuals[i] = new INDIVIDUAL(task);
-        //individuals[i]->task = task;
     }
 }
 
 Experiment::~Experiment() {
-    foreach(Individual *i, individuals) delete i;
+    for (Individual *i : individuals) delete i;
     delete task;
     delete params;
 }
@@ -36,39 +31,12 @@ Individual *Experiment::getIndividual(int i) {
     return individuals[i];
 }
 
-void Experiment::stepAll() {
-    if (t >= tMax) return;
-
-    /*QVector<std::pair<double, double>> creatures;
-    for (int i = 0; i < int(popSize); i++) {
-        QPointF pos = individuals[i]->getPos();
-        creatures.append(std::make_pair(pos.x(), pos.y()));
-    }
-    dynamic_cast<CreaturesTask *>(task)->creatures = &creatures;*/
-
-    NeuralNet n;
-    for (unsigned int i = 0; i < params->popSize; i++) {
-        n.from_genome(pool.genomes[i]);
-        Individual *a = getIndividual(int(i));
-        std::vector<double> output = n.evaluate(a->getInputs());
-        a->step(output);
-        unsigned int fitness = unsigned(a->getFitness());
-        pool.genomes[i].fitness = fitness;
-    }
-    t++;
-}
-
-void Experiment::resetGen() {
-    t = 0;
-    task->init();
-    for (unsigned int i = 0; i < params->popSize; i++) {
-        getIndividual(int(i))->init();
-    }
-}
-
 void Experiment::newGen() {
     if (currentGen > 0) {
+        // Make sure fitnesses are correct
         if (t < tMax) evaluateGen();
+
+        // Print generation info
         int max = 0;
         int min = INT_MAX;
         int avg = 0;
@@ -81,78 +49,79 @@ void Experiment::newGen() {
         avg = avg / int(params->popSize);
         qDebug() << "Generation" << currentGen << "concluded.";
         qDebug() << "Min:" << min << ", Avg:" << avg << ", Max:" << max;
+
+        // Evolve
         pool.new_generation();
     }
 
+    // Make new cars
     pool.makeGenomes();
     for (unsigned int i = 0; i < pool.genomes.size(); i++) {
         getIndividual(int(i))->seed = unsigned(qrand());
+        getIndividual(int(i))->net.from_genome(pool.genomes[i]);
     }
 
+    // Initialize
     resetGen();
     currentGen++;
-    //newMap();
+
     evaluateGen();
 }
 
-void Experiment::newMap() { //rename to New Task
-    /*delete task;
-    task = new RacingTask;
-    for (int i = 0; i < int(popSize); i++) {
-        individuals[i]->task = task;
-    }*/
+// Reinitialize everything
+void Experiment::resetGen() {
+    t = 0;
+    task->init();
+    for (unsigned int i = 0; i < params->popSize; i++) {
+        getIndividual(int(i))->init();
+    }
+}
+
+// Reinitialize task
+void Experiment::newMap() {
     task->seed = unsigned(qrand());
     task->init();
     resetGen();
     evaluateGen();
 }
 
-void Experiment::evaluateGen() {
-    /*while(t < tMax) {
-        stepAll();
-    }
-    return;*/
+// Helper function, being called by stepAll and evaluateGen
+void individualStep(Individual *a) {
+    a->step(a->net.evaluate(a->getInputs()));
+}
 
-    NeuralNet n;
+// Perform one step for all individuals
+void Experiment::stepAll() {
+    if (t >= tMax) return;
+
     for (unsigned int i = 0; i < params->popSize; i++) {
-        std::vector<double> output;
-        n.from_genome(pool.genomes[i]);
         Individual *a = getIndividual(int(i));
-        for (int tt = int(t); tt < int(tMax); tt++) {
-            output = n.evaluate(a->getInputs());
-            a->step(output);
+        individualStep(a);
+        pool.setFitness(i, a->getFitness());
+    }
+    t++;
+}
+
+// Completely evaluate the current generation
+void Experiment::evaluateGen() {
+    for (unsigned int i = 0; i < params->popSize; i++) {
+        Individual *a = getIndividual(int(i));
+        for (unsigned int tt = t; tt < tMax; tt++) {
+            individualStep(a);
         }
         pool.setFitness(i, a->getFitness());
     }
     t = tMax;
 }
 
+// Draw in main view
 void Experiment::draw(QPainter *painter) {
     QTransform transform = painter->transform();
-    /*if (selected != -1) {
-        QPointF p = getIndividual(selected)->getPos();
-        transform.translate(-p.x(), -p.y());
-        painter->setTransform(transform);
-    }*/
 
-    QPen pen(QColor(128, 128, 128));
-    pen.setCosmetic(true);
-    painter->setPen(pen);
-    painter->setBrush(QBrush(QColor(12, 12, 12)));
-    task->draw(painter);
-
-    /*pen.setColor(QColor(128, 128, 128, 128));
-    painter->setPen(pen);
-    painter->setBrush(QBrush(QColor(32, 32, 32, 128)));
-    for (int i = 0; i < int(popSize); i++) {
-        if (i == selected) continue;
-        painter->setTransform(transform);
-        getIndividual(i)->draw(painter);
-    }*/
     for (int i = 0; i < int(params->popSize); i++) {
         if (i == selected) continue;
         int hue = int(i * 256.0f / params->popSize);
-        pen.setColor(QColor::fromHsv(hue, 255, 128, 128));
+        QPen pen(QColor::fromHsv(hue, 255, 128, 128));
         painter->setPen(pen);
         painter->setBrush(QBrush(QColor::fromHsv(hue, 255, 32, 128)));
         painter->setTransform(transform);
@@ -161,7 +130,7 @@ void Experiment::draw(QPainter *painter) {
 
     if (selected != -1) {
         int hue = int(selected * 256.0f / params->popSize);
-        pen.setColor(QColor::fromHsv(hue, 255, 255, 255));
+        QPen pen(QColor::fromHsv(hue, 255, 255, 255));
         pen.setWidth(2);
         painter->setPen(pen);
         painter->setBrush(QBrush(QColor::fromHsv(hue, 255, 128, 255)));
@@ -172,6 +141,7 @@ void Experiment::draw(QPainter *painter) {
     painter->setTransform(transform);
 }
 
+// Helper function for net view
 QColor activationColor(double lerp) {
     QColor pos(255, 128, 0);
     QColor neg(0, 128, 255);
@@ -190,6 +160,7 @@ QColor activationColor(double lerp) {
     return c;
 }
 
+// Helper function for net view
 QColor activationColorAlpha(double v, double a) {
     v = 2.0 / (1.0 + exp(-4.0 * v)) - 1; // exp: draw strength
     double val = v * a;
@@ -199,6 +170,7 @@ QColor activationColorAlpha(double v, double a) {
     return c;
 }
 
+// Draw in net view
 void Experiment::drawNet(QPainter *painter) {
     if (selected == -1) return;
 
@@ -209,14 +181,8 @@ void Experiment::drawNet(QPainter *painter) {
     painter->setPen(pen);
     painter->setBrush(QBrush(QColor(32, 32, 32)));
 
-    /*QVector<std::pair<double, double>> creatures;
-    for (int i = 0; i < int(popSize); i++) {
-        QPointF pos = individuals[i]->getPos();
-        creatures.append(std::make_pair(pos.x(), pos.y()));
-    }
-    dynamic_cast<CreaturesTask *>(task)->creatures = &creatures;*/
-
     std::vector<double> inputs = individuals[selected]->getInputs();
+    std::vector<double> outputs = individuals[selected]->net.evaluate(inputs);
 
     for (unsigned int i = 0; i < net.neurons.size(); i++) {
         int y = int((float(i) + 0.5f - float(net.neurons.size()) / 2) * 50);
@@ -237,7 +203,6 @@ void Experiment::drawNet(QPainter *painter) {
         }
     }
     pen.setColor(QColor(0, 0, 0));
-    //pen.setWidth(2);
     painter->setPen(pen);
     painter->translate(QPointF(-10, -10));
     for (unsigned int i = 0; i < net.neurons.size(); i++) {
@@ -252,31 +217,7 @@ void Experiment::drawNet(QPainter *painter) {
         painter->drawEllipse(QRect(-100, int((i + 0.5f - net.n_inputs / 2.0f) * 50), 20, 20));
     }
     for (unsigned int i = 0; i < net.n_outputs; i++) {
-        painter->setBrush(QBrush(activationColor(individuals[selected]->outputs[i])));
+        painter->setBrush(QBrush(activationColor(outputs[i])));
         painter->drawEllipse(QRect(100, int((i + 0.5f - net.n_outputs / 2.0f) * 50), 20, 20));
     }
-}
-
-unsigned int Experiment::getPopSize() {
-    return params->popSize;
-}
-
-unsigned int Experiment::getTMax() {
-    return tMax;
-}
-
-unsigned int Experiment::getCurrentGen() {
-    return currentGen;
-}
-
-unsigned int Experiment::getT() {
-    return t;
-}
-
-int Experiment::getSelected() {
-    return selected;
-}
-
-void Experiment::setSelected(int i) {
-    selected = i;
 }

@@ -2,6 +2,7 @@
 #define TASK_H
 
 #include <QPainter>
+#include "sane.h"
 
 class Params {
 public:
@@ -26,7 +27,7 @@ public:
 class Individual {
 public:
     unsigned int seed;
-    std::vector<double> outputs;
+    NeuralNet net;
 
     Individual();
     virtual ~Individual() = 0;

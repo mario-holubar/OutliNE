@@ -24,36 +24,29 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        main.cpp \
-        mainwindow.cpp \
-    experiment.cpp \
-    mainview.cpp \
-    instancemodel.cpp \
-    task.cpp \
-    testtask.cpp \
-    tinyann.cpp \
-    tinyneat.cpp \
-    netview.cpp \
-    racingtask.cpp \
-    creaturestask.cpp \
-    neuralnet.cpp \
-    sane.cpp
+    NE/experiment.cpp \
+    NE/racingtask.cpp \
+    NE/sane.cpp \
+    NE/task.cpp \
+    NE/tinyann.cpp \
+    NE/tinyneat.cpp \
+    UI/instancemodel.cpp \
+    UI/main.cpp \
+    UI/mainview.cpp \
+    UI/mainwindow.cpp \
+    UI/netview.cpp
 
 HEADERS += \
-        mainwindow.h \
-    task.h \
-    experiment.h \
-    mainview.h \
-    mainview.h \
-    instancemodel.h \
-    testtask.h \
-    tinyann.h \
-    tinyneat.h \
-    netview.h \
-    racingtask.h \
-    creaturestask.h \
-    neuralnet.h \
-    sane.h
+    NE/experiment.h \
+    NE/racingtask.h \
+    NE/sane.h \
+    NE/task.h \
+    NE/tinyann.h \
+    NE/tinyneat.h \
+    UI/instancemodel.h \
+    UI/mainview.h \
+    UI/mainwindow.h \
+    UI/netview.h
 
 FORMS += \
     mainwindow.ui

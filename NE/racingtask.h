@@ -18,7 +18,7 @@ public:
     float maxSpeed = 20.0f;
     float acceleration = 0.05f;
     float turnRate = 1.0f;
-    float minTurnRadius = 80.0f;
+    float minTurnRadius = 75.0f;
     int crashFitnessLoss = 4;
     int respawnTime = 60;
 

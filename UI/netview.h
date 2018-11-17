@@ -4,7 +4,7 @@
 #include <QGraphicsView>
 #include <QtWidgets>
 #include <QWidget>
-#include "experiment.h"
+#include "NE/experiment.h"
 
 class NetView : public QGraphicsView {
     Q_OBJECT

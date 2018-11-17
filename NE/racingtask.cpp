@@ -26,6 +26,7 @@ void RacingTask::init() {
     track.clear();
     checkpoints.clear();
 
+    // Generate track path
     qsrand(seed);
     QPainterPath path = QPainterPath(QPointF(0.0, 0.0));
     QPointF offset(0.0, -double(params->trackSegmentOffsetMax));
@@ -39,6 +40,7 @@ void RacingTask::init() {
         offset = newOffset;
     }
 
+    // Convert path to polygons
     track.append(QLineF(double(-params->trackWidth), 50, double(params->trackWidth), 50));
     QPointF lastL = QPointF(-params->trackWidth, 50);
     QPointF lastR = QPointF(params->trackWidth, 50);
@@ -62,11 +64,16 @@ QVector<QLineF> *RacingTask::getTrack() {
 }
 
 void RacingTask::draw(QPainter *painter) {
-    QPen pen = painter->pen();
+    // Draw track outline
+    QPen pen(QColor(128, 128, 128));
+    pen.setCosmetic(true);
+    painter->setBrush(QBrush(QColor(12, 12, 12)));
     pen.setCapStyle(Qt::FlatCap);
     pen.setWidth(2);
     painter->setPen(pen);
     painter->drawLines(track);
+
+    // Draw track segments
     pen.setColor(QColor(16, 16, 16));
     pen.setWidth(0);
     painter->setPen(pen);
@@ -91,6 +98,7 @@ void RacingIndividual::init() {
 }
 
 double RacingIndividual::collisionDist(double angle, double maxDist) {
+    // Ray tracing
     double rayX = qCos(qDegreesToRadians(angle)) * maxDist;
     double rayY = -qSin(qDegreesToRadians(angle)) * maxDist;
     QLineF ray(getPos(), getPos() + QPointF(rayX, rayY));
@@ -107,14 +115,14 @@ double RacingIndividual::collisionDist(double angle, double maxDist) {
 }
 
 void RacingIndividual::step(std::vector<double> inputs) {
-    outputs = inputs;
-    QVector<QPolygonF> c = dynamic_cast<RacingTask *>(task)->checkpoints;
     if (respawnTimer > 0) {
+        // Car is crashed
         respawnTimer--;
         return;
     }
     else if (respawnTimer == 0) {
-        QPolygonF poly = c[checkpoint - 1];
+        // Respawn car
+        QPolygonF poly = task->checkpoints[checkpoint - 1];
         QPointF center = (poly[0] + poly[1]) / 2;
         x = float(center.x());
         y = float(center.y());
@@ -122,40 +130,28 @@ void RacingIndividual::step(std::vector<double> inputs) {
         respawnTimer--;
     }
 
-    //inputs[0] = inputs[0] / 2 + 0.5;
-    //if (float(inputs[0]) * 20 > speed) speed += (float(inputs[0] * 20) - speed) * 0.015f;
-    //else speed += (float(inputs[0] * 20) - speed) * 0.1f;
-    //if (speed < 0) speed = 0;
-    //if (inputs[0] > 0.0) speed += (20 - speed) * 0.025f * float(inputs[0]);
-    //if (inputs[0] > 0.0) speed += 0.5f * float(inputs[0]);
-    //else speed += speed * 0.1f * float(inputs[0]);
-
-    //float targetSpeed = (float(inputs[0]) / 2 + 0.5f) * 20;
+    // Acceleration and turning
     float targetSpeed = float(inputs[0]) * task->params->maxSpeed;
     speed += (targetSpeed - speed) * task->params->acceleration;
-    //speed *= 0.98f;
-
-    //angle -= inputs[1] * 2;
-    //angle -= 2;
     angle -= float(inputs[1]) * speed / (qMax(speed * speed / task->params->turnRate, task->params->minTurnRadius) * 2 * float(M_PI)) * 360;
 
+    // Apply movement
     x += qCos(qDegreesToRadians(double(angle))) * double(speed);
     y -= qSin(qDegreesToRadians(double(angle))) * double(speed);
 
-    if (c[checkpoint % c.size()].containsPoint(getPos(), Qt::OddEvenFill)) { // can cause phantom car crashes if they skip a checkpoint
+    // Passing checkpoint
+    if (task->checkpoints[checkpoint % task->checkpoints.size()].containsPoint(getPos(), Qt::OddEvenFill)) { // can cause phantom car crashes if they skip a checkpoint
         checkpoint++;
         fitness++;
     }
 
-    QPolygonF poly = c[checkpoint - 1];
-    if (checkpoint < c.size() && !poly.containsPoint(getPos(), Qt::OddEvenFill)) {
-        //checkpoint = qMax(checkpoint - 2, 2);
-        fitness -= task->params->crashFitnessLoss; // punish later generations more?
+    // Check for crash (not in current or next checkpoint)
+    QPolygonF poly = task->checkpoints[checkpoint - 1];
+    if (checkpoint < task->checkpoints.size() && !poly.containsPoint(getPos(), Qt::OddEvenFill)) {
+        fitness -= task->params->crashFitnessLoss;
         respawnTimer = task->params->respawnTime;
         speed = 0.0f;
     }
-
-    //fitness += speed / 100;
 }
 
 float RacingIndividual::getFitness() {
@@ -176,11 +172,12 @@ std::vector<double> RacingIndividual::getInputs() {
 }
 
 void RacingIndividual::draw(QPainter *painter, bool selected) {
-    //if (respawnTimer) return;
     QPen pen = painter->pen();
     painter->translate(double(x), double(y));
     painter->rotate(double(-angle));
+
     if (selected) {
+        // Draw rays
         QPen rayPen = painter->pen();
         rayPen.setWidth(0);
         QColor c = pen.color();
@@ -192,16 +189,20 @@ void RacingIndividual::draw(QPainter *painter, bool selected) {
         }
         painter->setPen(pen);
     }
+
+    // Draw car
     painter->drawRect(-15, -10, 30, 20);
+
     if (selected) {
-        //outputs = evaluate(getInputs()); //enable this when car has network
+        // Show what car will do next step
+        std::vector<double> outputs = net.evaluate(getInputs());
         painter->setPen(QPen(QColor(Qt::red)));
         painter->drawRect(QRect(-10, -3, 20, 6));
         painter->setBrush(QBrush(QColor(Qt::green)));
         painter->drawRect(QRect(-10, -3, int(speed), 6));
-        QPen debug;
-        debug.setColor(QColor(Qt::white));
-        painter->setPen(debug);
+        QPen vis;
+        vis.setColor(QColor(Qt::white));
+        painter->setPen(vis);
         painter->drawLine(QLine(int(outputs[0] * 10), -2, int(outputs[0] * 10), 2));
         painter->drawLine(QLine(-2, int(outputs[1] * 10), 2, int(outputs[1] * 10)));
     }

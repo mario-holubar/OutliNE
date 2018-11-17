@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
-#include "experiment.h"
+#include "NE/experiment.h"
 #include "instancemodel.h"
 #include <QSortFilterProxyModel>
 #include <QItemSelectionModel>

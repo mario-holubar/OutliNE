@@ -4,7 +4,7 @@
 #include <QGraphicsView>
 #include <QtWidgets>
 #include <QWidget>
-#include "experiment.h"
+#include "NE/experiment.h"
 
 class MainView : public QGraphicsView {
     Q_OBJECT

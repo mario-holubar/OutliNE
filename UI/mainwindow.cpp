@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTime>
-#include <mainview.h>
+#include <UI/mainview.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),

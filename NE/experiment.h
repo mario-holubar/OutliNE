@@ -2,39 +2,36 @@
 #define EXPERIMENT_H
 
 #include "task.h"
-#include <QGraphicsScene>
 #include <QPainter>
-#include <QItemSelectionModel>
-#include "tinyneat.h"
-#include "sane.h"
 
 class Experiment {
 private:
     Params *params;
+    Task *task;
+    QVector<Individual *> individuals;
+    Pool pool;
     unsigned int currentGen;
     unsigned int t;
     unsigned int tMax;
     int selected;
-    Task *task;
-    QVector<Individual *> individuals;
-    Pool pool;
 public:
     Experiment();
     ~Experiment();
     Individual *getIndividual(int i);
-    void stepAll();
-    void resetGen();
     void newGen();
+    void resetGen();
     void newMap();
+    void stepAll();
     void evaluateGen();
     void draw(QPainter *painter);
     void drawNet(QPainter *painter);
-    unsigned int getPopSize();
-    unsigned int getTMax();
-    unsigned int getCurrentGen();
-    unsigned int getT();
-    int getSelected();
-    void setSelected(int i);
+
+    unsigned int getPopSize() {return params->popSize;}
+    unsigned int getTMax() {return tMax;}
+    unsigned int getCurrentGen() {return currentGen;}
+    unsigned int getT() {return t;}
+    int getSelected() {return selected;}
+    void setSelected(int i) {selected = i;}
 };
 
 #endif // EXPERIMENT_H
