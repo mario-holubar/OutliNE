@@ -9,7 +9,8 @@
 
 Experiment::Experiment() {
     params = new SANEParams(IO);
-    pool = new Pool(params);
+    pool = new Pool();
+    pool->init(params);
     taskparams = new PARAMS;
     task = new TASK(taskparams);
     for (int i = 0; i < int(params->n_genomes); i++) {
@@ -32,7 +33,7 @@ Individual *Experiment::getIndividual(int i) {
     return individuals[i];
 }
 
-void Experiment::newGen() {
+void Experiment::nextGen() {
     if (currentGen > 0) {
         // Make sure fitnesses are correct
         if (t < params->tMax) evaluateGen();
@@ -78,24 +79,37 @@ void Experiment::resetGen() {
     }
 }
 
-// Create new population
-void Experiment::newPool(ParamDialog *d) {
+// Change pool parameters
+void Experiment::changePool(ParamDialog *d) {
     params->paramDialog(d);
     if (d->exec()) {
         while (int(params->n_genomes) > individuals.size()) individuals.append(new INDIVIDUAL(task));
         while (individuals.size() > int(params->n_genomes)) individuals.pop_back();
-        delete pool;
-        pool = new Pool(params);
+        pool->init(params);
         selected = -1;
         t = params->tMax; // current generation doesn't need to be evaluated
         currentGen = 0;
         resetGen();
-        newGen();
+        nextGen();
     }
 }
 
-// Redefine the task
-void Experiment::newTask(ParamDialog *d) {
+// Create new population
+void Experiment::newPool() {
+    while (int(params->n_genomes) > individuals.size()) individuals.append(new INDIVIDUAL(task));
+    while (individuals.size() > int(params->n_genomes)) individuals.pop_back();
+    delete pool;
+    pool = new Pool();
+    pool->init(params);
+    selected = -1;
+    t = params->tMax; // current generation doesn't need to be evaluated
+    currentGen = 0;
+    resetGen();
+    nextGen();
+}
+
+// Change task parameters
+void Experiment::changeTask(ParamDialog *d) {
     taskparams->paramDialog(d);
     if (d->exec()) {
         resetGen();

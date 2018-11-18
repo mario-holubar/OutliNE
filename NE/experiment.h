@@ -20,10 +20,11 @@ public:
     Experiment();
     ~Experiment();
     Individual *getIndividual(int i);
-    void newGen();
+    void nextGen();
     void resetGen();
-    void newPool(ParamDialog *d);
-    void newTask(ParamDialog *d);
+    void changePool(ParamDialog *d);
+    void newPool();
+    void changeTask(ParamDialog *d);
     void randomizeTask();
     void stepAll();
     void evaluateGen();

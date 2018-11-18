@@ -14,10 +14,10 @@ public:
     unsigned n_neurons = 64; //NE population
     unsigned n_genomes = 64; //cars
     unsigned neuronsPerGenome = 6;
-    float initialWeightVariance = 0.5f;
+    float initialWeightVariance = 0.2f;
     float mutationNoiseVariance = 0.1f;
     float sigmoidSteepness = 4.0f;
-    unsigned tournamentSize = 5; //selection pressure
+    unsigned tournamentSize = 3; //selection pressure
 
     SANEParams(unsigned inputs, unsigned outputs);
     void paramDialog(ParamDialog *d);
@@ -58,12 +58,12 @@ private:
     std::vector<Neuron> neurons;
     std::vector<Genome> genomes;
 public:
-    Pool(SANEParams *p);
-
+    Pool();
+    void makeNeurons();
+    void init(SANEParams *p);
     void makeGenomes();
     void new_generation();
     void setFitness(unsigned Genome, float fitness);
-
     Genome getGenome(unsigned i) {return genomes[i];}
 };
 

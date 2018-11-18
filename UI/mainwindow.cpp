@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     timer = new QTimer;
     connect(timer, SIGNAL(timeout()), SLOT(update()));
 
-    newGen();
+    nextGen();
 }
 
 void MainWindow::initMenu() {
@@ -30,9 +30,10 @@ void MainWindow::initMenu() {
 }
 
 void MainWindow::initConnections() {
-    connect(ui->button_newGen, SIGNAL(released()), SLOT(newGen()));
+    connect(ui->button_nextGen, SIGNAL(released()), SLOT(nextGen()));
+    connect(ui->button_changePool, SIGNAL(released()), SLOT(changePool()));
     connect(ui->button_newPool, SIGNAL(released()), SLOT(newPool()));
-    connect(ui->button_newTask, SIGNAL(released()), SLOT(newTask()));
+    connect(ui->button_changeTask, SIGNAL(released()), SLOT(changeTask()));
     connect(ui->button_randomizeTask, SIGNAL(released()), SLOT(randomizeTask()));
     connect(ui->button_play, SIGNAL(clicked(bool)), SLOT(playPause(bool)));
     connect(ui->button_reset, SIGNAL(released()), SLOT(resetGen()));
@@ -90,8 +91,8 @@ void MainWindow::showEvent(QShowEvent *event) {
     QMainWindow::restoreState(QMainWindow::saveState());
 }
 
-void MainWindow::newGen() {
-    experiment->newGen();
+void MainWindow::nextGen() {
+    experiment->nextGen();
     ui->mainView->following = false;
     ui->tableView->clearSelection();
     updateInstanceTable();
@@ -100,17 +101,24 @@ void MainWindow::newGen() {
     ui->mainView->update();
 }
 
-void MainWindow::newPool() {
+void MainWindow::changePool() {
     ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
-    experiment->newPool(&d);
+    experiment->changePool(&d);
     initViews();
     updateInstanceTable();
     update();
 }
 
-void MainWindow::newTask() {
+void MainWindow::newPool() {
+    experiment->newPool();
+    initViews();
+    updateInstanceTable();
+    update();
+}
+
+void MainWindow::changeTask() {
     ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
-    experiment->newTask(&d);
+    experiment->changeTask(&d);
     update();
 }
 

@@ -11,6 +11,7 @@ void SANEParams::paramDialog(ParamDialog *d) {
     d->addSpinBox("Number of neurons", &n_neurons, 8, 128);
     d->addSpinBox("Number of individuals", &n_genomes, 16, 128);
     d->addSpinBox("Neurons per individual", &neuronsPerGenome, 1, 32);
+    d->addSpacer();
     d->addDoubleSpinBox("Initial weight variance", &initialWeightVariance, 0.01f, 1.0f);
     d->addDoubleSpinBox("Mutation noise variance", &mutationNoiseVariance, 0.0f, 1.0f);
     d->addDoubleSpinBox("Sigmoid steepness", &sigmoidSteepness, 1.0f, 10.0f);
@@ -66,10 +67,12 @@ std::vector<double> NeuralNet::evaluate(std::vector<double> inputs) {
     return outputs;
 }
 
-Pool::Pool(SANEParams *p) {
-    params = p;
+Pool::Pool() {
 
-    // Generate random neurons
+}
+
+// Generate random neurons
+void Pool::makeNeurons() {
     std::random_device rd;
     std::mt19937 generator {rd()};
     std::normal_distribution<double> dist(0.0, double(params->initialWeightVariance));
@@ -85,6 +88,15 @@ Pool::Pool(SANEParams *p) {
         }
         neurons.push_back(n);
     }
+}
+
+void Pool::init(SANEParams *p) {
+    params = p;
+
+    // If new n_neurons is smaller, random neurons get discarded
+    while(neurons.size() > params->n_neurons) neurons.pop_back();
+    // If new n_neurons is larger, random neurons get added (not offspring!)
+    if (neurons.size() < params->n_neurons) makeNeurons();
 
     makeGenomes();
 }
