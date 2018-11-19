@@ -1,6 +1,7 @@
 #include "experiment.h"
 #include <QDebug>
 #include "QTimer"
+#include "time.h"
 
 #include "racingtask.h"
 #define PARAMS RacingParams
@@ -42,6 +43,16 @@ Individual *Experiment::getIndividual(int i) {
     return individuals[i];
 }
 
+// Generate new genomes and update individuals
+void Experiment::makeGenomes() {
+    pool->makeGenomes();
+    for (unsigned i = 0; i < params->n_genomes; i++) {
+        getIndividual(int(i))->seed = unsigned(qrand());
+        getIndividual(int(i))->net.from_genome(pool->getGenome(i));
+    }
+
+}
+
 void Experiment::nextGen() {
     if (currentGen > 0) {
         // Make sure fitnesses are correct
@@ -65,12 +76,7 @@ void Experiment::nextGen() {
         pool->new_generation();
     }
 
-    // Make new cars
-    pool->makeGenomes();
-    for (unsigned i = 0; i < params->n_genomes; i++) {
-        getIndividual(int(i))->seed = unsigned(qrand());
-        getIndividual(int(i))->net.from_genome(pool->getGenome(i));
-    }
+    makeGenomes();
 
     // Initialize
     resetGen();
@@ -96,16 +102,16 @@ void Experiment::changePool() {
         while (int(params->n_genomes) > individuals.size()) individuals.append(new INDIVIDUAL(task));
         while (individuals.size() > int(params->n_genomes)) individuals.pop_back();
         pool->init(params);
-        t = params->tMax; // current generation doesn't need to be evaluated
-        nextGen();
+        makeGenomes();
+        resetGen();
     }
 }
 
 // Create new population
 void Experiment::newPool() {
     selected = -1;
-    params->seed = unsigned(qrand());
     pool->init(params);
+    pool->makeNeurons(true);
     t = params->tMax; // current generation doesn't need to be evaluated
     currentGen = 0;
     nextGen();
@@ -121,7 +127,7 @@ void Experiment::changeTask() {
 
 // Generate new task with same parameters
 void Experiment::randomizeTask() {
-    task->seed = unsigned(rand());
+    task->seed = unsigned(time(nullptr));
     resetGen();
 }
 
@@ -154,7 +160,7 @@ void Experiment::evaluateGen() {
     unsigned oldT = t;
     for (unsigned i = 0; i < params->n_genomes; i++) {
         Individual *a = getIndividual(int(i));
-        for (unsigned tt = t; tt < params->tMax; tt++) {
+        for (unsigned tt = oldT; tt < oldTMax; tt++) {
             individualStep(a);
         }
         pool->setFitness(i, a->getFitness());

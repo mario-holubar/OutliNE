@@ -30,6 +30,7 @@ public:
     Experiment();
     ~Experiment();
     Individual *getIndividual(int i);
+    void makeGenomes();
     void draw(QPainter *painter);
     QColor activationColorNeuron(double lerp);
     QColor activationColorWeight(double v, double a);

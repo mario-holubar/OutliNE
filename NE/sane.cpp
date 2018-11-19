@@ -1,5 +1,6 @@
 #include "sane.h"
 #include "QDebug"
+#include "time.h"
 
 SANEParams::SANEParams(unsigned inputs, unsigned outputs) {
     n_inputs = inputs + 0; // 0 bias neurons
@@ -16,7 +17,6 @@ void SANEParams::paramDialog(ParamDialog *d) {
     d->addDoubleSpinBox("Mutation noise variance", &mutationNoiseVariance, 0.0f, 1.0f);
     d->addDoubleSpinBox("Sigmoid steepness", &sigmoidSteepness, 1.0f, 10.0f);
     d->addSpinBox("Selection pressure (tournament size)", &tournamentSize, 1, 16);
-    d->addSpinBox("Random seed", &seed, 0, UINT_MAX);
 }
 
 Genome::Genome(SANEParams *p) {
@@ -73,11 +73,12 @@ Pool::Pool() {
 }
 
 // Generate random neurons
-void Pool::makeNeurons() {
+void Pool::makeNeurons(bool reset) {
+    if (reset) neurons.clear();
     std::random_device rd;
     std::mt19937 generator {rd()};
     std::normal_distribution<double> dist(0.0, double(params->initialWeightVariance));
-    for (unsigned i = 0; i < params->n_neurons; i++) {
+    while (neurons.size() < params->n_neurons) {
         Neuron n;
         for (unsigned i = 0; i < params->n_inputs; i++) {
             double weight = dist(generator);
@@ -93,13 +94,13 @@ void Pool::makeNeurons() {
 
 void Pool::init(SANEParams *p) {
     params = p;
-    qsrand(params->seed);
-    qDebug() << params->seed;
+
+    rand.seed(rand.generate()); // dunno if this is ok
 
     // If new n_neurons is smaller, random neurons get discarded
     while(neurons.size() > params->n_neurons) neurons.pop_back();
     // If new n_neurons is larger, random neurons get added (not offspring!)
-    if (neurons.size() < params->n_neurons) makeNeurons();
+    if (neurons.size() < params->n_neurons) makeNeurons(false);
 
     makeGenomes();
 }
@@ -109,7 +110,7 @@ void Pool::makeGenomes() {
     for (unsigned i = 0; i < params->n_genomes; i++) {
         Genome g(params);
         for(unsigned j = 0; j < params->neuronsPerGenome; j++) {
-            unsigned index = unsigned(qrand()) % params->n_neurons;
+            unsigned index = unsigned(rand.generate()) % params->n_neurons;
             neurons[index].n_genomes++;
             g.genes.push_back(&neurons[index]);
         }
@@ -136,7 +137,7 @@ void Pool::new_generation() {
         float bestFitness = -1.0f;
         unsigned bestIndex = 0;
         for (unsigned k = 0; k < tournamentSize; k++) {
-            unsigned c = unsigned(qrand()) % params->n_neurons;
+            unsigned c = unsigned(rand.generate()) % params->n_neurons;
             if (neurons[c].fitness > bestFitness) {
                 bestFitness = neurons[c].fitness;
                 bestIndex = c;
@@ -146,7 +147,7 @@ void Pool::new_generation() {
         bestFitness = -1.0f;
         bestIndex = 0;
         for (unsigned k = 0; k < tournamentSize; k++) {
-            unsigned c = unsigned(qrand()) % params->n_neurons;
+            unsigned c = unsigned(rand.generate()) % params->n_neurons;
             if (neurons[c].fitness > bestFitness) {
                 bestFitness = neurons[c].fitness;
                 bestIndex = c;
@@ -157,7 +158,7 @@ void Pool::new_generation() {
         // Random crossover
         Neuron c1, c2;
         for (unsigned i = 0; i < params->n_inputs; i++) {
-            if (qrand() % 2) {
+            if (rand.generate() % 2) {
                 c1.w_in.push_back(p1.w_in[i]);
                 c2.w_in.push_back(p2.w_in[i]);
             }
@@ -167,7 +168,7 @@ void Pool::new_generation() {
             }
         }
         for (unsigned i = 0; i < params->n_outputs; i++) {
-            if (qrand() % 2) {
+            if (rand.generate() % 2) {
                 c1.w_out.push_back(p1.w_out[i]);
                 c2.w_out.push_back(p2.w_out[i]);
             }

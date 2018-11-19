@@ -18,7 +18,6 @@ public:
     float mutationNoiseVariance = 0.1f;
     float sigmoidSteepness = 4.0f;
     unsigned tournamentSize = 3; //selection pressure
-    unsigned seed = 0;
 
     SANEParams(unsigned inputs, unsigned outputs);
     void paramDialog(ParamDialog *d);
@@ -58,9 +57,10 @@ private:
     SANEParams *params;
     std::vector<Neuron> neurons;
     std::vector<Genome> genomes;
+    QRandomGenerator rand;
 public:
     Pool();
-    void makeNeurons();
+    void makeNeurons(bool reset);
     void init(SANEParams *p);
     void makeGenomes();
     void new_generation();
