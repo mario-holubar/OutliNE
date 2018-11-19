@@ -11,13 +11,14 @@ public:
     unsigned n_outputs = 0;
 
     unsigned tMax = 240;
-    unsigned n_neurons = 64; //NE population
+    unsigned n_neurons = 32; //NE population
     unsigned n_genomes = 64; //cars
     unsigned neuronsPerGenome = 6;
-    float initialWeightVariance = 0.5f;
+    float initialWeightVariance = 0.25f;
     float mutationNoiseVariance = 0.1f;
     float sigmoidSteepness = 4.0f;
     unsigned tournamentSize = 3; //selection pressure
+    unsigned seed = 0;
 
     SANEParams(unsigned inputs, unsigned outputs);
     void paramDialog(ParamDialog *d);

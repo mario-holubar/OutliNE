@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
       ui(new Ui::MainWindow),
       experiment(new Experiment()) {
     ui->setupUi(this);
+    QLocale::setDefault(QLocale::c());
 
     initMenu();
     initConnections();
@@ -49,11 +50,11 @@ void MainWindow::initConnections() {
     connect(ui->button_step, SIGNAL(released()), SLOT(step()));
 
     connect(this, SIGNAL(experiment_nextGen()), experiment, SLOT(nextGen()));
-    connect(this, SIGNAL(experiment_changePool()), experiment, SLOT(queuePoolDialog()));
-    connect(experiment, SIGNAL(makePoolDialog()), this, SLOT(changePool()), Qt::BlockingQueuedConnection);
+    connect(this, SIGNAL(experiment_changePool()), experiment, SLOT(changePool()));
+    connect(experiment, SIGNAL(requestPoolDialog()), this, SLOT(makePoolDialog()), Qt::BlockingQueuedConnection);
     connect(this, SIGNAL(experiment_newPool()), experiment, SLOT(newPool()));
-    connect(this, SIGNAL(experiment_changeTask()), experiment, SLOT(queueTaskDialog()));
-    connect(experiment, SIGNAL(makeTaskDialog()), this, SLOT(changeTask()), Qt::BlockingQueuedConnection);
+    connect(this, SIGNAL(experiment_changeTask()), experiment, SLOT(changeTask()));
+    connect(experiment, SIGNAL(requestTaskDialog()), this, SLOT(makeTaskDialog()), Qt::BlockingQueuedConnection);
     connect(this, SIGNAL(experiment_randomizeTask()), experiment, SLOT(randomizeTask()));
     connect(this, SIGNAL(experiment_evaluateGen()), experiment, SLOT(evaluateGen()));
     connect(this, SIGNAL(experiment_resetGen()), experiment, SLOT(resetGen()));
@@ -84,6 +85,7 @@ MainWindow::~MainWindow() {
 void MainWindow::updateViews() {
     ui->mainView->update();
     ui->netView->update();
+    ui->progressBar->setMaximum(int(experiment->getTMax()));
     ui->progressBar->setValue(int(experiment->getT()));
     updateInstanceTable();
 }
@@ -96,7 +98,6 @@ void MainWindow::stepUpdate() {
         }
         step();
     }
-    //updateViews();
 }
 
 void MainWindow::playPause(bool play) {
@@ -148,16 +149,23 @@ void MainWindow::nextGen() {
 
 void MainWindow::queuePoolDialog() {
     emit experiment_changePool();
-    emit experiment_resetGen();
-    emit experiment_nextGen();
+    if (ui->checkbox_evaluate->isChecked()) evaluateGen();
+    //emit experiment_resetGen();
+    //emit experiment_nextGen();
 }
 
-void MainWindow::changePool() {
+/*void MainWindow::changePool() {
     ParamDialog *d = new ParamDialog(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
-    //emit experiment_changePool(d);
     experiment->changePool(d);
     if (ui->checkbox_evaluate->isChecked()) evaluateGen();
     initViews();
+}*/
+
+void MainWindow::makePoolDialog() {
+    //ParamDialog *d = new ParamDialog(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
+    ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
+    experiment->params->paramDialog(&d);
+    experiment->poolChanged = d.exec();
 }
 
 void MainWindow::newPool() {
@@ -168,14 +176,20 @@ void MainWindow::newPool() {
 
 void MainWindow::queueTaskDialog() {
     emit experiment_changeTask();
-    emit experiment_resetGen();
+    if (ui->checkbox_evaluate->isChecked()) evaluateGen();
+    //emit experiment_resetGen();
 }
 
-void MainWindow::changeTask() {
+/*void MainWindow::changeTask() {
     ParamDialog *d = new ParamDialog(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
-    //emit experiment_changeTask(d);
     experiment->changeTask(d);
     if (ui->checkbox_evaluate->isChecked()) evaluateGen();
+}*/
+
+void MainWindow::makeTaskDialog() {
+    ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
+    experiment->taskparams->paramDialog(&d);
+    experiment->taskChanged = d.exec();
 }
 
 void MainWindow::randomizeTask() {

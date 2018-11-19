@@ -9,13 +9,14 @@ SANEParams::SANEParams(unsigned inputs, unsigned outputs) {
 void SANEParams::paramDialog(ParamDialog *d) {
     d->addSpinBox("Total steps per generation", &tMax, 1, 9999);
     d->addSpinBox("Number of neurons", &n_neurons, 8, 128);
-    d->addSpinBox("Number of individuals", &n_genomes, 16, 128);
+    d->addSpinBox("Number of individuals", &n_genomes, 16, 512);
     d->addSpinBox("Neurons per individual", &neuronsPerGenome, 1, 32);
     d->addSpacer();
     d->addDoubleSpinBox("Initial weight variance", &initialWeightVariance, 0.01f, 1.0f);
     d->addDoubleSpinBox("Mutation noise variance", &mutationNoiseVariance, 0.0f, 1.0f);
     d->addDoubleSpinBox("Sigmoid steepness", &sigmoidSteepness, 1.0f, 10.0f);
     d->addSpinBox("Selection pressure (tournament size)", &tournamentSize, 1, 16);
+    d->addSpinBox("Random seed", &seed, 0, UINT_MAX);
 }
 
 Genome::Genome(SANEParams *p) {
@@ -92,6 +93,8 @@ void Pool::makeNeurons() {
 
 void Pool::init(SANEParams *p) {
     params = p;
+    qsrand(params->seed);
+    qDebug() << params->seed;
 
     // If new n_neurons is smaller, random neurons get discarded
     while(neurons.size() > params->n_neurons) neurons.pop_back();

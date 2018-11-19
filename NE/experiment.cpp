@@ -88,50 +88,34 @@ void Experiment::resetGen() {
     updateView();
 }
 
-void Experiment::queuePoolDialog() {
-    makePoolDialog();
-}
-
 // Change pool parameters
-void Experiment::changePool(ParamDialog *d) {
-    params->paramDialog(d);
-    if (d->exec()) {
-        delete d;
+void Experiment::changePool() {
+    emit requestPoolDialog();
+    if (poolChanged) {
+        selected = -1;
         while (int(params->n_genomes) > individuals.size()) individuals.append(new INDIVIDUAL(task));
         while (individuals.size() > int(params->n_genomes)) individuals.pop_back();
         pool->init(params);
-        selected = -1;
         t = params->tMax; // current generation doesn't need to be evaluated
-        currentGen = 0;
-        //resetGen();
-        //nextGen();
+        nextGen();
     }
 }
 
 // Create new population
 void Experiment::newPool() {
-    while (int(params->n_genomes) > individuals.size()) individuals.append(new INDIVIDUAL(task));
-    while (individuals.size() > int(params->n_genomes)) individuals.pop_back();
-    delete pool;
-    pool = new Pool();
-    pool->init(params);
     selected = -1;
+    params->seed = unsigned(qrand());
+    pool->init(params);
     t = params->tMax; // current generation doesn't need to be evaluated
     currentGen = 0;
-    resetGen();
     nextGen();
 }
 
-void Experiment::queueTaskDialog() {
-    makeTaskDialog();
-}
-
 // Change task parameters
-void Experiment::changeTask(ParamDialog *d) {
-    taskparams->paramDialog(d);
-    if (d->exec()) {
-        delete d;
-        //resetGen();
+void Experiment::changeTask() {
+    emit requestTaskDialog();
+    if (taskChanged) {
+        resetGen();
     }
 }
 
@@ -162,9 +146,11 @@ void Experiment::stepAll() {
 // Completely evaluate the current generation
 void Experiment::evaluateGen() {
     updateView();
-    QTimer updateTimer;
-    connect(&updateTimer, SIGNAL(timeout()), this, SLOT(queueViewUpdate()));
-    updateTimer.start(1000 / 30); // update interval
+    //QTimer updateTimer;
+    //connect(&updateTimer, SIGNAL(timeout()), this, SIGNAL(updateView()));
+    //updateTimer.start(1000 / 30); // update interval
+    unsigned oldTMax = params->tMax;
+    params->tMax = params->n_genomes;
     unsigned oldT = t;
     for (unsigned i = 0; i < params->n_genomes; i++) {
         Individual *a = getIndividual(int(i));
@@ -174,14 +160,11 @@ void Experiment::evaluateGen() {
         pool->setFitness(i, a->getFitness());
 
         t = oldT + (params->tMax - oldT) * i / params->n_genomes;
-        if (i % 10 == 0) updateView(); //
+        if (i % 5 == 0) updateView(); //
     }
-    t = params->tMax;
+    params->tMax = oldTMax;
+    t = oldTMax;
     updateView();
-}
-
-void Experiment::queueViewUpdate() {
-    emit updateView();
 }
 
 // Draw in main view

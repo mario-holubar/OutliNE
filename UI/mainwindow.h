@@ -52,10 +52,10 @@ private slots:
     void setSelected(const QItemSelection &selection);
     void nextGen();
     void queuePoolDialog();
-    void changePool();
+    void makePoolDialog();
     void newPool();
     void queueTaskDialog();
-    void changeTask();
+    void makeTaskDialog();
     void randomizeTask();
     void evaluateGen();
     void resetGen();
