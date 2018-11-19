@@ -206,7 +206,10 @@ void RacingIndividual::draw(QPainter *painter, bool selected) {
     if (selected) {
         // Show what car will do next step
         std::vector<double> outputs = net.evaluate(getInputs());
-        painter->setPen(QPen(QColor(Qt::red)));
+        pen.setCosmetic(false);
+        pen.setColor(Qt::red);
+        pen.setWidth(1);
+        painter->setPen(pen);
         painter->drawRect(QRect(-10, -3, 20, 6));
         painter->setBrush(QBrush(QColor(Qt::green)));
         painter->drawRect(QRect(-10, -3, int(speed * 20.0f / task->params->maxSpeed), 6));

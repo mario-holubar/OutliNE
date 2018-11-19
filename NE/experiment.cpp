@@ -56,21 +56,21 @@ void Experiment::makeGenomes() {
 void Experiment::nextGen() {
     if (currentGen > 0) {
         // Make sure fitnesses are correct
-        if (t < params->tMax) evaluateGen();
+        //if (t < params->tMax) evaluateGen();
 
         // Print generation info
-        int max = 0;
+        /*int max = 0;
         int min = INT_MAX;
         int avg = 0;
         for (int i = 0; i < int(params->n_genomes); i++) {
-            int f = int(individuals[i]->getFitness());
+            int f = int(pool->genomes[i].fitness);
             avg += f;
             if (f < min) min = f;
             if (f > max) max = f;
         }
         avg = avg / int(params->n_genomes);
         qDebug() << "Generation" << currentGen << "concluded.";
-        qDebug() << "Min:" << min << ", Avg:" << avg << ", Max:" << max;
+        qDebug() << "Min:" << min << ", Avg:" << avg << ", Max:" << max;*/
 
         // Evolve
         pool->new_generation();
@@ -81,6 +81,50 @@ void Experiment::nextGen() {
     // Initialize
     resetGen();
     currentGen++;
+    updateView();
+    evaluateGen();
+}
+
+// Helper function, being called by stepAll and evaluateGen
+void individualStep(Individual *a) {
+    a->step(a->net.evaluate(a->getInputs()));
+}
+
+// Perform one step for all individuals
+void Experiment::stepAll() {
+    if (t >= params->tMax) return;
+
+    for (unsigned i = 0; i < params->n_genomes; i++) {
+        Individual *a = getIndividual(int(i));
+        individualStep(a);
+        //pool->setFitness(i, a->getFitness());
+    }
+    t++;
+    updateView();
+}
+
+// Completely evaluate the current generation
+void Experiment::evaluateGen() {
+    if (t == params->tMax) return;
+    updateView();
+    //QTimer updateTimer;
+    //connect(&updateTimer, SIGNAL(timeout()), this, SIGNAL(updateView()));
+    //updateTimer.start(1000 / 30); // update interval
+    unsigned oldTMax = params->tMax;
+    params->tMax = params->n_genomes;
+    unsigned oldT = t;
+    for (unsigned i = 0; i < params->n_genomes; i++) {
+        Individual *a = getIndividual(int(i));
+        for (unsigned tt = oldT; tt < oldTMax; tt++) {
+            individualStep(a);
+        }
+        pool->setFitness(i, a->getFitness());
+
+        t = oldT + (params->tMax - oldT) * i / params->n_genomes;
+        if (i % 5 == 0) updateView(); //
+    }
+    params->tMax = oldTMax;
+    t = oldTMax;
     updateView();
 }
 
@@ -105,6 +149,7 @@ void Experiment::changePool() {
         makeGenomes();
         resetGen();
     }
+    evaluateGen();
 }
 
 // Create new population
@@ -123,54 +168,14 @@ void Experiment::changeTask() {
     if (taskChanged) {
         resetGen();
     }
+    evaluateGen();
 }
 
 // Generate new task with same parameters
 void Experiment::randomizeTask() {
     task->seed = unsigned(time(nullptr));
     resetGen();
-}
-
-// Helper function, being called by stepAll and evaluateGen
-void individualStep(Individual *a) {
-    a->step(a->net.evaluate(a->getInputs()));
-}
-
-// Perform one step for all individuals
-void Experiment::stepAll() {
-    if (t >= params->tMax) return;
-
-    for (unsigned i = 0; i < params->n_genomes; i++) {
-        Individual *a = getIndividual(int(i));
-        individualStep(a);
-        pool->setFitness(i, a->getFitness());
-    }
-    t++;
-    updateView();
-}
-
-// Completely evaluate the current generation
-void Experiment::evaluateGen() {
-    updateView();
-    //QTimer updateTimer;
-    //connect(&updateTimer, SIGNAL(timeout()), this, SIGNAL(updateView()));
-    //updateTimer.start(1000 / 30); // update interval
-    unsigned oldTMax = params->tMax;
-    params->tMax = params->n_genomes;
-    unsigned oldT = t;
-    for (unsigned i = 0; i < params->n_genomes; i++) {
-        Individual *a = getIndividual(int(i));
-        for (unsigned tt = oldT; tt < oldTMax; tt++) {
-            individualStep(a);
-        }
-        pool->setFitness(i, a->getFitness());
-
-        t = oldT + (params->tMax - oldT) * i / params->n_genomes;
-        if (i % 5 == 0) updateView(); //
-    }
-    params->tMax = oldTMax;
-    t = oldTMax;
-    updateView();
+    evaluateGen();
 }
 
 // Draw in main view

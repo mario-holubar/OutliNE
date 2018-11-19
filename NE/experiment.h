@@ -48,13 +48,13 @@ signals:
     void updateView();
 public slots:
     void stepAll();
+    void evaluateGen();
     void nextGen();
     void resetGen();
     void changePool();
     void newPool();
     void changeTask();
     void randomizeTask();
-    void evaluateGen();
 };
 
 #endif // EXPERIMENT_H

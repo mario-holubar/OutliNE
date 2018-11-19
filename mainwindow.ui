@@ -495,7 +495,14 @@ QTableView::item:selected {
            </property>
           </spacer>
          </item>
-         <item row="9" column="0">
+         <item row="4" column="0">
+          <widget class="QPushButton" name="button_randomizeTask">
+           <property name="text">
+            <string>Randomize task</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -508,23 +515,10 @@ QTableView::item:selected {
            </property>
           </spacer>
          </item>
-         <item row="4" column="0">
-          <widget class="QPushButton" name="button_randomizeTask">
+         <item row="3" column="0">
+          <widget class="QPushButton" name="button_changeTask">
            <property name="text">
-            <string>Randomize task</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
-          <widget class="QCheckBox" name="checkbox_evaluate">
-           <property name="text">
-            <string>Evaluate immediately</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
+            <string>Change task parameters...</string>
            </property>
           </widget>
          </item>
@@ -532,13 +526,6 @@ QTableView::item:selected {
           <widget class="QPushButton" name="button_changePool">
            <property name="text">
             <string>Change NE parameters...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QPushButton" name="button_changeTask">
-           <property name="text">
-            <string>Change task parameters...</string>
            </property>
           </widget>
          </item>

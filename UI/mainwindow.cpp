@@ -61,6 +61,12 @@ void MainWindow::initConnections() {
     connect(this, SIGNAL(experiment_step()), experiment, SLOT(stepAll()));
 }
 
+// Necessary because of an actual bug (https://bugreports.qt.io/browse/QTBUG-68195)
+void MainWindow::showEvent(QShowEvent *event) {
+    QMainWindow::showEvent(event);
+    QMainWindow::restoreState(QMainWindow::saveState());
+}
+
 void MainWindow::initViews() {
     ui->mainView->setExperiment(experiment);
     ui->netView->setExperiment(experiment);
@@ -90,14 +96,13 @@ void MainWindow::updateViews() {
     updateInstanceTable();
 }
 
-void MainWindow::stepUpdate() {
-    if (ui->button_play->isChecked()) {
-        if (experiment->getT() >= experiment->getTMax()) {
-            playPause(false);
-            return;
-        }
-        step();
+void MainWindow::updateInstanceTable() {
+    if (int(experiment->getPopSize()) > instanceTableModel->fitness.size()) instanceTableModel->fitness.resize(int(experiment->getPopSize()));
+    for (int i = 0; i < int(experiment->getPopSize()); i++) {
+        instanceTableModel->fitness[i] = experiment->getIndividual(i)->getFitness();
     }
+    proxyModel->invalidate();
+    ui->tableView->repaint();
 }
 
 void MainWindow::playPause(bool play) {
@@ -115,18 +120,14 @@ void MainWindow::playPause(bool play) {
     }
 }
 
-void MainWindow::updateInstanceTable() {
-    for (int i = 0; i < int(experiment->getPopSize()); i++) {
-        instanceTableModel->fitness[i] = experiment->getIndividual(i)->getFitness();
+void MainWindow::stepUpdate() {
+    if (ui->button_play->isChecked()) {
+        if (experiment->getT() >= experiment->getTMax()) {
+            playPause(false);
+            return;
+        }
+        step();
     }
-    proxyModel->invalidate();
-    ui->tableView->repaint();
-}
-
-// Necessary because of an actual bug (https://bugreports.qt.io/browse/QTBUG-68195)
-void MainWindow::showEvent(QShowEvent *event) {
-    QMainWindow::showEvent(event);
-    QMainWindow::restoreState(QMainWindow::saveState());
 }
 
 void MainWindow::setSelected(const QItemSelection &selection) {
@@ -141,7 +142,7 @@ void MainWindow::setSelected(const QItemSelection &selection) {
 
 void MainWindow::nextGen() {
     emit experiment_nextGen();
-    if (ui->checkbox_evaluate->isChecked()) evaluateGen();
+    //if (ui->checkbox_evaluate->isChecked()) evaluateGen();
     ui->mainView->following = false;
     ui->tableView->clearSelection();
     playPause(false);
@@ -149,7 +150,7 @@ void MainWindow::nextGen() {
 
 void MainWindow::queuePoolDialog() {
     emit experiment_changePool();
-    if (ui->checkbox_evaluate->isChecked()) evaluateGen();
+    //if (ui->checkbox_evaluate->isChecked()) evaluateGen();
     //emit experiment_resetGen();
     //emit experiment_nextGen();
 }
@@ -170,13 +171,13 @@ void MainWindow::makePoolDialog() {
 
 void MainWindow::newPool() {
     emit experiment_newPool();
-    if (ui->checkbox_evaluate->isChecked()) evaluateGen();
+    //if (ui->checkbox_evaluate->isChecked()) evaluateGen();
     initViews();
 }
 
 void MainWindow::queueTaskDialog() {
     emit experiment_changeTask();
-    if (ui->checkbox_evaluate->isChecked()) evaluateGen();
+    //if (ui->checkbox_evaluate->isChecked()) evaluateGen();
     //emit experiment_resetGen();
 }
 
@@ -194,7 +195,7 @@ void MainWindow::makeTaskDialog() {
 
 void MainWindow::randomizeTask() {
     emit experiment_randomizeTask();
-    if (ui->checkbox_evaluate->isChecked()) evaluateGen();
+    //if (ui->checkbox_evaluate->isChecked()) evaluateGen();
 }
 
 void MainWindow::evaluateGen() {

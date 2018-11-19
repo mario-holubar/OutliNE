@@ -10,6 +10,8 @@ void ParamDialog::addSpinBox(QString s, unsigned *n, unsigned min, unsigned max)
     QSpinBox *w = new QSpinBox(this);
     w->setRange(int(min), int(max));
     w->setValue(int(*n));
+    w->setAccelerated(true);
+    w->setCorrectionMode(QAbstractSpinBox::CorrectToNearestValue);
     spinBoxes.append(std::make_pair(w, n));
     l.addWidget(labels.back(), r, 0);
     l.addWidget(w, r, 1);
@@ -22,6 +24,8 @@ void ParamDialog::addDoubleSpinBox(QString s, float *n, float min, float max) {
     w->setSingleStep(0.1);
     w->setRange(double(min), double(max));
     w->setValue(double(*n));
+    w->setAccelerated(true);
+    w->setCorrectionMode(QAbstractSpinBox::CorrectToNearestValue);
     doubleSpinBoxes.append(std::make_pair(w, n));
     l.addWidget(labels.back(), r, 0);
     l.addWidget(w, r, 1);
