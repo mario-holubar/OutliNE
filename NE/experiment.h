@@ -3,8 +3,17 @@
 
 #include "task.h"
 #include <QPainter>
+#include "QMutex"
 
-class Experiment {
+class EvaluationWorker {
+public:
+    EvaluationWorker(Experiment *experiment);
+    const Experiment *experiment;
+    void evaluateGen();
+};
+
+class Experiment : public QObject {
+    Q_OBJECT
 private:
     SANEParams *params;
     Params *taskparams;
@@ -15,19 +24,10 @@ private:
     unsigned t;
     int selected;
 public:
-    bool immediateEvaluation = true;
-
     Experiment();
     ~Experiment();
     Individual *getIndividual(int i);
-    void nextGen();
-    void resetGen();
-    void changePool(ParamDialog *d);
-    void newPool();
-    void changeTask(ParamDialog *d);
-    void randomizeTask();
-    void stepAll();
-    void evaluateGen();
+    //void evaluateGen();
     void draw(QPainter *painter);
     QColor activationColorNeuron(double lerp);
     QColor activationColorWeight(double v, double a);
@@ -39,6 +39,22 @@ public:
     unsigned getT() {return t;}
     int getSelected() {return selected;}
     void setSelected(int i) {selected = i;}
+signals:
+    void makePoolDialog();
+    void makeTaskDialog();
+    void updateView();
+public slots:
+    void stepAll();
+    void nextGen();
+    void resetGen();
+    void queuePoolDialog();
+    void changePool(ParamDialog *);
+    void newPool();
+    void queueTaskDialog();
+    void changeTask(ParamDialog *);
+    void randomizeTask();
+    void evaluateGen();
+    void queueViewUpdate(); //
 };
 
 #endif // EXPERIMENT_H

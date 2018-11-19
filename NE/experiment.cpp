@@ -1,11 +1,20 @@
 #include "experiment.h"
 #include <QDebug>
+#include "QTimer"
 
 #include "racingtask.h"
 #define PARAMS RacingParams
 #define TASK RacingTask
 #define INDIVIDUAL RacingIndividual
 #define IO 5, 2
+
+EvaluationWorker::EvaluationWorker(Experiment *experiment) : experiment(experiment) {
+
+}
+
+void EvaluationWorker::evaluateGen() {
+
+}
 
 Experiment::Experiment() {
     params = new SANEParams(IO);
@@ -66,8 +75,7 @@ void Experiment::nextGen() {
     // Initialize
     resetGen();
     currentGen++;
-
-    if (immediateEvaluation) evaluateGen();
+    updateView();
 }
 
 // Reinitialize everything
@@ -77,20 +85,26 @@ void Experiment::resetGen() {
     for (unsigned i = 0; i < params->n_genomes; i++) {
         getIndividual(int(i))->init();
     }
+    updateView();
+}
+
+void Experiment::queuePoolDialog() {
+    makePoolDialog();
 }
 
 // Change pool parameters
 void Experiment::changePool(ParamDialog *d) {
     params->paramDialog(d);
     if (d->exec()) {
+        delete d;
         while (int(params->n_genomes) > individuals.size()) individuals.append(new INDIVIDUAL(task));
         while (individuals.size() > int(params->n_genomes)) individuals.pop_back();
         pool->init(params);
         selected = -1;
         t = params->tMax; // current generation doesn't need to be evaluated
         currentGen = 0;
-        resetGen();
-        nextGen();
+        //resetGen();
+        //nextGen();
     }
 }
 
@@ -108,12 +122,16 @@ void Experiment::newPool() {
     nextGen();
 }
 
+void Experiment::queueTaskDialog() {
+    makeTaskDialog();
+}
+
 // Change task parameters
 void Experiment::changeTask(ParamDialog *d) {
     taskparams->paramDialog(d);
     if (d->exec()) {
-        resetGen();
-        if (immediateEvaluation) evaluateGen();
+        delete d;
+        //resetGen();
     }
 }
 
@@ -121,7 +139,6 @@ void Experiment::changeTask(ParamDialog *d) {
 void Experiment::randomizeTask() {
     task->seed = unsigned(rand());
     resetGen();
-    if (immediateEvaluation) evaluateGen();
 }
 
 // Helper function, being called by stepAll and evaluateGen
@@ -139,18 +156,32 @@ void Experiment::stepAll() {
         pool->setFitness(i, a->getFitness());
     }
     t++;
+    updateView();
 }
 
 // Completely evaluate the current generation
 void Experiment::evaluateGen() {
+    updateView();
+    QTimer updateTimer;
+    connect(&updateTimer, SIGNAL(timeout()), this, SLOT(queueViewUpdate()));
+    updateTimer.start(1000 / 30); // update interval
+    unsigned oldT = t;
     for (unsigned i = 0; i < params->n_genomes; i++) {
         Individual *a = getIndividual(int(i));
         for (unsigned tt = t; tt < params->tMax; tt++) {
             individualStep(a);
         }
         pool->setFitness(i, a->getFitness());
+
+        t = oldT + (params->tMax - oldT) * i / params->n_genomes;
+        if (i % 10 == 0) updateView(); //
     }
     t = params->tMax;
+    updateView();
+}
+
+void Experiment::queueViewUpdate() {
+    emit updateView();
 }
 
 // Draw in main view

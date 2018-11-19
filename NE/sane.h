@@ -14,7 +14,7 @@ public:
     unsigned n_neurons = 64; //NE population
     unsigned n_genomes = 64; //cars
     unsigned neuronsPerGenome = 6;
-    float initialWeightVariance = 0.2f;
+    float initialWeightVariance = 0.5f;
     float mutationNoiseVariance = 0.1f;
     float sigmoidSteepness = 4.0f;
     unsigned tournamentSize = 3; //selection pressure

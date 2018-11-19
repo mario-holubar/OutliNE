@@ -22,6 +22,7 @@ private:
     QTimer *timer;
     InstanceModel *instanceTableModel;
     QSortFilterProxyModel *proxyModel;
+    QThread *thread;
 
     void initMenu();
     void initConnections();
@@ -35,19 +36,30 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+signals:
+    void experiment_nextGen();
+    void experiment_changePool();
+    void experiment_newPool();
+    void experiment_changeTask();
+    void experiment_randomizeTask();
+    void experiment_evaluateGen();
+    void experiment_resetGen();
+    void experiment_step();
 private slots:
-    void update();
+    void updateViews();
+    void stepUpdate();
+    void playPause(bool play);
+    void setSelected(const QItemSelection &selection);
     void nextGen();
+    void queuePoolDialog();
     void changePool();
     void newPool();
+    void queueTaskDialog();
     void changeTask();
     void randomizeTask();
-    void playPause(bool play);
     void evaluateGen();
     void resetGen();
     void step();
-    void setSelected(const QItemSelection &selection);
-    void immediateEvaluation(int eval);
 };
 
 #endif // MAINWINDOW_H
