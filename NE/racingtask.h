@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <QRandomGenerator>
 
-class RacingParams : public Params {
+class RacingParams : public TaskParams {
 public:
     unsigned trackSegments = 15;
     float trackPrecision = 3.0f;
@@ -29,7 +29,7 @@ public:
 
 class RacingTask : public Task {
 public:
-    RacingTask(Params *params);
+    RacingTask(TaskParams *params);
     ~RacingTask();
     RacingParams *params;
     QVector<QLineF> track;

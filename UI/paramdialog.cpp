@@ -21,6 +21,7 @@ void ParamDialog::addSpinBox(QString s, unsigned *n, unsigned min, unsigned max)
 void ParamDialog::addDoubleSpinBox(QString s, float *n, float min, float max) {
     labels.append(new QLabel(s));
     QDoubleSpinBox *w = new QDoubleSpinBox(this);
+    w->setDecimals(3);
     w->setSingleStep(0.1);
     w->setRange(double(min), double(max));
     w->setValue(double(*n));

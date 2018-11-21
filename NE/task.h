@@ -2,13 +2,13 @@
 #define TASK_H
 
 #include <QPainter>
-#include "sane.h"
+#include "esp.h"
 #include "UI/paramdialog.h"
 
-class Params {
+class TaskParams {
 public:
-    Params();
-    virtual ~Params() = 0;
+    TaskParams();
+    virtual ~TaskParams() = 0;
     virtual void paramDialog(ParamDialog *d) = 0;
 };
 
@@ -25,6 +25,7 @@ class Individual {
 public:
     unsigned seed;
     NeuralNet net;
+    bool visible;
 
     Individual();
     virtual ~Individual() = 0;

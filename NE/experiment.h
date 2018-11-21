@@ -22,8 +22,8 @@ private:
     unsigned t;
     int selected;
 public:
-    SANEParams *params;
-    Params *taskparams;
+    PoolParams *params;
+    TaskParams *taskparams;
     bool poolChanged;
     bool taskChanged;
 

@@ -18,7 +18,7 @@ void EvaluationWorker::evaluateGen() {
 }
 
 Experiment::Experiment() {
-    params = new SANEParams(IO);
+    params = new PoolParams(IO);
     pool = new Pool();
     pool->init(params);
     taskparams = new PARAMS;
@@ -73,7 +73,7 @@ void Experiment::nextGen() {
         qDebug() << "Min:" << min << ", Avg:" << avg << ", Max:" << max;*/
 
         // Evolve
-        pool->new_generation();
+        pool->newGeneration();
     }
 
     makeGenomes();
@@ -106,6 +106,9 @@ void Experiment::stepAll() {
 // Completely evaluate the current generation
 void Experiment::evaluateGen() {
     if (t == params->tMax) return;
+    if (t == 0) {
+        for (unsigned i = 0; i < params->n_genomes; i++) getIndividual(int(i))->visible = false;
+    }
     updateView();
     //QTimer updateTimer;
     //connect(&updateTimer, SIGNAL(timeout()), this, SIGNAL(updateView()));
@@ -119,6 +122,7 @@ void Experiment::evaluateGen() {
             individualStep(a);
         }
         pool->setFitness(i, a->getFitness());
+        a->visible = true;
 
         t = oldT + (params->tMax - oldT) * i / params->n_genomes;
         if (i % 5 == 0) updateView(); //
@@ -157,6 +161,7 @@ void Experiment::newPool() {
     selected = -1;
     pool->init(params);
     pool->makeNeurons(true);
+    makeGenomes();
     t = params->tMax; // current generation doesn't need to be evaluated
     currentGen = 0;
     nextGen();
@@ -190,7 +195,7 @@ void Experiment::draw(QPainter *painter) {
 
     // Draw individuals
     for (int i = 0; i < int(params->n_genomes); i++) {
-        if (i == selected) continue;
+        if (i == selected || !getIndividual(i)->visible) continue;
         int hue = int(i * 256.0f / params->n_genomes);
         pen.setColor(QColor::fromHsv(hue, 255, 128, 128));
         painter->setPen(pen);

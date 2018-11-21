@@ -24,7 +24,7 @@ void RacingParams::paramDialog(ParamDialog *d) {
     d->addSpinBox("Respawn time", &respawnTime, 0, 999);
 }
 
-RacingTask::RacingTask(Params *params) {
+RacingTask::RacingTask(TaskParams *params) {
     this->params = dynamic_cast<RacingParams *>(params);
 }
 

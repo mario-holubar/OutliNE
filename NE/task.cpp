@@ -1,15 +1,15 @@
 #include "task.h"
 #include "ctime"
 
-Params::Params() {
+TaskParams::TaskParams() {
 
 }
 
-Params::~Params() {
+TaskParams::~TaskParams() {
 
 }
 
-void Params::paramDialog(ParamDialog *d) {
+void TaskParams::paramDialog(ParamDialog *d) {
     Q_UNUSED(d);
 }
 
@@ -27,6 +27,7 @@ void Task::init() {
 
 Individual::Individual() {
     seed = unsigned(qrand());
+    visible = true;
 }
 
 Individual::~Individual() {
