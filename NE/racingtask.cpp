@@ -165,7 +165,18 @@ void RacingIndividual::step(std::vector<double> outputs) {
 }
 
 float RacingIndividual::getFitness() {
-    return qMax(fitness, 0.0f);
+    //return qMax(fitness, 0.0f);
+    float dist = 0.0f;
+    QPoint p = getPos().toPoint();
+    QPolygon c = task->checkpoints[checkpoint - 1].toPolygon();
+    QPoint v = c.point(2);
+    QPoint w = c.point(3);
+    int l2 = (v.x() - w.x()) * (v.x() - w.x()) + (v.y() - w.y()) * (v.y() - w.y());
+    float t = float(QPoint::dotProduct(p - v, w - v)) / l2;
+    //t = qMax(0, qMin(1, t));
+    QPoint projection = v + t * (w - v);
+    dist = float(qSqrt((p.x() - projection.x()) * (p.x() - projection.x()) + (p.y() - projection.y()) * (p.y() - projection.y())));
+    return qMax(fitness, 0.0f) + 1 - dist / 150.0f; //
 }
 
 QPointF RacingIndividual::getPos() {
@@ -182,6 +193,7 @@ std::vector<double> RacingIndividual::getInputs() {
 }
 
 void RacingIndividual::draw(QPainter *painter, bool selected) {
+    QTransform debug = painter->transform();
     QPen pen = painter->pen();
     painter->translate(double(x), double(y));
     painter->rotate(double(-angle));

@@ -2,6 +2,7 @@
 #define TASK_H
 
 #include <QPainter>
+#include "sane.h"
 #include "esp.h"
 #include "UI/paramdialog.h"
 
@@ -24,7 +25,7 @@ public:
 class Individual {
 public:
     unsigned seed;
-    NeuralNet net;
+    SANENeuralNet net;
     bool visible;
 
     Individual();

@@ -17,12 +17,12 @@ class Experiment : public QObject {
 private:
     Task *task;
     QVector<Individual *> individuals;
-    Pool *pool;
+    SANEPool *pool;
     unsigned currentGen;
     unsigned t;
     int selected;
 public:
-    PoolParams *params;
+    SANEParams *params;
     TaskParams *taskparams;
     bool poolChanged;
     bool taskChanged;

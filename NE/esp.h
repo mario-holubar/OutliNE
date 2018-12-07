@@ -1,11 +1,11 @@
-#ifndef SANE_H
-#define SANE_H
+#ifndef ESP_H
+#define ESP_H
 
 #include <vector>
 #include "QRandomGenerator"
 #include "UI/paramdialog.h"
 
-class PoolParams {
+class ESPParams {
 public:
     unsigned n_inputs = 0;
     unsigned n_outputs = 0;
@@ -19,11 +19,11 @@ public:
     float sigmoidSteepness = 4.0f;
     unsigned tournamentSize = 2; //selection pressure
 
-    PoolParams(unsigned inputs, unsigned outputs);
+    ESPParams(unsigned inputs, unsigned outputs);
     void paramDialog(ParamDialog *d);
 };
 
-class Neuron {
+class ESPNeuron {
 public:
     std::vector<double> w_in;
     std::vector<double> w_out;
@@ -32,40 +32,40 @@ public:
     unsigned n_genomes = 0;
 };
 
-class Genome {
+class ESPGenome {
 public:
-    PoolParams *params;
-    std::vector<Neuron *> genes;
+    ESPParams *params;
+    std::vector<ESPNeuron *> genes;
     float fitness;
 
-    Genome(PoolParams *p);
+    ESPGenome(ESPParams *p);
 };
 
-class NeuralNet {
+class ESPNeuralNet {
 private:
     friend class Experiment;
-    PoolParams *params;
-    std::vector<Neuron *> neurons;
+    ESPParams *params;
+    std::vector<ESPNeuron *> neurons;
 public:
-    void from_genome(Genome g);
+    void from_genome(ESPGenome g);
     double sigmoid(double x);
     std::vector<double> evaluate(std::vector<double> inputs);
 };
 
-class Pool {
+class ESPPool {
 private:
-    PoolParams *params;
-    std::vector<std::vector<Neuron> *> neurons;
-    std::vector<Genome> genomes;
+    ESPParams *params;
+    std::vector<std::vector<ESPNeuron> *> neurons;
+    std::vector<ESPGenome> genomes;
     QRandomGenerator rand;
 public:
-    Pool();
+    ESPPool();
     void makeNeurons(bool reset);
-    void init(PoolParams *p);
+    void init(ESPParams *p);
     void makeGenomes();
     void newGeneration();
     void setFitness(unsigned Genome, float fitness);
-    Genome getGenome(unsigned i) {return genomes[i];}
+    ESPGenome getGenome(unsigned i) {return genomes[i];}
 };
 
-#endif // SANE_H
+#endif // ESP_H

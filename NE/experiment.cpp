@@ -18,8 +18,8 @@ void EvaluationWorker::evaluateGen() {
 }
 
 Experiment::Experiment() {
-    params = new PoolParams(IO);
-    pool = new Pool();
+    params = new SANEParams(IO);
+    pool = new SANEPool();
     pool->init(params);
     taskparams = new PARAMS;
     task = new TASK(taskparams);
@@ -249,7 +249,7 @@ QColor Experiment::activationColorWeight(double v, double a) {
 void Experiment::drawNet(QPainter *painter) {
     if (selected == -1) return;
 
-    NeuralNet net;
+    SANENeuralNet net;
     net.from_genome(pool->getGenome(unsigned(selected)));
     QPen pen(QColor(255, 255, 255));
     pen.setWidth(2);

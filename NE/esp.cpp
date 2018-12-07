@@ -2,12 +2,12 @@
 #include "QDebug"
 #include "time.h"
 
-PoolParams::PoolParams(unsigned inputs, unsigned outputs) {
+ESPParams::ESPParams(unsigned inputs, unsigned outputs) {
     n_inputs = inputs + 0; // 0 bias neurons
     n_outputs = outputs;
 }
 
-void PoolParams::paramDialog(ParamDialog *d) {
+void ESPParams::paramDialog(ParamDialog *d) {
     d->addSpinBox("Total steps per generation", &tMax, 1, 9999);
     d->addSpinBox("Number of neurons per subpopulation", &neuronsPerSubpopulation, 2, 64);
     d->addSpinBox("Number of individuals", &n_genomes, 16, 512);
@@ -19,11 +19,11 @@ void PoolParams::paramDialog(ParamDialog *d) {
     d->addSpinBox("Selection pressure (tournament size)", &tournamentSize, 1, 16);
 }
 
-Genome::Genome(PoolParams *p) {
+ESPGenome::ESPGenome(ESPParams *p) {
     params = p;
 }
 
-void NeuralNet::from_genome(Genome g) {
+void ESPNeuralNet::from_genome(ESPGenome g) {
     params = g.params;
     neurons.clear();
     for (unsigned i = 0; i < g.genes.size(); i++) {
@@ -31,13 +31,13 @@ void NeuralNet::from_genome(Genome g) {
     }
 }
 
-double NeuralNet::sigmoid(double x) {
+double ESPNeuralNet::sigmoid(double x) {
     //sigmoid steepness (exp) controls how much outputs can change on small input changes
     //small: smoother but doesn't learn new things as quickly
     return 2.0 / (1.0 + std::exp(-double(params->sigmoidSteepness) * x)) - 1;
 }
 
-std::vector<double> NeuralNet::evaluate(std::vector<double> inputs) {
+std::vector<double> ESPNeuralNet::evaluate(std::vector<double> inputs) {
     std::vector<double> outputs(params->n_outputs, 0.0);
 
     // Bias neurons
@@ -68,12 +68,12 @@ std::vector<double> NeuralNet::evaluate(std::vector<double> inputs) {
     return outputs;
 }
 
-Pool::Pool() {
+ESPPool::ESPPool() {
 
 }
 
 // Generate random neurons
-void Pool::makeNeurons(bool reset) {
+void ESPPool::makeNeurons(bool reset) {
     if (reset) {
         for (unsigned sp = 0; sp < params->subpopulationsPerGenome; sp++) neurons[sp]->clear();
     }
@@ -82,7 +82,7 @@ void Pool::makeNeurons(bool reset) {
     std::normal_distribution<double> dist(0.0, double(params->initialWeightVariance));
     for (unsigned sp = 0; sp < params->subpopulationsPerGenome; sp++) {
         while (neurons[sp]->size() < params->neuronsPerSubpopulation) {
-            Neuron n;
+            ESPNeuron n;
             for (unsigned i = 0; i < params->n_inputs; i++) {
                 double weight = dist(generator);
                 n.w_in.push_back(weight);
@@ -96,7 +96,7 @@ void Pool::makeNeurons(bool reset) {
     }
 }
 
-void Pool::init(PoolParams *p) {
+void ESPPool::init(ESPParams *p) {
     params = p;
 
     rand.seed(rand.generate()); // dunno if this is ok
@@ -106,7 +106,7 @@ void Pool::init(PoolParams *p) {
     // If new subpopulationsPerGenome is larger, random subpopulations get added
     bool add = false;
     while (neurons.size() < params->subpopulationsPerGenome) {
-        neurons.push_back(new std::vector<Neuron>());
+        neurons.push_back(new std::vector<ESPNeuron>());
         add = true;
     }
     if (add) makeNeurons(false);
@@ -121,10 +121,10 @@ void Pool::init(PoolParams *p) {
     //makeGenomes();
 }
 
-void Pool::makeGenomes() {
+void ESPPool::makeGenomes() {
     genomes.clear();
     for (unsigned i = 0; i < params->n_genomes; i++) {
-        Genome g(params);
+        ESPGenome g(params);
         for(unsigned j = 0; j < params->subpopulationsPerGenome; j++) {
             unsigned index = unsigned(rand.generate()) % params->neuronsPerSubpopulation;
             neurons[j]->data()[index].n_genomes++;
@@ -135,7 +135,7 @@ void Pool::makeGenomes() {
 }
 
 //TODO delta-coding? Variable topology?
-void Pool::newGeneration() {
+void ESPPool::newGeneration() {
     for (unsigned sp = 0; sp < params->subpopulationsPerGenome; sp++) {
         // Normalize fitnesses
         for (unsigned i = 0; i < params->neuronsPerSubpopulation; i++) {
@@ -143,8 +143,8 @@ void Pool::newGeneration() {
         }
 
         // Crossover
-        std::vector<Neuron> *newNeurons = new std::vector<Neuron>;
-        Neuron p1, p2;
+        std::vector<ESPNeuron> *newNeurons = new std::vector<ESPNeuron>;
+        ESPNeuron p1, p2;
         for (unsigned n = 0; n < params->neuronsPerSubpopulation / 2; n++) {
             // Tournament selection for both parents
             float bestFitness = -1.0f;
@@ -169,7 +169,7 @@ void Pool::newGeneration() {
             p2 = neurons[sp]->data()[bestIndex];
 
             // Random crossover
-            Neuron c1, c2;
+            ESPNeuron c1, c2;
             for (unsigned i = 0; i < params->n_inputs; i++) {
                 if (rand.generate() % 2) {
                     c1.w_in.push_back(p1.w_in[i]);
@@ -216,7 +216,7 @@ void Pool::newGeneration() {
     }
 }
 
-void Pool::setFitness(unsigned genome, float fitness) {
+void ESPPool::setFitness(unsigned genome, float fitness) {
     for (unsigned i = 0; i < genomes[genome].genes.size(); i++) {
         genomes[genome].genes[i]->fitness += fitness;
     }
