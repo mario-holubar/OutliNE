@@ -25,9 +25,6 @@ class SANE : public NE {
 public:
     unsigned n_neurons = 16;
     unsigned neuronsPerGenome = 4;
-    float initialWeightVariance = 0.5f;
-    float mutationNoiseVariance = 0.1f;
-    unsigned tournamentSize = 2; //selection pressure
 
     std::vector<SANEGene> genes;
     std::vector<SANEGenome> genomes;

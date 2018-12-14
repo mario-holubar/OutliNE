@@ -10,10 +10,6 @@ void SANE::paramDialog(ParamDialog *d) {
     NE::paramDialog(d);
     d->addSpinBox("Number of neurons", &n_neurons, 4, 128);
     d->addSpinBox("Neurons per individual", &neuronsPerGenome, 1, 32);
-    d->addSpacer();
-    d->addDoubleSpinBox("Initial weight variance", &initialWeightVariance, 0.01f, 1.0f);
-    d->addDoubleSpinBox("Mutation noise variance", &mutationNoiseVariance, 0.0f, 1.0f);
-    d->addSpinBox("Selection pressure (tournament size)", &tournamentSize, 1, 16);
 }
 
 void SANE::init(bool reset) {

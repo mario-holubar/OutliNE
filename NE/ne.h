@@ -33,6 +33,9 @@ protected:
 public:
     static unsigned n_genomes;
     static float sigmoidSteepness;
+    static float initialWeightVariance;
+    static float mutationNoiseVariance;
+    static unsigned tournamentSize;
 
     static unsigned n_inputs;
     static unsigned n_outputs;

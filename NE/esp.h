@@ -25,9 +25,6 @@ class ESP : public NE {
 public:
     unsigned neuronsPerSubpopulation = 6;
     unsigned subpopulationsPerGenome = 4;
-    float initialWeightVariance = 0.5f;
-    float mutationNoiseVariance = 0.1f;
-    unsigned tournamentSize = 2; //selection pressure
 
     std::vector<std::vector<ESPGene>> genes;
     std::vector<ESPGenome> genomes;

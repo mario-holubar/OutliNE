@@ -63,6 +63,9 @@ unsigned NE::n_genomes = 64;
 float NE::sigmoidSteepness = 4.0f;
 unsigned NE::n_inputs = 0;
 unsigned NE::n_outputs = 0;
+float NE::initialWeightVariance = 0.5f;
+float NE::mutationNoiseVariance = 0.1f;
+unsigned NE::tournamentSize = 2; //selection pressure
 
 NE::NE() {
     nets = std::vector<NeuralNet>(n_genomes);
@@ -83,7 +86,9 @@ NeuralNet *NE::getNet(unsigned net) {
 
 void NE::paramDialog(ParamDialog *d) {
     d->addSpinBox("Number of individuals", &n_genomes, 16, 512);
-    d->addSpacer();
     d->addDoubleSpinBox("Sigmoid steepness", &sigmoidSteepness, 1.0f, 10.0f);
+    d->addDoubleSpinBox("Initial weight variance", &initialWeightVariance, 0.01f, 1.0f);
+    d->addDoubleSpinBox("Mutation noise variance", &mutationNoiseVariance, 0.0f, 1.0f);
+    d->addSpinBox("Selection pressure (tournament size)", &tournamentSize, 1, 16);
     d->addSpacer();
 }
