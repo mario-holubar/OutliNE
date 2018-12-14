@@ -2,203 +2,148 @@
 #include "QDebug"
 #include "time.h"
 
-SANEParams::SANEParams(unsigned inputs, unsigned outputs) {
-    n_inputs = inputs + 0; // 0 bias neurons
-    n_outputs = outputs;
+SANEGene::SANEGene(Neuron n) {
+    neuron = n;
 }
 
-void SANEParams::paramDialog(ParamDialog *d) {
-    d->addSpinBox("Total steps per generation", &tMax, 1, 9999);
-    d->addSpinBox("Number of neurons", &n_neurons, 8, 128);
-    d->addSpinBox("Number of individuals", &n_genomes, 16, 512);
+void SANE::paramDialog(ParamDialog *d) {
+    NE::paramDialog(d);
+    d->addSpinBox("Number of neurons", &n_neurons, 4, 128);
     d->addSpinBox("Neurons per individual", &neuronsPerGenome, 1, 32);
     d->addSpacer();
     d->addDoubleSpinBox("Initial weight variance", &initialWeightVariance, 0.01f, 1.0f);
     d->addDoubleSpinBox("Mutation noise variance", &mutationNoiseVariance, 0.0f, 1.0f);
-    d->addDoubleSpinBox("Sigmoid steepness", &sigmoidSteepness, 1.0f, 10.0f);
     d->addSpinBox("Selection pressure (tournament size)", &tournamentSize, 1, 16);
 }
 
-SANEGenome::SANEGenome(SANEParams *p) {
-    params = p;
+void SANE::init(bool reset) {
+    if (reset) genes.clear();
+    // If new n_neurons is smaller, random subpopulations get discarded
+    while (genes.size() > n_neurons) genes.pop_back();
+    // If new n_neurons is larger, random subpopulations get added
+    if (genes.size() < n_neurons) makeGenes();
+
+    //makeGenomes();
 }
 
-void SANENeuralNet::from_genome(SANEGenome g) {
-    params = g.params;
-    neurons.clear();
-    for (unsigned i = 0; i < g.genes.size(); i++) {
-        neurons.push_back(g.genes[i]);
-    }
-}
-
-double SANENeuralNet::sigmoid(double x) {
-    //sigmoid steepness (exp) controls how much outputs can change on small input changes
-    //small: smoother but doesn't learn new things as quickly
-    return 2.0 / (1.0 + std::exp(-double(params->sigmoidSteepness) * x)) - 1;
-}
-
-std::vector<double> SANENeuralNet::evaluate(std::vector<double> inputs) {
-    std::vector<double> outputs(params->n_outputs, 0.0);
-
-    // Bias neurons
-    while (inputs.size() < params->n_inputs) inputs.push_back(1.0);
-
-    // Sum inputs
-    for (unsigned n = 0; n < neurons.size(); n++) {
-        neurons[n]->value = 0.0;
-        for (unsigned i = 0; i < params->n_inputs; i++) {
-            neurons[n]->value += inputs[i] * neurons[n]->w_in[i];
-        }
-    }
-    // Neuron activation function
-    for (unsigned n = 0; n < neurons.size(); n++) {
-        neurons[n]->value = sigmoid(neurons[n]->value);
-    }
-    // Sum outputs
-    for (unsigned n = 0; n < neurons.size(); n++) {
-        for (unsigned i = 0; i < params->n_outputs; i++) {
-            outputs[i] += neurons[n]->value * neurons[n]->w_out[i];
-        }
-    }
-    // Output activation function
-    for (unsigned i = 0; i < params->n_outputs; i++) {
-        outputs[i] = sigmoid(outputs[i]);
-    }
-
-    return outputs;
-}
-
-SANEPool::SANEPool() {
-
-}
-
-// Generate random neurons
-void SANEPool::makeNeurons(bool reset) {
-    if (reset) neurons.clear();
+void SANE::makeGenes() {
     std::random_device rd;
     std::mt19937 generator {rd()};
-    std::normal_distribution<double> dist(0.0, double(params->initialWeightVariance));
-    while (neurons.size() < params->n_neurons) {
-        SANENeuron n;
-        for (unsigned i = 0; i < params->n_inputs; i++) {
+    std::normal_distribution<double> dist(0.0, double(initialWeightVariance));
+    while (genes.size() < n_neurons) {
+        Neuron n;
+        for (unsigned i = 0; i < n_inputs; i++) {
             double weight = dist(generator);
-            n.w_in.push_back(weight);
+            n.w_in[i] = weight;
         }
-        for (unsigned i = 0; i < params->n_outputs; i++) {
+        for (unsigned i = 0; i < n_outputs; i++) {
             double weight = dist(generator);
-            n.w_out.push_back(weight);
+            n.w_out[i] = weight;
         }
-        neurons.push_back(n);
+        genes.push_back(SANEGene(n));
     }
 }
 
-void SANEPool::init(SANEParams *p) {
-    params = p;
-
-    rand.seed(rand.generate()); // dunno if this is ok
-
-    // If new n_neurons is smaller, random neurons get discarded
-    while(neurons.size() > params->n_neurons) neurons.pop_back();
-    // If new n_neurons is larger, random neurons get added (not offspring!)
-    if (neurons.size() < params->n_neurons) makeNeurons(false);
-
-    makeGenomes();
-}
-
-void SANEPool::makeGenomes() {
-    genomes.clear();
-    for (unsigned i = 0; i < params->n_genomes; i++) {
-        SANEGenome g(params);
-        for(unsigned j = 0; j < params->neuronsPerGenome; j++) {
-            unsigned index = unsigned(rand.generate()) % params->n_neurons;
-            neurons[index].n_genomes++;
-            g.genes.push_back(&neurons[index]);
+void SANE::makeGenomes() {
+    genomes = std::vector<SANEGenome>(n_genomes);
+    nets = std::vector<NeuralNet>(n_genomes);
+    for (unsigned i = 0; i < n_genomes; i++) {
+        SANEGenome g;
+        NeuralNet n;
+        for(unsigned j = 0; j < neuronsPerGenome; j++) {
+            unsigned index = unsigned(rand.generate()) % n_neurons;
+            genes[index].n_genomes++;
+            g.genes.push_back(&(genes[index]));
+            n.addNeuron(genes[index].neuron);
         }
-        genomes.push_back(g);
+        genomes[i] = g;
+        nets[i] = n;
     }
 }
 
-void SANEPool::newGeneration() {
+void SANE::setFitness(unsigned genome, float fitness) {
+    for (unsigned i = 0; i < neuronsPerGenome; i++) {
+        genomes[genome].genes[i]->fitness += fitness;
+    }
+}
+
+//TODO delta-coding? Variable topology?
+void SANE::newGeneration() {
     // Normalize fitnesses
-    for (unsigned i = 0; i < params->n_neurons; i++) {
-        neurons[i].fitness /= neurons[i].n_genomes;
+    for (unsigned i = 0; i < n_neurons; i++) {
+        genes[i].fitness /= genes[i].n_genomes;
     }
 
     // Crossover
-    std::vector<SANENeuron> newNeurons;
-    SANENeuron p1, p2;
-    for (unsigned n = 0; n < params->n_neurons / 2; n++) {
+    std::vector<SANEGene> newGenes = std::vector<SANEGene>();
+    Neuron p1, p2;
+    for (unsigned n = 0; n < n_neurons; n++) {
         // Tournament selection for both parents
         float bestFitness = -1.0f;
         unsigned bestIndex = 0;
-        for (unsigned k = 0; k < params->tournamentSize; k++) {
-            unsigned c = unsigned(rand.generate()) % params->n_neurons;
-            if (neurons[c].fitness > bestFitness) {
-                bestFitness = neurons[c].fitness;
+        for (unsigned k = 0; k < tournamentSize; k++) {
+            unsigned c = unsigned(rand.generate()) % n_neurons;
+            if (genes[c].fitness > bestFitness) {
+                bestFitness = genes[c].fitness;
                 bestIndex = c;
             }
         }
-        p1 = neurons[bestIndex];
+        p1 = genes[bestIndex].neuron;
         bestFitness = -1.0f;
         bestIndex = 0;
-        for (unsigned k = 0; k < params->tournamentSize; k++) {
-            unsigned c = unsigned(rand.generate()) % params->n_neurons;
-            if (neurons[c].fitness > bestFitness) {
-                bestFitness = neurons[c].fitness;
+        for (unsigned k = 0; k < tournamentSize; k++) {
+            unsigned c = unsigned(rand.generate()) % n_neurons;
+            if (genes[c].fitness > bestFitness) {
+                bestFitness = genes[c].fitness;
                 bestIndex = c;
             }
         }
-        p2 = neurons[bestIndex];
+        p2 = genes[bestIndex].neuron;
 
         // Random crossover
-        SANENeuron c1, c2;
-        for (unsigned i = 0; i < params->n_inputs; i++) {
+        //Neuron c1, c2;
+        Neuron c1;
+        for (unsigned i = 0; i < n_inputs; i++) {
             if (rand.generate() % 2) {
-                c1.w_in.push_back(p1.w_in[i]);
-                c2.w_in.push_back(p2.w_in[i]);
+                c1.w_in[i] = p1.w_in[i];
+                //c2.w_in[i] = p2.w_in[i];
             }
             else {
-                c1.w_in.push_back(p2.w_in[i]);
-                c2.w_in.push_back(p1.w_in[i]);
+                c1.w_in[i] = p2.w_in[i];
+                //c2.w_in[i] = p1.w_in[i];
             }
         }
-        for (unsigned i = 0; i < params->n_outputs; i++) {
+        for (unsigned i = 0; i < n_outputs; i++) {
             if (rand.generate() % 2) {
-                c1.w_out.push_back(p1.w_out[i]);
-                c2.w_out.push_back(p2.w_out[i]);
+                c1.w_out[i] = p1.w_out[i];
+                //c2.w_out[i] = p2.w_out[i];
             }
             else {
-                c1.w_out.push_back(p2.w_out[i]);
-                c2.w_out.push_back(p1.w_out[i]);
+                c1.w_out[i] = p2.w_out[i];
+                //c2.w_out[i] = p1.w_out[i];
             }
         }
-        newNeurons.push_back(c1);
-        newNeurons.push_back(c2);
+        newGenes.push_back(SANEGene(c1));
+        //newGenes.push_back(ESPGene(c2));
     }
-    neurons.clear();
-    neurons = newNeurons;
+    genes = newGenes;
 
     // Noise
-    if (params->mutationNoiseVariance > 0.0f) {
+    // TODO move inside top loop
+    if (mutationNoiseVariance > 0.0f) {
         std::default_random_engine generator;
-        std::normal_distribution<double> dist(0.0, double(params->mutationNoiseVariance));
-        for (unsigned i = 0; i < params->n_neurons; i++) {
-            for (unsigned j = 0; j < params->n_inputs; j++) {
-                neurons[i].w_in[j] += dist(generator);
-                //if (neurons[i].w_in[j] > 1.0) neurons[i].w_in[j] = 1.0;
-                //if (neurons[i].w_in[j] < -1.0) neurons[i].w_in[j] = -1.0;
+        std::normal_distribution<double> dist(0.0, double(mutationNoiseVariance));
+        for (unsigned i = 0; i < n_neurons; i++) {
+            for (unsigned j = 0; j < n_inputs; j++) {
+                genes[i].neuron.w_in[j] += dist(generator);
+                //if (neurons[sp]->data()[i].w_in[j] > 1.0) neurons[sp]->data()[i].w_in[j] = 1.0;
+                //if (neurons[sp]->data()[i].w_in[j] < -1.0) neurons[sp]->data()[i].w_in[j] = -1.0;
             }
-            for (unsigned j = 0; j < params->n_outputs; j++) {
-                neurons[i].w_out[j] += dist(generator);
-                //if (neurons[i].w_out[j] > 1.0) neurons[i].w_out[j] = 1.0;
-                //if (neurons[i].w_out[j] < -1.0) neurons[i].w_out[j] = -1.0;
+            for (unsigned j = 0; j < n_outputs; j++) {
+                genes[i].neuron.w_out[j] += dist(generator);
+                //if (neurons[sp]->data()[i].w_out[j] > 1.0) neurons[sp]->data()[i].w_out[j] = 1.0;
+                //if (neurons[sp]->data()[i].w_out[j] < -1.0) neurons[sp]->data()[i].w_out[j] = -1.0;
             }
         }
-    }
-}
-
-void SANEPool::setFitness(unsigned genome, float fitness) {
-    for (unsigned i = 0; i < genomes[genome].genes.size(); i++) {
-        genomes[genome].genes[i]->fitness += fitness;
     }
 }

@@ -4,68 +4,41 @@
 #include <vector>
 #include "QRandomGenerator"
 #include "UI/paramdialog.h"
+#include "NE/ne.h"
 
-class SANEParams {
+class SANEGene {
 public:
-    unsigned n_inputs = 0;
-    unsigned n_outputs = 0;
-
-    unsigned tMax = 240;
-    unsigned n_neurons = 16; //NE population
-    unsigned n_genomes = 64; //cars
-    unsigned neuronsPerGenome = 6;
-    float initialWeightVariance = 0.5f;
-    float mutationNoiseVariance = 0.01f;
-    float sigmoidSteepness = 4.0f;
-    unsigned tournamentSize = 3; //selection pressure
-
-    SANEParams(unsigned inputs, unsigned outputs);
-    void paramDialog(ParamDialog *d);
-};
-
-class SANENeuron {
-public:
-    std::vector<double> w_in;
-    std::vector<double> w_out;
-    double value;
+    Neuron neuron;
     float fitness = 0.0f;
     unsigned n_genomes = 0;
+
+    SANEGene() {}
+    SANEGene(Neuron n);
 };
 
 class SANEGenome {
 public:
-    SANEParams *params;
-    std::vector<SANENeuron *> genes;
-    float fitness;
-
-    SANEGenome(SANEParams *p);
+    std::vector<SANEGene *> genes;
 };
 
-class SANENeuralNet {
-private:
-    friend class Experiment;
-    SANEParams *params;
-    std::vector<SANENeuron *> neurons;
+class SANE : public NE {
 public:
-    void from_genome(SANEGenome g);
-    double sigmoid(double x);
-    std::vector<double> evaluate(std::vector<double> inputs);
-};
+    unsigned n_neurons = 16;
+    unsigned neuronsPerGenome = 4;
+    float initialWeightVariance = 0.5f;
+    float mutationNoiseVariance = 0.1f;
+    unsigned tournamentSize = 2; //selection pressure
 
-class SANEPool {
-private:
-    SANEParams *params;
-    std::vector<SANENeuron> neurons;
+    std::vector<SANEGene> genes;
     std::vector<SANEGenome> genomes;
-    QRandomGenerator rand;
-public:
-    SANEPool();
-    void makeNeurons(bool reset);
-    void init(SANEParams *p);
+
+    void makeGenes();
+
+    void paramDialog(ParamDialog *d);
+    void init(bool reset);
     void makeGenomes();
+    void setFitness(unsigned genome, float fitness);
     void newGeneration();
-    void setFitness(unsigned Genome, float fitness);
-    SANEGenome getGenome(unsigned i) {return genomes[i];}
 };
 
 #endif // SANE_H

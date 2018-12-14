@@ -2,6 +2,8 @@
 #include <QDebug>
 #include "QTimer"
 #include "time.h"
+#include "NE/esp.h"
+#include "NE/sane.h"
 
 #include "racingtask.h"
 #define PARAMS RacingParams
@@ -10,7 +12,7 @@
 #define IO 5, 2
 
 Experiment::Experiment() {
-    ne = new ESP();
+    ne = new SANE();
     ne->n_inputs = 5;//
     ne->n_outputs = 2;//
     ne->init(false);

@@ -19,11 +19,11 @@ void ESP::paramDialog(ParamDialog *d) {
 void ESP::init(bool reset) {
     if (reset) genes.clear();
     // If new subpopulationsPerGenome is smaller, random subpopulations get discarded
-    while(genes.size() > subpopulationsPerGenome) genes.pop_back();
+    while (genes.size() > subpopulationsPerGenome) genes.pop_back();
     // If new subpopulationsPerGenome is larger, random subpopulations get added
     bool add = false;
     while (genes.size() < subpopulationsPerGenome) {
-        genes.push_back(std::vector<ESPGene>());
+        genes.push_back(std::vector<ESPGene>());//TODO unneccessary?
         add = true;
     }
 

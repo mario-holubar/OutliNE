@@ -2,8 +2,7 @@
 #define TASK_H
 
 #include <QPainter>
-#include "sane.h"
-#include "esp.h"
+#include "ne.h"
 #include "UI/paramdialog.h"
 
 class TaskParams {
