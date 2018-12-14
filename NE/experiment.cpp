@@ -12,7 +12,7 @@
 #define IO 5, 2
 
 Experiment::Experiment() {
-    ne = new SANE();
+    ne = new ESP();
     ne->n_inputs = 5;//
     ne->n_outputs = 2;//
     ne->init(false);
@@ -168,13 +168,20 @@ void Experiment::draw(QPainter *painter) {
     painter->setPen(pen);
     task->draw(painter);
 
+    /*painter->setBrush(Qt::black);
+    for (int i = 0; i < int(ne->n_genomes); i++) {
+        if (!getIndividual(i)->visible) continue;
+        painter->setTransform(transform);
+        getIndividual(i)->draw(painter, false);
+    }*/
+
     // Draw individuals
     for (int i = 0; i < int(ne->n_genomes); i++) {
         if (i == selected || !getIndividual(i)->visible) continue;
         int hue = int(i * 256.0f / ne->n_genomes);
-        pen.setColor(QColor::fromHsv(hue, 255, 128, 128));
+        pen.setColor(QColor::fromHsv(hue, 255, 192, 128));
         painter->setPen(pen);
-        painter->setBrush(QBrush(QColor::fromHsv(hue, 255, 32, 128)));
+        painter->setBrush(QBrush(QColor::fromHsv(hue, 255, 192, 64)));
         painter->setTransform(transform);
         getIndividual(i)->draw(painter, false);
     }
@@ -185,7 +192,7 @@ void Experiment::draw(QPainter *painter) {
         pen.setColor(QColor::fromHsv(hue, 255, 255, 255));
         pen.setWidth(2);
         painter->setPen(pen);
-        painter->setBrush(QBrush(QColor::fromHsv(hue, 255, 128, 255)));
+        painter->setBrush(QBrush(QColor::fromHsv(hue, 255, 192, 255)));
         painter->setTransform(transform);
         getIndividual(selected)->draw(painter, true);
     }

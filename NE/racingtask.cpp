@@ -77,14 +77,14 @@ void RacingTask::draw(QPainter *painter) {
     // Draw track outline
     QPen pen = painter->pen();
     pen.setColor(QColor(128, 128, 128));
-    painter->setBrush(QBrush(QColor(12, 12, 12)));
+    painter->setBrush(QBrush(QColor(24, 24, 24)));
     pen.setCapStyle(Qt::FlatCap);
     pen.setWidth(2);
     painter->setPen(pen);
     painter->drawLines(track);
 
     // Draw track segments
-    pen.setColor(QColor(16, 16, 16));
+    pen.setColor(QColor(32, 32, 32));
     pen.setWidth(0);
     painter->setPen(pen);
     for (int i = 0; i < checkpoints.size(); i++) {

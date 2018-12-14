@@ -368,7 +368,7 @@ QTableView::item:selected {
        <item row="0" column="0">
         <widget class="MainView" name="mainView">
          <property name="styleSheet">
-          <string notr="true">background-color: black;</string>
+          <string notr="true">background-color: #080808;</string>
          </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
@@ -461,7 +461,7 @@ QTableView::item:selected {
           <x>0</x>
           <y>0</y>
           <width>252</width>
-          <height>330</height>
+          <height>312</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
