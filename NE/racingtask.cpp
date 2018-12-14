@@ -68,6 +68,8 @@ void RacingTask::init() {
         lastL = newL;
         lastR = newR;
     }
+    track.removeLast();
+    track.removeLast();
 }
 
 QVector<QLineF> *RacingTask::getTrack() {
@@ -88,7 +90,7 @@ void RacingTask::draw(QPainter *painter) {
     pen.setColor(QColor(32, 32, 32));
     pen.setWidth(0);
     painter->setPen(pen);
-    for (int i = 0; i < checkpoints.size(); i++) {
+    for (int i = 0; i < checkpoints.size() - 1; i++) {
         painter->drawConvexPolygon(checkpoints[i]);
     }
 }
@@ -166,17 +168,18 @@ void RacingIndividual::step(std::vector<double> outputs) {
 }
 
 float RacingIndividual::getFitness() {
-    //return qMax(fitness, 0.0f);
+    bool done = checkpoint == task->checkpoints.size();
     float dist = 0.0f;
     QPoint p = getPos().toPoint();
-    QPolygon c = task->checkpoints[checkpoint - 1].toPolygon();
+    QPolygon c = task->checkpoints[checkpoint - 1 - done].toPolygon();
     QPoint v = c.point(2);
     QPoint w = c.point(3);
     int l2 = (v.x() - w.x()) * (v.x() - w.x()) + (v.y() - w.y()) * (v.y() - w.y());
     float t = float(QPoint::dotProduct(p - v, w - v)) / l2;
-    //t = qMax(0, qMin(1, t));
+    t = qMax(0.0f, qMin(1.0f, t));
     QPoint projection = v + t * (w - v);
     dist = float(qSqrt((p.x() - projection.x()) * (p.x() - projection.x()) + (p.y() - projection.y()) * (p.y() - projection.y())));
+    if (done) return fitness + dist / 150.0f; //
     return qMax(fitness, 0.0f) + 1 - dist / 150.0f; //
 }
 

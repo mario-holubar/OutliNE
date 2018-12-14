@@ -27,7 +27,6 @@ public:
 
 class NE {
 protected:
-    //std::vector<Genome> genomes;
     std::vector<NeuralNet> nets;
     QRandomGenerator rand;
 public:
@@ -42,7 +41,6 @@ public:
 
     NE();
     virtual ~NE();
-    //Genome *getGenome(unsigned genome);
     NeuralNet *getNet(unsigned net);
 
     virtual void paramDialog(ParamDialog *d) = 0;
