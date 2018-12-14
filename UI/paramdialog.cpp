@@ -38,6 +38,14 @@ void ParamDialog::addSpacer() {
     l.addItem(spacers.back(), r++, 0, 1, 2);
 }
 
+void ParamDialog::addDivider() {
+    QFrame* line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    //line->setFrameShadow(QFrame::Sunken);
+    dividers.append(line);
+    l.addWidget(dividers.back(), r++, 0, 1, 2);
+}
+
 int ParamDialog::exec() {
     addSpacer();
 

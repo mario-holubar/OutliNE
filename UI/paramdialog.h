@@ -15,6 +15,7 @@ private:
     QVector<std::pair<QSpinBox *, unsigned *>> spinBoxes;
     QVector<std::pair<QDoubleSpinBox *, float *>> doubleSpinBoxes;
     QVector<QSpacerItem *> spacers;
+    QVector<QFrame *> dividers;
     QGridLayout l;
     QDialogButtonBox db;
     int r = 0;
@@ -23,6 +24,7 @@ public:
     void addSpinBox(QString s, unsigned *n, unsigned min, unsigned max);
     void addDoubleSpinBox(QString s, float *n, float min, float max);
     void addSpacer();
+    void addDivider();
     int exec() override;
 };
 

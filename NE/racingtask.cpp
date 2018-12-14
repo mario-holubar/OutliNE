@@ -12,6 +12,7 @@ RacingParams::~RacingParams() {
 }
 
 void RacingParams::paramDialog(ParamDialog *d) {
+    TaskParams::paramDialog(d);
     d->addSpinBox("Track segments", &trackSegments, 8, 999);
     d->addDoubleSpinBox("Track precision", &trackPrecision, 1.0f, 8.0f);
     d->addSpinBox("Track width", &trackWidth, 50, 200);

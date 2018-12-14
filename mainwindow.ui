@@ -158,6 +158,10 @@ QTableView{
 QTableView::item:selected {
 	background-color: #3c3c3c;
 	color: white;
+}
+
+QFrame[frameShape=&quot;4&quot;] {
+	color: #3c3c3c;
 }</string>
   </property>
   <property name="locale">
@@ -461,10 +465,23 @@ QTableView::item:selected {
           <x>0</x>
           <y>0</y>
           <width>252</width>
-          <height>312</height>
+          <height>319</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
+         <item row="8" column="0">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
          <item row="1" column="0">
           <widget class="QPushButton" name="button_newPool">
            <property name="text">
@@ -472,10 +489,10 @@ QTableView::item:selected {
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
-          <widget class="QPushButton" name="button_nextGen">
+         <item row="3" column="0">
+          <widget class="QPushButton" name="button_changeTask">
            <property name="text">
-            <string>Next Generation</string>
+            <string>Change task parameters...</string>
            </property>
           </widget>
          </item>
@@ -495,30 +512,10 @@ QTableView::item:selected {
            </property>
           </spacer>
          </item>
-         <item row="4" column="0">
-          <widget class="QPushButton" name="button_randomizeTask">
+         <item row="7" column="0">
+          <widget class="QPushButton" name="button_nextGen">
            <property name="text">
-            <string>Randomize task</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="3" column="0">
-          <widget class="QPushButton" name="button_changeTask">
-           <property name="text">
-            <string>Change task parameters...</string>
+            <string>Next Generation</string>
            </property>
           </widget>
          </item>
@@ -544,6 +541,13 @@ QTableView::item:selected {
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="4" column="0">
+          <widget class="QPushButton" name="button_randomizeTask">
+           <property name="text">
+            <string>Randomize task</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
