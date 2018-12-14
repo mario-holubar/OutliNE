@@ -8,6 +8,8 @@
 
 class TaskParams {
 public:
+    unsigned tMax = 240;
+
     TaskParams();
     virtual ~TaskParams() = 0;
     virtual void paramDialog(ParamDialog *d) = 0;
@@ -25,7 +27,7 @@ public:
 class Individual {
 public:
     unsigned seed;
-    SANENeuralNet net;
+    NeuralNet *net;
     bool visible;
 
     Individual();

@@ -7,8 +7,6 @@ class InstanceModel : public QAbstractTableModel
 {
     Q_OBJECT
 
-private:
-    int rows;
 public:
     QVector<float> fitness;
 

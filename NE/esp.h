@@ -5,67 +5,40 @@
 #include "QRandomGenerator"
 #include "UI/paramdialog.h"
 
-class ESPParams {
+#include "NE/ne.h"
+
+class ESPGene {
 public:
-    unsigned n_inputs = 0;
-    unsigned n_outputs = 0;
-
-    unsigned tMax = 240;
-    unsigned neuronsPerSubpopulation = 6;
-    unsigned n_genomes = 64; //cars
-    unsigned subpopulationsPerGenome = 4;
-    float initialWeightVariance = 0.5f;
-    float mutationNoiseVariance = 0.1f;
-    float sigmoidSteepness = 4.0f;
-    unsigned tournamentSize = 2; //selection pressure
-
-    ESPParams(unsigned inputs, unsigned outputs);
-    void paramDialog(ParamDialog *d);
-};
-
-class ESPNeuron {
-public:
-    std::vector<double> w_in;
-    std::vector<double> w_out;
-    double value;
+    Neuron neuron;
     float fitness = 0.0f;
     unsigned n_genomes = 0;
+
+    ESPGene(Neuron n);
 };
 
 class ESPGenome {
 public:
-    ESPParams *params;
-    std::vector<ESPNeuron *> genes;
-    float fitness;
-
-    ESPGenome(ESPParams *p);
+    std::vector<ESPGene *> genes;
 };
 
-class ESPNeuralNet {
-private:
-    friend class Experiment;
-    ESPParams *params;
-    std::vector<ESPNeuron *> neurons;
+class ESP : public NE {
 public:
-    void from_genome(ESPGenome g);
-    double sigmoid(double x);
-    std::vector<double> evaluate(std::vector<double> inputs);
-};
+    unsigned neuronsPerSubpopulation = 6;
+    unsigned subpopulationsPerGenome = 4;
+    float initialWeightVariance = 0.5f;
+    float mutationNoiseVariance = 0.1f;
+    unsigned tournamentSize = 2; //selection pressure
 
-class ESPPool {
-private:
-    ESPParams *params;
-    std::vector<std::vector<ESPNeuron> *> neurons;
+    std::vector<std::vector<ESPGene>> genes;
     std::vector<ESPGenome> genomes;
-    QRandomGenerator rand;
-public:
-    ESPPool();
-    void makeNeurons(bool reset);
-    void init(ESPParams *p);
+
+    void makeGenes();
+
+    void paramDialog(ParamDialog *d);
+    void init(bool reset);
     void makeGenomes();
+    void setFitness(unsigned genome, float fitness);
     void newGeneration();
-    void setFitness(unsigned Genome, float fitness);
-    ESPGenome getGenome(unsigned i) {return genomes[i];}
 };
 
 #endif // ESP_H

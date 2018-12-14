@@ -10,7 +10,7 @@ TaskParams::~TaskParams() {
 }
 
 void TaskParams::paramDialog(ParamDialog *d) {
-    Q_UNUSED(d);
+    d->addSpinBox("Total steps per generation", &tMax, 1, 9999);
 }
 
 Task::Task() {

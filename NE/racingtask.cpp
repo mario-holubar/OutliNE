@@ -217,7 +217,7 @@ void RacingIndividual::draw(QPainter *painter, bool selected) {
 
     if (selected) {
         // Show what car will do next step
-        std::vector<double> outputs = net.evaluate(getInputs());
+        std::vector<double> outputs = net->evaluate(getInputs());
         pen.setCosmetic(false);
         pen.setColor(Qt::red);
         pen.setWidth(1);

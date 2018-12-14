@@ -97,7 +97,7 @@ void MainWindow::updateViews() {
 }
 
 void MainWindow::updateInstanceTable() {
-    if (int(experiment->getPopSize()) > instanceTableModel->fitness.size()) instanceTableModel->fitness.resize(int(experiment->getPopSize()));
+    instanceTableModel->fitness.resize(int(experiment->getPopSize()));
     for (int i = 0; i < int(experiment->getPopSize()); i++) {
         instanceTableModel->fitness[i] = experiment->getIndividual(i)->getFitness();
     }
@@ -165,7 +165,7 @@ void MainWindow::queuePoolDialog() {
 void MainWindow::makePoolDialog() {
     //ParamDialog *d = new ParamDialog(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
     ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
-    experiment->params->paramDialog(&d);
+    experiment->ne->paramDialog(&d);
     experiment->poolChanged = d.exec();
 }
 

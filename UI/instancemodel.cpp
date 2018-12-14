@@ -5,9 +5,7 @@
 
 InstanceModel::InstanceModel(QObject *parent, int popSize)
     : QAbstractTableModel(parent),
-      rows(popSize),
-      fitness(QVector<float>(popSize, 0.0f))
-{
+      fitness(QVector<float>(popSize, 0.0f)) {
 
 }
 
@@ -23,7 +21,7 @@ QVariant InstanceModel::headerData(int section, Qt::Orientation orientation, int
 
 int InstanceModel::rowCount(const QModelIndex &parent) const {
     if (parent.isValid()) return 0;
-    return rows;
+    return fitness.size();
 }
 
 int InstanceModel::columnCount(const QModelIndex &parent) const {

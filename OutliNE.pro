@@ -36,7 +36,8 @@ SOURCES += \
     UI/mainwindow.cpp \
     UI/netview.cpp \
     UI/paramdialog.cpp \
-    NE/esp.cpp
+    NE/esp.cpp \
+    NE/ne.cpp
 
 HEADERS += \
     NE/experiment.h \
@@ -50,7 +51,8 @@ HEADERS += \
     UI/mainwindow.h \
     UI/netview.h \
     UI/paramdialog.h \
-    NE/esp.h
+    NE/esp.h \
+    NE/ne.h
 
 FORMS += \
     mainwindow.ui
