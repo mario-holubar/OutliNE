@@ -37,18 +37,16 @@ void ESP::makeGenes() {
     //genes = std::vector<std::vector<ESPGene>>(subpopulationsPerGenome);
     genes.resize(subpopulationsPerGenome);
 
-    std::random_device rd;
-    std::mt19937 generator {rd()};
     std::normal_distribution<double> dist(0.0, double(initialWeightVariance));
     for (unsigned sp = 0; sp < subpopulationsPerGenome; sp++) {
         while (genes[sp].size() < neuronsPerSubpopulation) {
             Neuron n;
             for (unsigned i = 0; i < n_inputs; i++) {
-                double weight = dist(generator);
+                double weight = dist(rand);
                 n.w_in[i] = weight;
             }
             for (unsigned i = 0; i < n_outputs; i++) {
-                double weight = dist(generator);
+                double weight = dist(rand);
                 n.w_out[i] = weight;
             }
             genes[sp].push_back(ESPGene(n));
@@ -144,16 +142,15 @@ void ESP::newGeneration() {
         // Noise
         // TODO move inside top loop
         if (mutationNoiseVariance > 0.0f) {
-            std::default_random_engine generator;
             std::normal_distribution<double> dist(0.0, double(mutationNoiseVariance));
             for (unsigned i = 0; i < neuronsPerSubpopulation; i++) {
                 for (unsigned j = 0; j < n_inputs; j++) {
-                    genes[sp][i].neuron.w_in[j] += dist(generator);
+                    genes[sp][i].neuron.w_in[j] += dist(rand);
                     //if (neurons[sp]->data()[i].w_in[j] > 1.0) neurons[sp]->data()[i].w_in[j] = 1.0;
                     //if (neurons[sp]->data()[i].w_in[j] < -1.0) neurons[sp]->data()[i].w_in[j] = -1.0;
                 }
                 for (unsigned j = 0; j < n_outputs; j++) {
-                    genes[sp][i].neuron.w_out[j] += dist(generator);
+                    genes[sp][i].neuron.w_out[j] += dist(rand);
                     //if (neurons[sp]->data()[i].w_out[j] > 1.0) neurons[sp]->data()[i].w_out[j] = 1.0;
                     //if (neurons[sp]->data()[i].w_out[j] < -1.0) neurons[sp]->data()[i].w_out[j] = -1.0;
                 }

@@ -4,16 +4,16 @@
 #include "time.h"
 #include "NE/esp.h"
 #include "NE/sane.h"
+#include "NE/cosyne.h"
 
 #include "racingtask.h"
 #define PARAMS RacingParams
 #define TASK RacingTask
 #define INDIVIDUAL RacingIndividual
-#define IO 5, 2
 
 Experiment::Experiment() {
-    ne = new ESP();
-    ne->n_inputs = 5;//
+    ne = new Cosyne;
+    ne->n_inputs = 6;//
     ne->n_outputs = 2;//
     ne->init(false);
     taskparams = new PARAMS;
@@ -222,7 +222,7 @@ QColor Experiment::activationColorWeight(double v, double a) {
     v = 2.0 / (1.0 + exp(-double(ne->sigmoidSteepness) * v)) - 1;
     double val = v * a;
     QColor c = activationColorNeuron(val > 0.0 ? 1 : -1);
-    int alpha = int(abs(val * 255));
+    int alpha = int(qAbs(val * 255));
     c.setAlpha(alpha);
     return c;
 }

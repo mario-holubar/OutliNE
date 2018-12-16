@@ -393,7 +393,7 @@ QFrame[frameShape=&quot;4&quot;] {
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuView">
@@ -465,7 +465,7 @@ QFrame[frameShape=&quot;4&quot;] {
           <x>0</x>
           <y>0</y>
           <width>252</width>
-          <height>319</height>
+          <height>328</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
@@ -681,33 +681,18 @@ QFrame[frameShape=&quot;4&quot;] {
     </layout>
    </widget>
   </widget>
-  <action name="actionNew">
-   <property name="text">
-    <string>New</string>
-   </property>
-  </action>
-  <action name="actionLoad">
-   <property name="text">
-    <string>Load</string>
-   </property>
-  </action>
-  <action name="actionSave">
-   <property name="text">
-    <string>Save</string>
-   </property>
-  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
    <class>NetView</class>
    <extends>QGraphicsView</extends>
-   <header>netview.h</header>
+   <header>UI/netview.h</header>
   </customwidget>
   <customwidget>
    <class>MainView</class>
    <extends>QGraphicsView</extends>
-   <header>mainview.h</header>
+   <header>UI/mainview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

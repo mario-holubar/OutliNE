@@ -197,7 +197,7 @@ std::vector<double> RacingIndividual::getInputs() {
 }
 
 void RacingIndividual::draw(QPainter *painter, bool selected) {
-    QTransform debug = painter->transform();
+    //QTransform debug = painter->transform();
     QPen pen = painter->pen();
     painter->translate(double(x), double(y));
     painter->rotate(double(-angle));

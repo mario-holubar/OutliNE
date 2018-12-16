@@ -37,7 +37,8 @@ SOURCES += \
     UI/netview.cpp \
     UI/paramdialog.cpp \
     NE/esp.cpp \
-    NE/ne.cpp
+    NE/ne.cpp \
+    NE/cosyne.cpp
 
 HEADERS += \
     NE/experiment.h \
@@ -52,7 +53,8 @@ HEADERS += \
     UI/netview.h \
     UI/paramdialog.h \
     NE/esp.h \
-    NE/ne.h
+    NE/ne.h \
+    NE/cosyne.h
 
 FORMS += \
     mainwindow.ui
