@@ -38,6 +38,7 @@ signals:
     void requestPoolDialog();
     void requestTaskDialog();
     void updateView();
+    void setViewRect(QRectF);
 public slots:
     void stepAll();
     void evaluateGen();

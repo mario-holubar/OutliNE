@@ -713,12 +713,6 @@ QFrame[frameShape=&quot;4&quot;] {
    </widget>
   </widget>
   <widget class="QDockWidget" name="instances">
-   <property name="minimumSize">
-    <size>
-     <width>90</width>
-     <height>117</height>
-    </size>
-   </property>
    <property name="windowTitle">
     <string>Instances</string>
    </property>

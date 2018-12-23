@@ -21,6 +21,7 @@ public:
     virtual ~Task() = 0;
     virtual void init() = 0;
     virtual void draw(QPainter *painter) = 0;
+    virtual QRectF getBounds() = 0;
 };
 
 class Individual {

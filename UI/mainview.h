@@ -11,7 +11,7 @@ class MainView : public QGraphicsView {
 private:
     Experiment *experiment;
     QItemSelection selected;
-    float zoom;
+    double zoom;
     QPointF lastPos;
     QPointF offset;
 public:
@@ -19,6 +19,8 @@ public:
     MainView(QWidget *parent = nullptr, Experiment *experiment = nullptr);
     void setExperiment(Experiment *experiment);
     void centerOnSelected();
+public slots:
+    void setViewRect(QRectF r);
 protected:
     void paintEvent(QPaintEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;

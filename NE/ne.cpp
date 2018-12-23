@@ -64,7 +64,7 @@ float NE::sigmoidSteepness = 4.0f;
 unsigned NE::n_inputs = 0;
 unsigned NE::n_outputs = 0;
 float NE::initialWeightVariance = 0.5f;
-float NE::mutationNoiseVariance = 0.1f;
+float NE::mutationNoiseVariance = 0.05f;
 unsigned NE::tournamentSize = 2; //selection pressure
 
 NE::NE() {

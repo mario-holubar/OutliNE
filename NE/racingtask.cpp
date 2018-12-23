@@ -60,7 +60,7 @@ void RacingTask::init() {
         double a = path.angleAtPercent(i);
         QPointF newL = p + QPointF(qCos(qDegreesToRadians(a + 90)) * params->trackWidth, -qSin(qDegreesToRadians(a + 90)) * params->trackWidth);
         QPointF newR = p + QPointF(qCos(qDegreesToRadians(a - 90)) * params->trackWidth, -qSin(qDegreesToRadians(a - 90)) * params->trackWidth);
-        track.append(QLineF(newL, lastL));
+        track.prepend(QLineF(newL, lastL));
         track.append(QLineF(lastR, newR));
         QPolygonF c;
         c << lastL << lastR << newR << newL << lastL;
@@ -68,7 +68,7 @@ void RacingTask::init() {
         lastL = newL;
         lastR = newR;
     }
-    track.removeLast();
+    track.removeFirst();
     track.removeLast();
 }
 
@@ -93,6 +93,23 @@ void RacingTask::draw(QPainter *painter) {
     for (int i = 0; i < checkpoints.size() - 1; i++) {
         painter->drawConvexPolygon(checkpoints[i]);
     }
+}
+
+void updateBounds(QRectF *r, QPointF p) {
+    if (p.x() > r->right()) r->setRight(p.x());
+    else if (p.x() < r->left()) r->setLeft(p.x());
+    if (p.y() > r->bottom()) r->setBottom(p.y());
+    else if (p.y() < r->top()) r->setTop(p.y());
+}
+
+QRectF RacingTask::getBounds() {
+    QRectF bounds;
+    updateBounds(&bounds, track[0].p1());
+    for (int i = 0; i < track.size(); i++) {
+        updateBounds(&bounds, track[i].p2());
+    }
+    bounds.adjust(-50, -50, 50, 50);
+    return bounds;
 }
 
 RacingIndividual::RacingIndividual(Task *task) {

@@ -13,17 +13,17 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     QLocale::setDefault(QLocale::c());
 
-    initMenu();
-    initConnections();
-    initViews();
-
-    timer = new QTimer;
-    connect(timer, SIGNAL(timeout()), SLOT(step()));
-
     thread = new QThread;
     experiment->moveToThread(thread);
     connect(experiment, SIGNAL(updateView()), this, SLOT(updateViews()), Qt::BlockingQueuedConnection);
     thread->start();
+
+    timer = new QTimer;
+    connect(timer, SIGNAL(timeout()), SLOT(step()));
+
+    initMenu();
+    initConnections();
+    initViews();
 
     nextGen();
 }
@@ -69,6 +69,8 @@ void MainWindow::initViews() {
     ui->mainView->setExperiment(experiment);
     ui->netView->setExperiment(experiment);
 
+    connect(experiment, SIGNAL(setViewRect(QRectF)), ui->mainView, SLOT(setViewRect(QRectF)));
+
     ui->progressBar->setValue(int(experiment->getT()));
     ui->progressBar->setMaximum(int(experiment->getTMax()));
 
@@ -79,6 +81,8 @@ void MainWindow::initViews() {
     ui->tableView->setModel(proxyModel);
     proxyModel->sort(1, Qt::DescendingOrder);
     connect(ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), SLOT(setSelected(const QItemSelection &)));
+    ui->tableView->setColumnWidth(0, 75);
+    ui->tableView->setColumnWidth(1, 75);
 }
 
 MainWindow::~MainWindow() {
@@ -144,9 +148,9 @@ void MainWindow::setSelected(const QItemSelection &selection) {
 }
 
 void MainWindow::nextGen() {
-    emit experiment_nextGen();
     ui->mainView->following = false;
-    ui->tableView->clearSelection();
+    emit experiment_nextGen();
+    //ui->tableView->clearSelection();
     playPause(false);
 }
 

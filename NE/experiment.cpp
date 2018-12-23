@@ -55,6 +55,7 @@ void Experiment::nextGen() {
 
     // Initialize
     resetGen();
+    emit setViewRect(task->getBounds());
     currentGen++;
     updateView();
     evaluateGen();
@@ -147,6 +148,7 @@ void Experiment::changeTask() {
     emit requestTaskDialog();
     if (taskChanged) {
         resetGen();
+        emit setViewRect(task->getBounds());
     }
     evaluateGen();
 }
@@ -155,6 +157,7 @@ void Experiment::changeTask() {
 void Experiment::randomizeTask() {
     task->seed = unsigned(time(nullptr));
     resetGen();
+    emit setViewRect(task->getBounds());
     evaluateGen();
 }
 

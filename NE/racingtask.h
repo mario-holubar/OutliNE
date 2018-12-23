@@ -38,6 +38,7 @@ public:
     void init();
     QVector<QLineF> *getTrack();
     void draw(QPainter *painter);
+    QRectF getBounds();
 };
 
 class RacingIndividual : public Individual {
