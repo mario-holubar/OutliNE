@@ -25,7 +25,6 @@ MainWindow::MainWindow(QWidget *parent)
     thread = new QThread;
     experiment->moveToThread(thread);
     connect(experiment, SIGNAL(updateView()), this, SLOT(updateViews()), Qt::BlockingQueuedConnection);
-    //connect(experiment, SIGNAL(updateView()), this, SLOT(update()), Qt::DirectConnection);
     thread->start();
 
     nextGen();
@@ -94,6 +93,10 @@ void MainWindow::updateViews() {
     ui->progressBar->setMaximum(int(experiment->getTMax()));
     ui->progressBar->setValue(int(experiment->getT()));
     updateInstanceTable();
+    if (ui->checkbox_trackFirst->isChecked()) {
+        experiment->setSelected(proxyModel->mapToSource(proxyModel->index(0, 1)).row());
+        ui->mainView->following = true;
+    }
 }
 
 void MainWindow::updateInstanceTable() {
@@ -142,7 +145,6 @@ void MainWindow::setSelected(const QItemSelection &selection) {
 
 void MainWindow::nextGen() {
     emit experiment_nextGen();
-    //if (ui->checkbox_evaluate->isChecked()) evaluateGen();
     ui->mainView->following = false;
     ui->tableView->clearSelection();
     playPause(false);
@@ -150,20 +152,9 @@ void MainWindow::nextGen() {
 
 void MainWindow::queuePoolDialog() {
     emit experiment_changePool();
-    //if (ui->checkbox_evaluate->isChecked()) evaluateGen();
-    //emit experiment_resetGen();
-    //emit experiment_nextGen();
 }
 
-/*void MainWindow::changePool() {
-    ParamDialog *d = new ParamDialog(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
-    experiment->changePool(d);
-    if (ui->checkbox_evaluate->isChecked()) evaluateGen();
-    initViews();
-}*/
-
 void MainWindow::makePoolDialog() {
-    //ParamDialog *d = new ParamDialog(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
     ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
     experiment->ne->paramDialog(&d);
     experiment->poolChanged = d.exec();
@@ -171,21 +162,12 @@ void MainWindow::makePoolDialog() {
 
 void MainWindow::newPool() {
     emit experiment_newPool();
-    //if (ui->checkbox_evaluate->isChecked()) evaluateGen();
     initViews();
 }
 
 void MainWindow::queueTaskDialog() {
     emit experiment_changeTask();
-    //if (ui->checkbox_evaluate->isChecked()) evaluateGen();
-    //emit experiment_resetGen();
 }
-
-/*void MainWindow::changeTask() {
-    ParamDialog *d = new ParamDialog(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
-    experiment->changeTask(d);
-    if (ui->checkbox_evaluate->isChecked()) evaluateGen();
-}*/
 
 void MainWindow::makeTaskDialog() {
     ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
@@ -195,7 +177,6 @@ void MainWindow::makeTaskDialog() {
 
 void MainWindow::randomizeTask() {
     emit experiment_randomizeTask();
-    //if (ui->checkbox_evaluate->isChecked()) evaluateGen();
 }
 
 void MainWindow::evaluateGen() {
