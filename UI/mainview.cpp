@@ -32,6 +32,7 @@ void MainView::paintEvent(QPaintEvent *event) {
     painter.setTransform(t, false);
     painter.setRenderHints(renderHints());
     experiment->draw(&painter);
+    painter.end();
 }
 
 void MainView::wheelEvent(QWheelEvent *event) {
