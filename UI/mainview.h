@@ -15,9 +15,10 @@ private:
     QPointF lastPos;
     QPointF offset;
 public:
+    bool following;
     MainView(QWidget *parent = nullptr, Experiment *experiment = nullptr);
     void setExperiment(Experiment *experiment);
-    bool following;
+    void centerOnSelected();
 protected:
     void paintEvent(QPaintEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;

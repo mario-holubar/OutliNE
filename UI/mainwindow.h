@@ -47,7 +47,7 @@ signals:
     void experiment_step();
 private slots:
     void updateViews();
-    void stepUpdate();
+    void step();
     void playPause(bool play);
     void setSelected(const QItemSelection &selection);
     void nextGen();
@@ -59,7 +59,6 @@ private slots:
     void randomizeTask();
     void evaluateGen();
     void resetGen();
-    void step();
 };
 
 #endif // MAINWINDOW_H

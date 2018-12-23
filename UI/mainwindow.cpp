@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     initViews();
 
     timer = new QTimer;
-    connect(timer, SIGNAL(timeout()), SLOT(stepUpdate()));
+    connect(timer, SIGNAL(timeout()), SLOT(step()));
 
     thread = new QThread;
     experiment->moveToThread(thread);
@@ -108,6 +108,11 @@ void MainWindow::updateInstanceTable() {
     ui->tableView->repaint();
 }
 
+void MainWindow::step() {
+    emit experiment_step();
+    if (experiment->getT() >= experiment->getTMax()) playPause(false);
+}
+
 void MainWindow::playPause(bool play) {
     ui->button_play->setChecked(play);
     if (play && experiment->getT() >= experiment->getTMax()) {
@@ -123,16 +128,6 @@ void MainWindow::playPause(bool play) {
     }
 }
 
-void MainWindow::stepUpdate() {
-    if (ui->button_play->isChecked()) {
-        if (experiment->getT() >= experiment->getTMax()) {
-            playPause(false);
-            return;
-        }
-        step();
-    }
-}
-
 void MainWindow::setSelected(const QItemSelection &selection) {
     if (selection.indexes().size() == 0) experiment->setSelected(-1);
     else {
@@ -140,6 +135,7 @@ void MainWindow::setSelected(const QItemSelection &selection) {
         experiment->setSelected(realSelection.indexes().at(0).row());
         ui->mainView->following = true;
     }
+    ui->mainView->centerOnSelected();
     updateViews();
 }
 
@@ -185,9 +181,4 @@ void MainWindow::evaluateGen() {
 
 void MainWindow::resetGen() {
     emit experiment_resetGen();
-}
-
-void MainWindow::step() {
-    emit experiment_step();
-    if (experiment->getT() >= experiment->getTMax()) playPause(false);
 }
