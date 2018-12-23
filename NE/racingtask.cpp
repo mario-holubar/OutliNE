@@ -82,7 +82,7 @@ void RacingTask::draw(QPainter *painter) {
     pen.setColor(QColor(128, 128, 128));
     painter->setBrush(QBrush(QColor(24, 24, 24)));
     pen.setCapStyle(Qt::FlatCap);
-    pen.setWidth(2);
+    pen.setWidth(3);
     painter->setPen(pen);
     painter->drawLines(track);
 

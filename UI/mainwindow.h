@@ -48,6 +48,7 @@ signals:
 private slots:
     void updateViews();
     void step();
+    void playPause();
     void playPause(bool play);
     void setSelected(const QItemSelection &selection);
     void nextGen();

@@ -6,8 +6,6 @@
 #include <UI/mainview.h>
 #include "paramdialog.h"
 
-#define FPS 30
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
@@ -47,6 +45,7 @@ void MainWindow::initConnections() {
     connect(ui->button_reset, SIGNAL(released()), SLOT(resetGen()));
     connect(ui->button_evaluate, SIGNAL(released()), SLOT(evaluateGen()));
     connect(ui->button_step, SIGNAL(released()), SLOT(step()));
+    connect(ui->spinbox_fps, SIGNAL(valueChanged(int)), SLOT(playPause()));
 
     connect(this, SIGNAL(experiment_nextGen()), experiment, SLOT(nextGen()));
     connect(this, SIGNAL(experiment_changePool()), experiment, SLOT(changePool()));
@@ -113,19 +112,24 @@ void MainWindow::step() {
     if (experiment->getT() >= experiment->getTMax()) playPause(false);
 }
 
-void MainWindow::playPause(bool play) {
-    ui->button_play->setChecked(play);
+void MainWindow::playPause() {
+    bool play = ui->button_play->isChecked();
     if (play && experiment->getT() >= experiment->getTMax()) {
         resetGen();
     }
     if (play) {
-        timer->start(1000 / FPS);
+        timer->start(1000 / ui->spinbox_fps->value());
         ui->button_play->setIcon(QIcon(":/icons/pause.png"));
     }
     else {
         timer->stop();
         ui->button_play->setIcon(QIcon(":/icons/play.png"));
     }
+}
+
+void MainWindow::playPause(bool play) {
+    ui->button_play->setChecked(play);
+    playPause();
 }
 
 void MainWindow::setSelected(const QItemSelection &selection) {
