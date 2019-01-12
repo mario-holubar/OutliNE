@@ -161,10 +161,13 @@ void MainWindow::queuePoolDialog() {
 void MainWindow::makePoolDialog() {
     ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
     std::vector<QString> nes = {"ESP", "SANE", "CoSyNE"};
-    QComboBox ne;
-    for (QString s : nes) ne.addItem(s);
-    d.addOther("NE Algorithm", &ne);
-    connect(&ne, SIGNAL(currentIndexChanged(int)), &d, SLOT(reject()));
+    QComboBox alg;
+    for (QString s : nes) alg.addItem(s);
+    alg.setCurrentIndex(int(experiment->alg));
+    d.addOther("NE Algorithm", &alg);
+    connect(&alg, SIGNAL(currentIndexChanged(int)), &d, SLOT(reject()));
+    connect(&alg, SIGNAL(currentIndexChanged(int)), experiment, SLOT(changeNE(int)));
+    connect(&alg, SIGNAL(currentIndexChanged(int)), this, SLOT(makePoolDialog()), Qt::QueuedConnection);
     experiment->ne->paramDialog(&d);
     experiment->poolChanged = d.exec();
 }

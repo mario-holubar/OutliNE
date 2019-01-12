@@ -24,6 +24,8 @@ public:
 
 class Cosyne : public NE {
 public:
+    QString name = "CoSyNE";
+
     unsigned neuronsPerGenome = 4;
 
     std::vector<std::vector<CosyneGene>> genes;

@@ -23,6 +23,8 @@ public:
 
 class ESP : public NE {
 public:
+    QString name = "ESP";
+
     unsigned neuronsPerSubpopulation = 6;
     unsigned subpopulationsPerGenome = 4;
 

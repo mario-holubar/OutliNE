@@ -5,6 +5,11 @@
 #include <QPainter>
 #include "QMutex"
 
+#include "NE/esp.h"
+#include "NE/sane.h"
+#include "NE/cosyne.h"
+static const std::vector<NE *> algs = {new ESP(), new SANE(), new Cosyne()};
+
 class Experiment : public QObject {
     Q_OBJECT
 private:
@@ -15,6 +20,7 @@ private:
     int selected;
 public:
     NE *ne;
+    unsigned alg;
     TaskParams *taskparams; //put in task
     bool poolChanged;
     bool taskChanged;
@@ -44,6 +50,7 @@ public slots:
     void evaluateGen();
     void nextGen();
     void resetGen();
+    void changeNE(int alg);
     void changePool();
     void newPool();
     void changeTask();

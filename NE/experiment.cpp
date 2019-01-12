@@ -2,9 +2,6 @@
 #include <QDebug>
 #include "QTimer"
 #include "time.h"
-#include "NE/esp.h"
-#include "NE/sane.h"
-#include "NE/cosyne.h"
 
 #include "racingtask.h"
 #define PARAMS RacingParams
@@ -12,7 +9,8 @@
 #define INDIVIDUAL RacingIndividual
 
 Experiment::Experiment() {
-    ne = new Cosyne;
+    alg = 2;
+    ne = algs[alg];
     ne->n_inputs = 6;//
     ne->n_outputs = 2;//
     ne->init(false);
@@ -116,6 +114,15 @@ void Experiment::resetGen() {
         getIndividual(int(i))->init();
     }
     updateView();
+}
+
+void Experiment::changeNE(int alg) {
+    this->alg = unsigned(alg);
+    ne = algs[unsigned(alg)];
+    ne->init(false);
+    makeGenomes();
+    resetGen();
+    evaluateGen();
 }
 
 // Change pool parameters
