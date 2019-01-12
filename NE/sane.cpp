@@ -6,6 +6,10 @@ SANEGene::SANEGene(Neuron n) {
     neuron = n;
 }
 
+SANE::SANE() {
+    name = "SANE";
+}
+
 void SANE::paramDialog(ParamDialog *d) {
     NE::paramDialog(d);
     d->addSpinBox("Number of neurons", &n_neurons, 4, 128);

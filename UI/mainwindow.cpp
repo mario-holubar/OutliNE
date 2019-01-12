@@ -36,6 +36,13 @@ void MainWindow::initMenu() {
 }
 
 void MainWindow::initConnections() {
+    for (unsigned i = 0; i < algs.size(); i++) {
+        ui->combobox_alg->addItem(algs[i]->name);
+    }
+    ui->combobox_alg->setCurrentIndex(int(experiment->alg));
+    connect(ui->combobox_alg, SIGNAL(currentIndexChanged(int)), experiment, SLOT(changeNE(int)));
+    connect(experiment, SIGNAL(genChanged(QString)), ui->label_gen, SLOT(setText(QString)));
+
     connect(ui->button_nextGen, SIGNAL(released()), SLOT(nextGen()));
     connect(ui->button_changePool, SIGNAL(released()), SLOT(queuePoolDialog()));
     connect(ui->button_newPool, SIGNAL(released()), SLOT(newPool()));
@@ -160,14 +167,6 @@ void MainWindow::queuePoolDialog() {
 
 void MainWindow::makePoolDialog() {
     ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
-    std::vector<QString> nes = {"ESP", "SANE", "CoSyNE"};
-    QComboBox alg;
-    for (QString s : nes) alg.addItem(s);
-    alg.setCurrentIndex(int(experiment->alg));
-    d.addOther("NE Algorithm", &alg);
-    connect(&alg, SIGNAL(currentIndexChanged(int)), &d, SLOT(reject()));
-    connect(&alg, SIGNAL(currentIndexChanged(int)), experiment, SLOT(changeNE(int)));
-    connect(&alg, SIGNAL(currentIndexChanged(int)), this, SLOT(makePoolDialog()), Qt::QueuedConnection);
     experiment->ne->paramDialog(&d);
     experiment->poolChanged = d.exec();
 }

@@ -6,6 +6,10 @@ ESPGene::ESPGene(Neuron n) {
     neuron = n;
 }
 
+ESP::ESP() {
+    name = "ESP";
+}
+
 void ESP::paramDialog(ParamDialog *d) {
     NE::paramDialog(d);
     d->addSpinBox("Number of neurons per subpopulation", &neuronsPerSubpopulation, 2, 32);

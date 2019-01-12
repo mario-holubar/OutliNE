@@ -8,7 +8,7 @@
 #include "NE/esp.h"
 #include "NE/sane.h"
 #include "NE/cosyne.h"
-static const std::vector<NE *> algs = {new ESP(), new SANE(), new Cosyne()};
+static const std::vector<NE *> algs = {new SANE(), new ESP(), new Cosyne()};
 
 class Experiment : public QObject {
     Q_OBJECT
@@ -20,7 +20,7 @@ private:
     int selected;
 public:
     NE *ne;
-    unsigned alg;
+    unsigned alg = 2;
     TaskParams *taskparams; //put in task
     bool poolChanged;
     bool taskChanged;
@@ -45,6 +45,7 @@ signals:
     void requestTaskDialog();
     void updateView();
     void setViewRect(QRectF);
+    void genChanged(QString gen);
 public slots:
     void stepAll();
     void evaluateGen();

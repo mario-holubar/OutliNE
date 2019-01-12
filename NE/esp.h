@@ -23,13 +23,13 @@ public:
 
 class ESP : public NE {
 public:
-    QString name = "ESP";
-
     unsigned neuronsPerSubpopulation = 6;
     unsigned subpopulationsPerGenome = 4;
 
     std::vector<std::vector<ESPGene>> genes;
     std::vector<ESPGenome> genomes;
+
+    ESP();
 
     void makeGenes();
 

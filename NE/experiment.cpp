@@ -9,7 +9,6 @@
 #define INDIVIDUAL RacingIndividual
 
 Experiment::Experiment() {
-    alg = 2;
     ne = algs[alg];
     ne->n_inputs = 6;//
     ne->n_outputs = 2;//
@@ -47,13 +46,15 @@ void Experiment::makeGenomes() {
 void Experiment::nextGen() {
     if (currentGen > 0) {
         ne->newGeneration();
+        ne->gen++;
+        emit genChanged("Generation " + QString::number(ne->gen));
     }
 
     makeGenomes();
 
     // Initialize
     resetGen();
-    emit setViewRect(task->getBounds());
+    //emit setViewRect(task->getBounds());
     currentGen++;
     updateView();
     evaluateGen();
@@ -120,6 +121,7 @@ void Experiment::changeNE(int alg) {
     this->alg = unsigned(alg);
     ne = algs[unsigned(alg)];
     ne->init(false);
+    emit genChanged("Generation " + QString::number(ne->gen));
     makeGenomes();
     resetGen();
     evaluateGen();
@@ -144,6 +146,8 @@ void Experiment::newPool() {
     selected = -1;
     ne->init(true);
     //ne->makeNeurons(true);
+    ne->gen = 1;
+    emit genChanged("Generation " + QString::number(ne->gen));
     makeGenomes();
     t = taskparams->tMax; // current generation doesn't need to be evaluated
     currentGen = 0;

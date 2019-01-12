@@ -30,7 +30,9 @@ protected:
     std::vector<NeuralNet> nets;
     QRandomGenerator rand;
 public:
-    static QString name;
+    QString name;
+    unsigned gen = 1;
+
     static unsigned n_genomes;
     static float sigmoidSteepness;
     static float initialWeightVariance;

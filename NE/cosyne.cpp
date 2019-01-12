@@ -2,14 +2,16 @@
 #include "QDebug"
 #include "time.h"
 
-// not really CoSyNE yet; different recombination + missing permutation
-
 CosyneGene::CosyneGene(double w) {
     weight = w;
 }
 
 unsigned Cosyne::subpopulationsPerGenome() {
     return neuronsPerGenome * (n_inputs + n_outputs);
+}
+
+Cosyne::Cosyne() {
+    name = "CoSyNE";
 }
 
 void Cosyne::paramDialog(ParamDialog *d) {
