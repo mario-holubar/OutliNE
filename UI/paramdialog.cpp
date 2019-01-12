@@ -6,20 +6,21 @@ ParamDialog::ParamDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f
 }
 
 void ParamDialog::addSpinBox(QString s, unsigned *n, unsigned min, unsigned max) {
-    labels.append(new QLabel(s));
+    widgets.append(std::make_pair(new QLabel(s), nullptr));
+    l.addWidget(widgets.back().first, r, 0);
     QSpinBox *w = new QSpinBox(this);
     w->setRange(int(min), int(max));
     w->setValue(int(*n));
     w->setAccelerated(true);
     w->setCorrectionMode(QAbstractSpinBox::CorrectToNearestValue);
-    spinBoxes.append(std::make_pair(w, n));
-    l.addWidget(labels.back(), r, 0);
+    widgets.append(std::make_pair(w, n));
     l.addWidget(w, r, 1);
     r++;
 }
 
 void ParamDialog::addDoubleSpinBox(QString s, float *n, float min, float max) {
-    labels.append(new QLabel(s));
+    widgets.append(std::make_pair(new QLabel(s), nullptr));
+    l.addWidget(widgets.back().first, r, 0);
     QDoubleSpinBox *w = new QDoubleSpinBox(this);
     w->setDecimals(3);
     w->setSingleStep(0.1);
@@ -27,23 +28,31 @@ void ParamDialog::addDoubleSpinBox(QString s, float *n, float min, float max) {
     w->setValue(double(*n));
     w->setAccelerated(true);
     w->setCorrectionMode(QAbstractSpinBox::CorrectToNearestValue);
-    doubleSpinBoxes.append(std::make_pair(w, n));
-    l.addWidget(labels.back(), r, 0);
+    widgets.append(std::make_pair(w, n));
     l.addWidget(w, r, 1);
     r++;
 }
 
 void ParamDialog::addSpacer() {
-    spacers.append(new QSpacerItem(0, 10));
-    l.addItem(spacers.back(), r++, 0, 1, 2);
+    QFrame* spacer = new QFrame();
+    widgets.append(std::make_pair(spacer, nullptr));
+    l.addWidget(widgets.back().first, r++, 0, 1, 2);
 }
 
 void ParamDialog::addDivider() {
     QFrame* line = new QFrame();
     line->setFrameShape(QFrame::HLine);
-    //line->setFrameShadow(QFrame::Sunken);
-    dividers.append(line);
-    l.addWidget(dividers.back(), r++, 0, 1, 2);
+    line->setFrameShadow(QFrame::Sunken);
+    widgets.append(std::make_pair(line, nullptr));
+    l.addWidget(widgets.back().first, r++, 0, 1, 2);
+}
+
+void ParamDialog::addOther(QString s, QWidget *w) {
+    widgets.append(std::make_pair(new QLabel(s), nullptr));
+    l.addWidget(widgets.back().first, r, 0);
+    widgets.append(std::make_pair(w, nullptr));
+    l.addWidget(w, r, 1);
+    r++;
 }
 
 int ParamDialog::exec() {
@@ -58,11 +67,15 @@ int ParamDialog::exec() {
     setLayout(&l);
 
     if (QDialog::exec()) {
-        for (int i = 0; i < spinBoxes.size(); i++) {
-            *(spinBoxes[i].second) = unsigned(spinBoxes[i].first->value());
-        }
-        for (int i = 0; i < doubleSpinBoxes.size(); i++) {
-            *(doubleSpinBoxes[i].second) = float(doubleSpinBoxes[i].first->value());
+        for (int i = 0; i < widgets.size(); i++) {
+            QSpinBox *s = dynamic_cast<QSpinBox *>(widgets[i].first);
+            if (s) {
+                *(static_cast<unsigned *>(widgets[i].second)) = unsigned(s->value());
+            }
+            QDoubleSpinBox *ds = dynamic_cast<QDoubleSpinBox *>(widgets[i].first);
+            if (ds) {
+                *(static_cast<float *>(widgets[i].second)) = float(ds->value());
+            }
         }
         return 1;
     }

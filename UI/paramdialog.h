@@ -8,14 +8,11 @@
 #include "QSpinBox"
 #include "QDoubleSpinBox"
 #include "QSpacerItem"
+#include "QComboBox"
 
 class ParamDialog : public QDialog {
 private:
-    QVector<QLabel *> labels;
-    QVector<std::pair<QSpinBox *, unsigned *>> spinBoxes;
-    QVector<std::pair<QDoubleSpinBox *, float *>> doubleSpinBoxes;
-    QVector<QSpacerItem *> spacers;
-    QVector<QFrame *> dividers;
+    QVector<std::pair<QWidget *, void *>> widgets;
     QGridLayout l;
     QDialogButtonBox db;
     int r = 0;
@@ -25,6 +22,7 @@ public:
     void addDoubleSpinBox(QString s, float *n, float min, float max);
     void addSpacer();
     void addDivider();
+    void addOther(QString s, QWidget *w);
     int exec() override;
 };
 
