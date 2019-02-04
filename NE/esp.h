@@ -24,10 +24,12 @@ public:
 class ESP : public NE {
 public:
     unsigned neuronsPerSubpopulation = 6;
-    unsigned subpopulationsPerGenome = 4;
+    unsigned burstMutationStagnate = 4;
 
     std::vector<std::vector<ESPGene>> genes;
     std::vector<ESPGenome> genomes;
+    float bestFitness = 0.0f;
+    unsigned stagnate = 0;
 
     ESP();
 

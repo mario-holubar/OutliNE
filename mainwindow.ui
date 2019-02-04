@@ -694,7 +694,7 @@ QFrame[frameShape=&quot;4&quot;] {
          <item row="1" column="0">
           <widget class="QLabel" name="label_gen">
            <property name="text">
-            <string>Generation 1</string>
+            <string>Generation 0</string>
            </property>
           </widget>
          </item>

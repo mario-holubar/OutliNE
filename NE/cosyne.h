@@ -24,8 +24,6 @@ public:
 
 class Cosyne : public NE {
 public:
-    unsigned neuronsPerGenome = 4;
-
     std::vector<std::vector<CosyneGene>> genes;
     std::vector<CosyneGenome> genomes;
 

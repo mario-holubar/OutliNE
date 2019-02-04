@@ -59,7 +59,9 @@ std::vector<double> NeuralNet::evaluate(std::vector<double> inputs) {
     return outputs;
 }
 
+unsigned NE::seed = 0;
 unsigned NE::n_genomes = 64;
+unsigned NE::neuronsPerGenome = 4;
 float NE::sigmoidSteepness = 4.0f;
 unsigned NE::n_inputs = 0;
 unsigned NE::n_outputs = 0;
@@ -85,10 +87,18 @@ NeuralNet *NE::getNet(unsigned net) {
 }
 
 void NE::paramDialog(ParamDialog *d) {
+    //d->addSpinBox("Seed", &seed, 0, UINT_MAX / 2);
+    //d->addDivider();
     d->addSpinBox("Number of individuals", &n_genomes, 16, 512);
+    d->addSpinBox("Neurons per individual", &neuronsPerGenome, 1, 32);
     d->addDoubleSpinBox("Sigmoid steepness", &sigmoidSteepness, 1.0f, 10.0f);
     d->addDoubleSpinBox("Initial weight variance", &initialWeightVariance, 0.01f, 1.0f);
     d->addDoubleSpinBox("Mutation noise variance", &mutationNoiseVariance, 0.0f, 1.0f);
     d->addSpinBox("Selection pressure (tournament size)", &tournamentSize, 1, 16);
     d->addDivider();
+}
+
+void NE::init(bool reset) {
+    Q_UNUSED(reset);
+    rand.seed(seed);
 }

@@ -144,9 +144,11 @@ void Experiment::changePool() {
 // Create new population
 void Experiment::newPool() {
     selected = -1;
+    qsrand(unsigned(time(nullptr)));
+    ne->seed = unsigned(rand());
     ne->init(true);
     //ne->makeNeurons(true);
-    ne->gen = 1;
+    ne->gen = 0;
     emit genChanged("Generation " + QString::number(ne->gen));
     makeGenomes();
     t = taskparams->tMax; // current generation doesn't need to be evaluated

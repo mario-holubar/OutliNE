@@ -37,6 +37,7 @@ public:
     ~MainWindow();
 
 signals:
+    void experiment_changeNE(int);
     void experiment_nextGen();
     void experiment_changePool();
     void experiment_newPool();

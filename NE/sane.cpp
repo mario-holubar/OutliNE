@@ -13,10 +13,10 @@ SANE::SANE() {
 void SANE::paramDialog(ParamDialog *d) {
     NE::paramDialog(d);
     d->addSpinBox("Number of neurons", &n_neurons, 4, 128);
-    d->addSpinBox("Neurons per individual", &neuronsPerGenome, 1, 32);
 }
 
 void SANE::init(bool reset) {
+    NE::init(reset);
     if (reset) genes.clear();
     // If new n_neurons is smaller, random subpopulations get discarded
     while (genes.size() > n_neurons) genes.pop_back();

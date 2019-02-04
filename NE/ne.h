@@ -31,9 +31,11 @@ protected:
     QRandomGenerator rand;
 public:
     QString name;
-    unsigned gen = 1;
+    unsigned gen = 0;
 
+    static unsigned seed;
     static unsigned n_genomes;
+    static unsigned neuronsPerGenome;
     static float sigmoidSteepness;
     static float initialWeightVariance;
     static float mutationNoiseVariance;

@@ -26,6 +26,13 @@ MainWindow::MainWindow(QWidget *parent)
     initViews();
 
     nextGen();
+
+    /*for (int a = 0; a < 3; a++) {
+        emit experiment_changeNE(a);
+        for (int i = 0; i < 16; i++) {
+            experiment_nextGen();
+        }
+    }*/
 }
 
 void MainWindow::initMenu() {
@@ -54,6 +61,7 @@ void MainWindow::initConnections() {
     connect(ui->button_step, SIGNAL(released()), SLOT(step()));
     connect(ui->spinbox_fps, SIGNAL(valueChanged(int)), SLOT(playPause()));
 
+    connect(this, SIGNAL(experiment_changeNE(int)), experiment, SLOT(changeNE(int)));
     connect(this, SIGNAL(experiment_nextGen()), experiment, SLOT(nextGen()));
     connect(this, SIGNAL(experiment_changePool()), experiment, SLOT(changePool()));
     connect(experiment, SIGNAL(requestPoolDialog()), this, SLOT(makePoolDialog()), Qt::BlockingQueuedConnection);

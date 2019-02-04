@@ -16,10 +16,10 @@ Cosyne::Cosyne() {
 
 void Cosyne::paramDialog(ParamDialog *d) {
     NE::paramDialog(d);
-    d->addSpinBox("Neurons per individual", &neuronsPerGenome, 1, 32);
 }
 
 void Cosyne::init(bool reset) {
+    NE::init(reset);
     if (reset) genes.clear();
     // If new subpopulationsPerGenome is smaller, random subpopulations get discarded
     while (genes.size() > subpopulationsPerGenome()) genes.pop_back();

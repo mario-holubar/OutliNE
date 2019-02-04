@@ -13,6 +13,7 @@ public:
     unsigned trackSegmentOffsetMin = 100;
     unsigned trackSegmentOffsetMax = 200;
     unsigned trackSegmentAngleOffsetMax = 90;
+
     std::vector<std::pair<int, int>> rays;
 
     float maxSpeed = 20.0f;

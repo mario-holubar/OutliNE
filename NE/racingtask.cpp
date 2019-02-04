@@ -16,6 +16,9 @@ void RacingParams::paramDialog(ParamDialog *d) {
     d->addSpinBox("Track segments", &trackSegments, 8, 999);
     d->addDoubleSpinBox("Track precision", &trackPrecision, 1.0f, 8.0f);
     d->addSpinBox("Track width", &trackWidth, 50, 200);
+    d->addSpinBox("Minimum track segment offset", &trackSegmentOffsetMin, 20, 500);
+    d->addSpinBox("Maximum track segment offset", &trackSegmentOffsetMax, 20, 500);
+    d->addSpinBox("Maximum track segment angle offset", &trackSegmentAngleOffsetMax, 15, 180);
     d->addSpacer();
     d->addDoubleSpinBox("Max speed", &maxSpeed, 5.0f, 50.0f);
     d->addDoubleSpinBox("Acceleration", &acceleration, 0.0f, 1.0f);
@@ -60,7 +63,7 @@ void RacingTask::init() {
         double a = path.angleAtPercent(i);
         QPointF newL = p + QPointF(qCos(qDegreesToRadians(a + 90)) * params->trackWidth, -qSin(qDegreesToRadians(a + 90)) * params->trackWidth);
         QPointF newR = p + QPointF(qCos(qDegreesToRadians(a - 90)) * params->trackWidth, -qSin(qDegreesToRadians(a - 90)) * params->trackWidth);
-        track.prepend(QLineF(newL, lastL));
+        track.append(QLineF(newL, lastL));
         track.append(QLineF(lastR, newR));
         QPolygonF c;
         c << lastL << lastR << newR << newL << lastL;
@@ -68,7 +71,7 @@ void RacingTask::init() {
         lastL = newL;
         lastR = newR;
     }
-    track.removeFirst();
+    track.removeLast();
     track.removeLast();
 }
 

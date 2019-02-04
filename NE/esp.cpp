@@ -13,22 +13,23 @@ ESP::ESP() {
 void ESP::paramDialog(ParamDialog *d) {
     NE::paramDialog(d);
     d->addSpinBox("Number of neurons per subpopulation", &neuronsPerSubpopulation, 2, 32);
-    d->addSpinBox("Subpopulations per individual", &subpopulationsPerGenome, 1, 32);
+    d->addSpinBox("Generations of stagnation before burst mutation", &burstMutationStagnate, 2, 32);
 }
 
 void ESP::init(bool reset) {
+    NE::init(reset);
     if (reset) genes.clear();
     // If new subpopulationsPerGenome is smaller, random subpopulations get discarded
-    while (genes.size() > subpopulationsPerGenome) genes.pop_back();
+    while (genes.size() > neuronsPerGenome) genes.pop_back();
     // If new subpopulationsPerGenome is larger, random subpopulations get added
     bool add = false;
-    while (genes.size() < subpopulationsPerGenome) {
+    while (genes.size() < neuronsPerGenome) {
         genes.push_back(std::vector<ESPGene>());//TODO unneccessary?
         add = true;
     }
 
     // If new neuronsPerSubpopulation is smaller, random neurons get discarded
-    for (unsigned sp = 0; sp < subpopulationsPerGenome; sp++) {
+    for (unsigned sp = 0; sp < neuronsPerGenome; sp++) {
         while(genes[sp].size() > neuronsPerSubpopulation) genes[sp].pop_back();
     }
     // If new neuronsPerSubpopulation is larger, random neurons get added (not offspring!)
@@ -39,10 +40,10 @@ void ESP::init(bool reset) {
 
 void ESP::makeGenes() {
     //genes = std::vector<std::vector<ESPGene>>(subpopulationsPerGenome);
-    genes.resize(subpopulationsPerGenome);
+    genes.resize(neuronsPerGenome);
 
     std::normal_distribution<double> dist(0.0, double(initialWeightVariance));
-    for (unsigned sp = 0; sp < subpopulationsPerGenome; sp++) {
+    for (unsigned sp = 0; sp < neuronsPerGenome; sp++) {
         while (genes[sp].size() < neuronsPerSubpopulation) {
             Neuron n;
             for (unsigned i = 0; i < n_inputs; i++) {
@@ -64,7 +65,7 @@ void ESP::makeGenomes() {
     for (unsigned i = 0; i < n_genomes; i++) {
         ESPGenome g;
         NeuralNet n;
-        for(unsigned j = 0; j < subpopulationsPerGenome; j++) {
+        for(unsigned j = 0; j < neuronsPerGenome; j++) {
             unsigned index = unsigned(rand.generate()) % neuronsPerSubpopulation;
             genes[j][index].n_genomes++;
             g.genes.push_back(&(genes[j][index]));
@@ -76,14 +77,18 @@ void ESP::makeGenomes() {
 }
 
 void ESP::setFitness(unsigned genome, float fitness) {
-    for (unsigned i = 0; i < subpopulationsPerGenome; i++) {
+    if (fitness > bestFitness) {
+        bestFitness = fitness;
+        stagnate = 0;
+    }
+    for (unsigned i = 0; i < neuronsPerGenome; i++) {
         genomes[genome].genes[i]->fitness += fitness;
     }
 }
 
 //TODO delta-coding? Variable topology?
 void ESP::newGeneration() {
-    for (unsigned sp = 0; sp < subpopulationsPerGenome; sp++) {
+    for (unsigned sp = 0; sp < neuronsPerGenome; sp++) {
         // Normalize fitnesses
         for (unsigned i = 0; i < neuronsPerSubpopulation; i++) {
             genes[sp][i].fitness /= genes[sp][i].n_genomes;
@@ -148,6 +153,33 @@ void ESP::newGeneration() {
         if (mutationNoiseVariance > 0.0f) {
             std::normal_distribution<double> dist(0.0, double(mutationNoiseVariance));
             for (unsigned i = 0; i < neuronsPerSubpopulation; i++) {
+                for (unsigned j = 0; j < n_inputs; j++) {
+                    genes[sp][i].neuron.w_in[j] += dist(rand);
+                    //if (neurons[sp]->data()[i].w_in[j] > 1.0) neurons[sp]->data()[i].w_in[j] = 1.0;
+                    //if (neurons[sp]->data()[i].w_in[j] < -1.0) neurons[sp]->data()[i].w_in[j] = -1.0;
+                }
+                for (unsigned j = 0; j < n_outputs; j++) {
+                    genes[sp][i].neuron.w_out[j] += dist(rand);
+                    //if (neurons[sp]->data()[i].w_out[j] > 1.0) neurons[sp]->data()[i].w_out[j] = 1.0;
+                    //if (neurons[sp]->data()[i].w_out[j] < -1.0) neurons[sp]->data()[i].w_out[j] = -1.0;
+                }
+            }
+        }
+    }
+
+    stagnate++;
+    //qDebug() << stagnate;
+    float burstMutationVariance = 0.05f;
+    if (stagnate > burstMutationStagnate) {
+        // Burst mutation
+        stagnate = 0;
+        bestFitness = 0.0f;
+        std::default_random_engine generator;
+        std::cauchy_distribution<double> dist(0.0, double(burstMutationVariance));
+        qDebug() << "burst mutation at gen " + QString::number(gen);
+        for (unsigned sp = 0; sp < neuronsPerGenome; sp++) {
+            for (unsigned i = 0; i < neuronsPerSubpopulation; i++) {
+                //qDebug() << dist(rand);
                 for (unsigned j = 0; j < n_inputs; j++) {
                     genes[sp][i].neuron.w_in[j] += dist(rand);
                     //if (neurons[sp]->data()[i].w_in[j] > 1.0) neurons[sp]->data()[i].w_in[j] = 1.0;
