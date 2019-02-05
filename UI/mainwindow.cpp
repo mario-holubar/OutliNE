@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     thread = new QThread;
     experiment->moveToThread(thread);
     connect(experiment, SIGNAL(updateView()), this, SLOT(updateViews()), Qt::BlockingQueuedConnection);
-    connect(experiment, SIGNAL(updatePerformance(unsigned, float)), this, SLOT(updatePerformance(unsigned, float)), Qt::BlockingQueuedConnection);
+    connect(experiment, SIGNAL(updatePerformance(unsigned, float, float)), this, SLOT(updatePerformance(unsigned, float, float)), Qt::BlockingQueuedConnection);
     thread->start();
 
     timer = new QTimer;
@@ -140,12 +140,23 @@ void MainWindow::initViews() {
         QLineSeries *perf = new QLineSeries;
         perf->setName(ui->combobox_alg->itemText(int(i)));
         perf->append(0, 0.0);
-        performance.append(perf);
+        performanceMax.append(perf);
         chart->addSeries(perf);
         perf->attachAxis(xAxis);
         perf->attachAxis(yAxis);
-        maxGen.append(0);
     }
+    for (unsigned i = 0; i < algs.size(); i++) {
+        QLineSeries *perf2 = new QLineSeries;
+        //perf2->setName(ui->combobox_alg->itemText(int(i)));
+        perf2->setColor(performanceMax[int(i)]->color());
+        perf2->append(0, 0.0);
+        performanceAvg.append(perf2);
+        chart->addSeries(perf2);
+        chart->legend()->markers(perf2)[0]->setVisible(false);
+        perf2->attachAxis(xAxis);
+        perf2->attachAxis(yAxis);
+    }
+    for (unsigned i = 0; i < algs.size(); i++) maxGen.append(0);
 
     ui->performanceView->setChart(chart);
     resizeDocks({ui->performance}, {256}, Qt::Horizontal);
@@ -162,7 +173,8 @@ MainWindow::~MainWindow() {
     thread->wait();
     delete thread;
     delete chart;
-    performance.clear();
+    performanceMax.clear();
+    performanceAvg.clear();
     maxGen.clear();
     delete xAxis;
     delete yAxis;
@@ -180,16 +192,21 @@ void MainWindow::updateViews() {
     }
 }
 
-void MainWindow::updatePerformance(unsigned gen, float fitness) {
+void MainWindow::updatePerformance(unsigned gen, float fitnessMax, float fitnessAvg) {
     int alg = int(experiment->alg);
-    QLineSeries *perf = performance[alg];
+    QLineSeries *perf = performanceMax[alg];
+    QLineSeries *perf2 = performanceAvg[alg];
     if (gen > maxGen[alg]) {
-        perf->append(gen, double(fitness));
+        perf->append(gen, double(fitnessMax));
+        perf2->append(gen, double(fitnessAvg));
         maxGen[alg] = gen;
     }
-    else perf->replace(gen, perf->at(int(gen)).y(), gen, double(fitness));
+    else {
+        perf->replace(gen, perf->at(int(gen)).y(), gen, double(fitnessMax));
+        perf2->replace(gen, perf2->at(int(gen)).y(), gen, double(fitnessAvg));
+    }
     if (gen > xAxis->max()) xAxis->setMax(gen);
-    if (double(fitness) > yAxis->max()) yAxis->setMax(ceil(double(fitness) / 10) * 10);
+    if (double(fitnessMax) > yAxis->max()) yAxis->setMax(ceil(double(fitnessMax) / 10) * 10);
 }
 
 void MainWindow::updateInstanceTable() {
@@ -256,7 +273,6 @@ void MainWindow::makePoolDialog() {
 
 void MainWindow::newPool() {
     emit experiment_newPool();
-    //initViews();
 }
 
 void MainWindow::queueTaskDialog() {

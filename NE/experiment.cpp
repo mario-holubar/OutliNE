@@ -109,7 +109,7 @@ void Experiment::evaluateGen() {
     t = oldTMax;
     updateView();
     avgFitness /= ne->n_genomes;
-    updatePerformance(ne->gen, bestFitness);
+    updatePerformance(ne->gen, bestFitness, avgFitness);
 }
 
 // Reinitialize everything
