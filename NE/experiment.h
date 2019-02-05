@@ -15,7 +15,6 @@ class Experiment : public QObject {
 private:
     Task *task;
     QVector<Individual *> individuals;
-    unsigned currentGen;
     unsigned t;
     int selected;
 public:
@@ -36,7 +35,6 @@ public:
 
     unsigned getPopSize() {return ne->n_genomes;}
     unsigned getTMax() {return taskparams->tMax;}
-    unsigned getCurrentGen() {return currentGen;}
     unsigned getT() {return t;}
     int getSelected() {return selected;}
     void setSelected(int i) {selected = i;}
@@ -44,6 +42,7 @@ signals:
     void requestPoolDialog();
     void requestTaskDialog();
     void updateView();
+    void updatePerformance(unsigned gen, float fitness);
     void setViewRect(QRectF);
     void genChanged(QString gen);
 public slots:

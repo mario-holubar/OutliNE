@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "ui_mainwindow.h"
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include "NE/experiment.h"
@@ -23,6 +24,11 @@ private:
     InstanceModel *instanceTableModel;
     QSortFilterProxyModel *proxyModel;
     QThread *thread;
+    QChart *chart;
+    QVector<QLineSeries *> performance;
+    QVector<unsigned> maxGen;
+    QValueAxis *xAxis;
+    QValueAxis *yAxis;
 
     void initMenu();
     void initConnections();
@@ -48,6 +54,7 @@ signals:
     void experiment_step();
 private slots:
     void updateViews();
+    void updatePerformance(unsigned gen, float fitness);
     void step();
     void playPause();
     void playPause(bool play);

@@ -486,6 +486,9 @@ QFrame[frameShape=&quot;4&quot;] {
    <property name="floating">
     <bool>false</bool>
    </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
    <property name="windowTitle">
     <string>Control</string>
    </property>
@@ -535,7 +538,7 @@ QFrame[frameShape=&quot;4&quot;] {
           <x>0</x>
           <y>0</y>
           <width>252</width>
-          <height>380</height>
+          <height>404</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
@@ -586,14 +589,7 @@ QFrame[frameShape=&quot;4&quot;] {
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
-          <widget class="QPushButton" name="button_changeTask">
-           <property name="text">
-            <string>Change task parameters...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="0">
+         <item row="13" column="0">
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -623,30 +619,14 @@ QFrame[frameShape=&quot;4&quot;] {
            </property>
           </widget>
          </item>
-         <item row="8" column="0">
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Preferred</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>10</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="7" column="0">
-          <widget class="QPushButton" name="button_randomizeTask">
+         <item row="6" column="0">
+          <widget class="QPushButton" name="button_changeTask">
            <property name="text">
-            <string>Randomize task</string>
+            <string>Change task parameters...</string>
            </property>
           </widget>
          </item>
-         <item row="11" column="0">
+         <item row="12" column="0">
           <spacer name="verticalSpacer_4">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -659,8 +639,8 @@ QFrame[frameShape=&quot;4&quot;] {
            </property>
           </spacer>
          </item>
-         <item row="5" column="0">
-          <spacer name="verticalSpacer_3">
+         <item row="8" column="0">
+          <spacer name="verticalSpacer_2">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -691,10 +671,40 @@ QFrame[frameShape=&quot;4&quot;] {
            </property>
           </spacer>
          </item>
+         <item row="7" column="0">
+          <widget class="QPushButton" name="button_randomizeTask">
+           <property name="text">
+            <string>Randomize task</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Preferred</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>10</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_gen">
            <property name="text">
             <string>Generation 0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QPushButton" name="button_10gens">
+           <property name="text">
+            <string>10 Generations</string>
            </property>
           </widget>
          </item>
@@ -705,77 +715,10 @@ QFrame[frameShape=&quot;4&quot;] {
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="net">
-   <property name="minimumSize">
-    <size>
-     <width>90</width>
-     <height>109</height>
-    </size>
-   </property>
-   <property name="windowTitle">
-    <string>Net</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QGridLayout" name="gridLayout_3">
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item row="0" column="0">
-      <widget class="NetView" name="netView">
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="renderHints">
-        <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="performance">
-   <property name="minimumSize">
-    <size>
-     <width>80</width>
-     <height>38</height>
-    </size>
-   </property>
-   <property name="windowTitle">
-    <string>Performance</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>4</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_3">
-    <layout class="QGridLayout" name="gridLayout_6">
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-    </layout>
-   </widget>
-  </widget>
   <widget class="QDockWidget" name="instances">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
    <property name="windowTitle">
     <string>Instances</string>
    </property>
@@ -824,6 +767,87 @@ QFrame[frameShape=&quot;4&quot;] {
     </layout>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="performance">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="windowTitle">
+    <string>Performance</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QGridLayout" name="gridLayout_6">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QChartView" name="performanceView">
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="renderHints">
+        <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="net">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="windowTitle">
+    <string>Net</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="NetView" name="netView">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="renderHints">
+        <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <zorder>performance</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -836,6 +860,11 @@ QFrame[frameShape=&quot;4&quot;] {
    <class>MainView</class>
    <extends>QGraphicsView</extends>
    <header>UI/mainview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QGraphicsView</extends>
+   <header>QtCharts</header>
   </customwidget>
  </customwidgets>
  <resources>

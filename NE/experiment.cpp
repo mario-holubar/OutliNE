@@ -19,9 +19,11 @@ Experiment::Experiment() {
         individuals.append(new INDIVIDUAL(task));
     }
 
-    currentGen = 0;
     t = 0;
     selected = -1;
+
+    //newPool();
+    //randomizeTask();
 }
 
 Experiment::~Experiment() {
@@ -44,18 +46,15 @@ void Experiment::makeGenomes() {
 }
 
 void Experiment::nextGen() {
-    if (currentGen > 0) {
-        ne->newGeneration();
-        ne->gen++;
-        emit genChanged("Generation " + QString::number(ne->gen));
-    }
+    ne->gen++;
+    ne->newGeneration();
+    emit genChanged("Generation " + QString::number(ne->gen));
 
     makeGenomes();
 
     // Initialize
     resetGen();
     //emit setViewRect(task->getBounds());
-    currentGen++;
     updateView();
     evaluateGen();
 }
@@ -90,12 +89,16 @@ void Experiment::evaluateGen() {
     //updateTimer.start(1000 / 30); // update interval
     unsigned oldTMax = taskparams->tMax;
     taskparams->tMax = ne->n_genomes;
+    float bestFitness = 0.0f;
+    float avgFitness = 0.0f;
     unsigned oldT = t;
     for (unsigned i = 0; i < ne->n_genomes; i++) {
         Individual *a = getIndividual(int(i));
         for (unsigned tt = oldT; tt < oldTMax; tt++) {
             individualStep(a);
         }
+        if (a->getFitness() > bestFitness) bestFitness = a->getFitness();
+        avgFitness += a->getFitness();
         ne->setFitness(i, a->getFitness());
         a->visible = true;
 
@@ -105,6 +108,8 @@ void Experiment::evaluateGen() {
     taskparams->tMax = oldTMax;
     t = oldTMax;
     updateView();
+    avgFitness /= ne->n_genomes;
+    updatePerformance(ne->gen, bestFitness);
 }
 
 // Reinitialize everything
@@ -151,9 +156,10 @@ void Experiment::newPool() {
     ne->gen = 0;
     emit genChanged("Generation " + QString::number(ne->gen));
     makeGenomes();
-    t = taskparams->tMax; // current generation doesn't need to be evaluated
-    currentGen = 0;
-    nextGen();
+    resetGen();
+    emit setViewRect(task->getBounds());
+    evaluateGen();
+    updateView();
 }
 
 // Change task parameters

@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include <QDebug>
 #include <QTimer>
 #include <QTime>
@@ -16,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     thread = new QThread;
     experiment->moveToThread(thread);
     connect(experiment, SIGNAL(updateView()), this, SLOT(updateViews()), Qt::BlockingQueuedConnection);
+    connect(experiment, SIGNAL(updatePerformance(unsigned, float)), this, SLOT(updatePerformance(unsigned, float)), Qt::BlockingQueuedConnection);
     thread->start();
 
     timer = new QTimer;
@@ -25,10 +25,11 @@ MainWindow::MainWindow(QWidget *parent)
     initConnections();
     initViews();
 
-    nextGen();
+    newPool();
 
     /*for (int a = 0; a < 3; a++) {
         emit experiment_changeNE(a);
+        ui->combobox_alg->setCurrentIndex(a);
         for (int i = 0; i < 16; i++) {
             experiment_nextGen();
         }
@@ -51,6 +52,7 @@ void MainWindow::initConnections() {
     connect(experiment, SIGNAL(genChanged(QString)), ui->label_gen, SLOT(setText(QString)));
 
     connect(ui->button_nextGen, SIGNAL(released()), SLOT(nextGen()));
+    for (int i = 0; i < 10; i++) connect(ui->button_10gens, SIGNAL(released()), SLOT(nextGen()));
     connect(ui->button_changePool, SIGNAL(released()), SLOT(queuePoolDialog()));
     connect(ui->button_newPool, SIGNAL(released()), SLOT(newPool()));
     connect(ui->button_changeTask, SIGNAL(released()), SLOT(queueTaskDialog()));
@@ -81,6 +83,7 @@ void MainWindow::showEvent(QShowEvent *event) {
 }
 
 void MainWindow::initViews() {
+    // Main View
     ui->mainView->setExperiment(experiment);
     ui->netView->setExperiment(experiment);
 
@@ -89,6 +92,7 @@ void MainWindow::initViews() {
     ui->progressBar->setValue(int(experiment->getT()));
     ui->progressBar->setMaximum(int(experiment->getTMax()));
 
+    // Instance View
     instanceTableModel = new InstanceModel(this, int(experiment->getPopSize()));
     proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(instanceTableModel);
@@ -98,11 +102,70 @@ void MainWindow::initViews() {
     connect(ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), SLOT(setSelected(const QItemSelection &)));
     ui->tableView->setColumnWidth(0, 75);
     ui->tableView->setColumnWidth(1, 75);
+
+    // Performance View
+    chart = new QChart;
+    chart->setBackgroundVisible(false);
+
+    chart->setMargins(QMargins(0, 0, 0, 0));
+    chart->layout()->setContentsMargins(0, 0, 5, 5);
+    //chart->legend()->hide();
+    chart->legend()->setLabelColor(Qt::gray);
+    chart->legend()->setContentsMargins(0, 0, 0, 0);
+
+    xAxis = new QValueAxis;
+    yAxis = new QValueAxis;
+    xAxis->setLabelsColor(Qt::gray);
+    yAxis->setLabelsColor(Qt::gray);
+    xAxis->setRange(0, 1);
+    yAxis->setRange(0, 10);
+    xAxis->setTickType(QValueAxis::TicksDynamic);
+    xAxis->setTickInterval(5);
+    xAxis->setLabelFormat("%d");
+    xAxis->setGridLineColor(QColor(64, 64, 64, 128));
+    xAxis->setMinorTickCount(4);
+    xAxis->setMinorGridLineColor(QColor(64, 64, 64, 32));
+    //xAxis->setShadesBorderColor(QColor(0, 0, 0, 0));
+    //xAxis->setShadesColor(QColor(0, 0, 0, 8));
+    //xAxis->setShadesVisible(true);
+    yAxis->setTickType(QValueAxis::TicksDynamic);
+    yAxis->setTickInterval(10);
+    yAxis->setGridLineColor(QColor(64, 64, 64, 128));
+    yAxis->setMinorTickCount(1);
+    yAxis->setMinorGridLineColor(QColor(64, 64, 64, 32));
+    chart->addAxis(xAxis, Qt::AlignBottom);
+    chart->addAxis(yAxis, Qt::AlignLeft);
+
+    for (unsigned i = 0; i < algs.size(); i++) {
+        QLineSeries *perf = new QLineSeries;
+        perf->setName(ui->combobox_alg->itemText(int(i)));
+        perf->append(0, 0.0);
+        performance.append(perf);
+        chart->addSeries(perf);
+        perf->attachAxis(xAxis);
+        perf->attachAxis(yAxis);
+        maxGen.append(0);
+    }
+
+    ui->performanceView->setChart(chart);
+    resizeDocks({ui->performance}, {256}, Qt::Horizontal);
+    resizeDocks({ui->performance}, {128}, Qt::Vertical);
 }
 
 MainWindow::~MainWindow() {
     delete ui;
+    delete experiment;
     delete timer;
+    delete instanceTableModel;
+    delete proxyModel;
+    thread->quit();
+    thread->wait();
+    delete thread;
+    delete chart;
+    performance.clear();
+    maxGen.clear();
+    delete xAxis;
+    delete yAxis;
 }
 
 void MainWindow::updateViews() {
@@ -115,6 +178,18 @@ void MainWindow::updateViews() {
         experiment->setSelected(proxyModel->mapToSource(proxyModel->index(0, 1)).row());
         ui->mainView->following = true;
     }
+}
+
+void MainWindow::updatePerformance(unsigned gen, float fitness) {
+    int alg = int(experiment->alg);
+    QLineSeries *perf = performance[alg];
+    if (gen > maxGen[alg]) {
+        perf->append(gen, double(fitness));
+        maxGen[alg] = gen;
+    }
+    else perf->replace(gen, perf->at(int(gen)).y(), gen, double(fitness));
+    if (gen > xAxis->max()) xAxis->setMax(gen);
+    if (double(fitness) > yAxis->max()) yAxis->setMax(ceil(double(fitness) / 10) * 10);
 }
 
 void MainWindow::updateInstanceTable() {
@@ -181,7 +256,7 @@ void MainWindow::makePoolDialog() {
 
 void MainWindow::newPool() {
     emit experiment_newPool();
-    initViews();
+    //initViews();
 }
 
 void MainWindow::queueTaskDialog() {
