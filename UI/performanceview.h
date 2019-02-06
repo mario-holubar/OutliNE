@@ -13,11 +13,16 @@ public:
     QVector<unsigned> maxGen;
     QValueAxis *xAxis;
     QValueAxis *yAxis;
+    QVector<bool> showAlg;
+    bool showTop = true;
+    bool showAvg = true;
 
     PerformanceView(QWidget *parent);
 public slots:
     void updatePerformance(int alg, unsigned gen, float max, float avg);
     void markerClicked();
+    void changeShowTop(int show);
+    void changeShowAvg(int show);
 };
 
 #endif // PERFORMANCEVIEW_H

@@ -7,7 +7,6 @@ PerformanceView::PerformanceView(QWidget *parent)
 
     chart->setMargins(QMargins(0, 0, 0, 0));
     chart->layout()->setContentsMargins(0, 0, 5, 5);
-    //chart->legend()->hide();
     chart->legend()->setLabelColor(Qt::gray);
     chart->legend()->setContentsMargins(0, 0, 0, 0);
 
@@ -23,9 +22,6 @@ PerformanceView::PerformanceView(QWidget *parent)
     xAxis->setGridLineColor(QColor(64, 64, 64, 128));
     xAxis->setMinorTickCount(4);
     xAxis->setMinorGridLineColor(QColor(64, 64, 64, 32));
-    //xAxis->setShadesBorderColor(QColor(0, 0, 0, 0));
-    //xAxis->setShadesColor(QColor(0, 0, 0, 8));
-    //xAxis->setShadesVisible(true);
     yAxis->setTickType(QValueAxis::TicksDynamic);
     yAxis->setTickInterval(10);
     yAxis->setGridLineColor(QColor(64, 64, 64, 128));
@@ -52,7 +48,10 @@ PerformanceView::PerformanceView(QWidget *parent)
         perf2->attachAxis(yAxis);
         performanceAvg.append(perf2);
     }
-    for (unsigned i = 0; i < algs.size(); i++) maxGen.append(0);
+    for (unsigned i = 0; i < algs.size(); i++) {
+        maxGen.append(0);
+        showAlg.append(true);
+    }
 
     setChart(chart);
 
@@ -82,17 +81,36 @@ void PerformanceView::markerClicked() {
     QLegendMarker *marker = qobject_cast<QLegendMarker*> (sender());
     auto markers = chart->legend()->markers();
     int index;
-    for (index = 0; index < markers.size(); index++) {
+    for (index = 0; index < int(algs.size()); index++) {
         if (markers[index] == marker) break;
     }
-    QLegendMarker *other = markers[index + markers.size() / 2];
+    QLegendMarker *other = markers[index + int(algs.size())];
 
-    bool v = !marker->series()->isVisible();
-    marker->series()->setVisible(v);
+    bool v = !showAlg[index];
+    showAlg[index] = v;
+    marker->series()->setVisible(v && showTop);
     marker->setVisible(true);
     QColor c = marker->brush().color();
     c.setAlphaF(0.75 * v + 0.25);
     marker->setBrush(c);
-    other->series()->setVisible(v);
+    other->series()->setVisible(v && showAvg);
     other->setVisible(false);
+}
+
+void PerformanceView::changeShowTop(int show) {
+    showTop = show;
+    auto markers = chart->legend()->markers();
+    for (int i = 0; i < int(algs.size()); i++) {
+        markers[i]->series()->setVisible(showAlg[i] && show);
+        markers[i]->setVisible(true);
+    }
+}
+
+void PerformanceView::changeShowAvg(int show) {
+    showAvg = show;
+    auto markers = chart->legend()->markers();
+    for (int i = 0; i < int(algs.size()); i++) {
+        markers[i + int(algs.size())]->series()->setVisible(showAlg[i] && show);
+        markers[i + int(algs.size())]->setVisible(false);
+    }
 }

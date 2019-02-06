@@ -63,6 +63,9 @@ void MainWindow::initConnections() {
     connect(ui->button_step, SIGNAL(released()), SLOT(step()));
     connect(ui->spinbox_fps, SIGNAL(valueChanged(int)), SLOT(playPause()));
 
+    connect(ui->checkbox_showTop, SIGNAL(stateChanged(int)), ui->performanceView, SLOT(changeShowTop(int)));
+    connect(ui->checkbox_showAvg, SIGNAL(stateChanged(int)), ui->performanceView, SLOT(changeShowAvg(int)));
+
     connect(this, SIGNAL(experiment_changeNE(int)), experiment, SLOT(changeNE(int)));
     connect(this, SIGNAL(experiment_nextGen()), experiment, SLOT(nextGen()));
     connect(this, SIGNAL(experiment_changePool()), experiment, SLOT(changePool()));
