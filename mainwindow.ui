@@ -401,6 +401,13 @@ QFrame[frameShape=&quot;4&quot;] {
            <number>0</number>
           </property>
           <item>
+           <widget class="QCheckBox" name="checkbox_followSelected">
+            <property name="text">
+             <string>Follow selected</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QCheckBox" name="checkbox_trackFirst">
             <property name="text">
              <string>Track top individual</string>
@@ -487,7 +494,7 @@ QFrame[frameShape=&quot;4&quot;] {
     <bool>false</bool>
    </property>
    <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+    <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
    <property name="windowTitle">
     <string>Control</string>
@@ -717,7 +724,7 @@ QFrame[frameShape=&quot;4&quot;] {
   </widget>
   <widget class="QDockWidget" name="instances">
    <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+    <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
    <property name="windowTitle">
     <string>Instances</string>
@@ -769,7 +776,7 @@ QFrame[frameShape=&quot;4&quot;] {
   </widget>
   <widget class="QDockWidget" name="performance">
    <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+    <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
    <property name="windowTitle">
     <string>Performance</string>
@@ -806,7 +813,7 @@ QFrame[frameShape=&quot;4&quot;] {
   </widget>
   <widget class="QDockWidget" name="net">
    <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+    <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
    <property name="windowTitle">
     <string>Net</string>

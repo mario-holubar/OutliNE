@@ -188,8 +188,8 @@ void MainWindow::updateViews() {
     updateInstanceTable();
     if (ui->checkbox_trackFirst->isChecked()) {
         experiment->setSelected(proxyModel->mapToSource(proxyModel->index(0, 1)).row());
-        ui->mainView->following = true;
     }
+    ui->mainView->following = ui->checkbox_followSelected->isChecked();
 }
 
 void MainWindow::updatePerformance(unsigned gen, float fitnessMax, float fitnessAvg) {
@@ -248,14 +248,14 @@ void MainWindow::setSelected(const QItemSelection &selection) {
     else {
         QItemSelection realSelection = proxyModel->mapSelectionToSource(selection);
         experiment->setSelected(realSelection.indexes().at(0).row());
-        ui->mainView->following = true;
+        //ui->mainView->following = true;
     }
-    ui->mainView->centerOnSelected();
+    //ui->mainView->centerOnSelected();
     updateViews();
 }
 
 void MainWindow::nextGen() {
-    ui->mainView->following = false;
+    //ui->mainView->following = false;
     emit experiment_nextGen();
     //ui->tableView->clearSelection();
     playPause(false);

@@ -65,6 +65,10 @@ void SANE::setFitness(unsigned genome, float fitness) {
     }
 }
 
+bool fitnessSort(SANEGene a, SANEGene b) {
+    return a.fitness > b.fitness;
+}
+
 //TODO delta-coding? Variable topology?
 void SANE::newGeneration() {
     // Normalize fitnesses
@@ -72,10 +76,16 @@ void SANE::newGeneration() {
         genes[i].fitness /= genes[i].n_genomes;
     }
 
+    std::sort(genes.begin(), genes.end(), fitnessSort);
+
     // Crossover
     std::vector<SANEGene> newGenes = std::vector<SANEGene>();
+    unsigned n;
+    for (n = 0; n < n_neurons / 4; n++) { // keep top quarter
+        newGenes.push_back(SANEGene(genes[n].neuron));
+    }
     Neuron p1, p2;
-    for (unsigned n = 0; n < n_neurons; n++) {
+    for (; n < n_neurons; n++) {
         // Tournament selection for both parents
         float bestFitness = -1.0f;
         unsigned bestIndex = 0;

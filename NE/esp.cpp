@@ -86,6 +86,10 @@ void ESP::setFitness(unsigned genome, float fitness) {
     }
 }
 
+bool fitnessSort(ESPGene a, ESPGene b) {
+    return a.fitness > b.fitness;
+}
+
 //TODO delta-coding? Variable topology?
 void ESP::newGeneration() {
     for (unsigned sp = 0; sp < neuronsPerGenome; sp++) {
@@ -96,8 +100,13 @@ void ESP::newGeneration() {
 
         // Crossover
         std::vector<ESPGene> newGenes = std::vector<ESPGene>();
+        std::sort(genes[sp].begin(), genes[sp].end(), fitnessSort);
+        unsigned n;
+        for (n = 0; n < neuronsPerSubpopulation / 4; n++) { // keep top quarter
+            newGenes.push_back(ESPGene(genes[sp][n].neuron));
+        }
         Neuron p1, p2;
-        for (unsigned n = 0; n < neuronsPerSubpopulation; n++) {
+        for (; n < neuronsPerSubpopulation; n++) {
             // Tournament selection for both parents
             float bestFitness = -1.0f;
             unsigned bestIndex = 0;
