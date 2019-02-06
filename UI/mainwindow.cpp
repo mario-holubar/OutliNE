@@ -63,6 +63,10 @@ void MainWindow::initConnections() {
     connect(ui->button_step, SIGNAL(released()), SLOT(step()));
     connect(ui->spinbox_fps, SIGNAL(valueChanged(int)), SLOT(playPause()));
 
+    if (ui->checkbox_followSelected->isChecked()) ui->mainView->centerOnSelected();
+    connect(ui->checkbox_followSelected, SIGNAL(stateChanged(int)), ui->mainView, SLOT(centerOnSelected()));
+    connect(ui->checkbox_followSelected, SIGNAL(stateChanged(int)), SLOT(updateViews()));
+
     connect(ui->checkbox_showTop, SIGNAL(stateChanged(int)), ui->performanceView, SLOT(changeShowTop(int)));
     connect(ui->checkbox_showAvg, SIGNAL(stateChanged(int)), ui->performanceView, SLOT(changeShowAvg(int)));
 
@@ -180,14 +184,14 @@ void MainWindow::setSelected(const QItemSelection &selection) {
         experiment->setSelected(realSelection.indexes().at(0).row());
         //ui->mainView->following = true;
     }
-    //ui->mainView->centerOnSelected();
+    if (ui->checkbox_followSelected->isChecked()) ui->mainView->centerOnSelected();
     updateViews();
 }
 
 void MainWindow::nextGen() {
     //ui->mainView->following = false;
     emit experiment_nextGen();
-    //ui->tableView->clearSelection();
+    ui->tableView->clearSelection();
     playPause(false);
 }
 

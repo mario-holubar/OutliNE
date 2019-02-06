@@ -15,7 +15,7 @@ void MainView::setExperiment(Experiment *experiment) {
 }
 
 void MainView::centerOnSelected() {
-    offset = experiment->getIndividual(experiment->getSelected())->getPos();
+    if (experiment->getSelected() != -1) offset = experiment->getIndividual(experiment->getSelected())->getPos();
 }
 
 void MainView::setViewRect(QRectF r) {

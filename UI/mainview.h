@@ -18,8 +18,8 @@ public:
     bool following;
     MainView(QWidget *parent = nullptr, Experiment *experiment = nullptr);
     void setExperiment(Experiment *experiment);
-    void centerOnSelected();
 public slots:
+    void centerOnSelected();
     void setViewRect(QRectF r);
 protected:
     void paintEvent(QPaintEvent *event) override;
