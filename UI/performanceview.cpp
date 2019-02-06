@@ -55,6 +55,11 @@ PerformanceView::PerformanceView(QWidget *parent)
     for (unsigned i = 0; i < algs.size(); i++) maxGen.append(0);
 
     setChart(chart);
+
+    const auto markers = chart->legend()->markers();
+    for (QLegendMarker *marker : markers) {
+        QObject::connect(marker, &QLegendMarker::clicked, this, &PerformanceView::markerClicked);
+    }
 }
 
 void PerformanceView::updatePerformance(int alg, unsigned gen, float max, float avg) {
@@ -71,4 +76,23 @@ void PerformanceView::updatePerformance(int alg, unsigned gen, float max, float 
     }
     if (gen > xAxis->max()) xAxis->setMax(gen);
     if (double(max) > yAxis->max()) yAxis->setMax(ceil(double(max) / 10) * 10);
+}
+
+void PerformanceView::markerClicked() {
+    QLegendMarker *marker = qobject_cast<QLegendMarker*> (sender());
+    auto markers = chart->legend()->markers();
+    int index;
+    for (index = 0; index < markers.size(); index++) {
+        if (markers[index] == marker) break;
+    }
+    QLegendMarker *other = markers[index + markers.size() / 2];
+
+    bool v = !marker->series()->isVisible();
+    marker->series()->setVisible(v);
+    marker->setVisible(true);
+    QColor c = marker->brush().color();
+    c.setAlphaF(0.75 * v + 0.25);
+    marker->setBrush(c);
+    other->series()->setVisible(v);
+    other->setVisible(false);
 }

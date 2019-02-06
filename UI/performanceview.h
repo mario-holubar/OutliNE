@@ -17,6 +17,7 @@ public:
     PerformanceView(QWidget *parent);
 public slots:
     void updatePerformance(int alg, unsigned gen, float max, float avg);
+    void markerClicked();
 };
 
 #endif // PERFORMANCEVIEW_H

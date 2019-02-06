@@ -401,16 +401,19 @@ QFrame[frameShape=&quot;4&quot;] {
            <number>0</number>
           </property>
           <item>
-           <widget class="QCheckBox" name="checkbox_followSelected">
+           <widget class="QCheckBox" name="checkbox_trackFirst">
             <property name="text">
-             <string>Follow selected</string>
+             <string>Track top individual</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="checkbox_trackFirst">
+           <widget class="QCheckBox" name="checkbox_followSelected">
             <property name="text">
-             <string>Track top individual</string>
+             <string>Follow selected</string>
             </property>
            </widget>
           </item>
