@@ -105,10 +105,10 @@ void MainWindow::initViews() {
     proxyModel->setSourceModel(instanceTableModel);
     proxyModel->setDynamicSortFilter(true);
     ui->tableView->setModel(proxyModel);
-    proxyModel->sort(1, Qt::DescendingOrder);
+    ui->tableView->sortByColumn(1, Qt::DescendingOrder);
     connect(ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), SLOT(setSelected(const QItemSelection &)));
     ui->tableView->setColumnWidth(0, 75);
-    ui->tableView->setColumnWidth(1, 75);
+    ui->tableView->setColumnWidth(1, 0);
 
     // Performance View
     for (unsigned i = 0; i < algs.size(); i++) {
