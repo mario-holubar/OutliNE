@@ -115,14 +115,15 @@ void MainWindow::initViews() {
     resizeDocks({ui->performance}, {128}, Qt::Vertical);
 }
 
-MainWindow::~MainWindow() {
-    /*delete ui;
+MainWindow::~MainWindow() { //not sure if necessary
+    /*thread->quit();
+    thread->wait();
+    timer->stop();
+    delete ui;
     delete experiment;
     delete timer;
     delete instanceTableModel;
     delete proxyModel;
-    thread->quit();
-    thread->wait();
     delete thread;*/
 }
 
@@ -202,6 +203,18 @@ void MainWindow::makePoolDialog() {
 
 void MainWindow::newPool() {
     emit experiment_newPool();
+
+    int i = int(experiment->alg);
+    ui->performanceView->performanceMax[i]->clear();
+    ui->performanceView->performanceMax[i]->append(0, 0.0);
+    ui->performanceView->performanceAvg[i]->clear();
+    ui->performanceView->performanceAvg[i]->append(0, 0.0);
+    ui->performanceView->maxGen[i] = 0;
+    unsigned max = 1;
+    for (int i = 0; i < int(algs.size()); i++) {
+        if (ui->performanceView->maxGen[i] > max) max = ui->performanceView->maxGen[i];
+    }
+    ui->performanceView->xAxis->setMax(max);
 }
 
 void MainWindow::queueTaskDialog() {

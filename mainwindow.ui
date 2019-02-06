@@ -406,7 +406,7 @@ QFrame[frameShape=&quot;4&quot;] {
              <string>Track top individual</string>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>

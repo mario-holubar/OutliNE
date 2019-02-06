@@ -63,7 +63,7 @@ void RacingTask::init() {
         double a = path.angleAtPercent(i);
         QPointF newL = p + QPointF(qCos(qDegreesToRadians(a + 90)) * params->trackWidth, -qSin(qDegreesToRadians(a + 90)) * params->trackWidth);
         QPointF newR = p + QPointF(qCos(qDegreesToRadians(a - 90)) * params->trackWidth, -qSin(qDegreesToRadians(a - 90)) * params->trackWidth);
-        track.append(QLineF(newL, lastL));
+        track.append(QLineF(lastL, newL));
         track.append(QLineF(lastR, newR));
         QPolygonF c;
         c << lastL << lastR << newR << newL << lastL;
@@ -107,7 +107,6 @@ void updateBounds(QRectF *r, QPointF p) {
 
 QRectF RacingTask::getBounds() {
     QRectF bounds;
-    updateBounds(&bounds, track[0].p1());
     for (int i = 0; i < track.size(); i++) {
         updateBounds(&bounds, track[i].p2());
     }
