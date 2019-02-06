@@ -24,12 +24,6 @@ private:
     InstanceModel *instanceTableModel;
     QSortFilterProxyModel *proxyModel;
     QThread *thread;
-    QChart *chart;
-    QVector<QLineSeries *> performanceMax;
-    QVector<QLineSeries *> performanceAvg;
-    QVector<unsigned> maxGen;
-    QValueAxis *xAxis;
-    QValueAxis *yAxis;
 
     void initMenu();
     void initConnections();
@@ -55,7 +49,6 @@ signals:
     void experiment_step();
 private slots:
     void updateViews();
-    void updatePerformance(unsigned gen, float fitnessMax, float fitnessAvg);
     void step();
     void playPause();
     void playPause(bool play);

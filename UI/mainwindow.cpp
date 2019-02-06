@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     thread = new QThread;
     experiment->moveToThread(thread);
     connect(experiment, SIGNAL(updateView()), this, SLOT(updateViews()), Qt::BlockingQueuedConnection);
-    connect(experiment, SIGNAL(updatePerformance(unsigned, float, float)), this, SLOT(updatePerformance(unsigned, float, float)), Qt::BlockingQueuedConnection);
+    connect(experiment, SIGNAL(updatePerformance(int, unsigned, float, float)), ui->performanceView, SLOT(updatePerformance(int, unsigned, float, float)), Qt::BlockingQueuedConnection);
     thread->start();
 
     timer = new QTimer;
@@ -104,80 +104,23 @@ void MainWindow::initViews() {
     ui->tableView->setColumnWidth(1, 75);
 
     // Performance View
-    chart = new QChart;
-    chart->setBackgroundVisible(false);
-
-    chart->setMargins(QMargins(0, 0, 0, 0));
-    chart->layout()->setContentsMargins(0, 0, 5, 5);
-    //chart->legend()->hide();
-    chart->legend()->setLabelColor(Qt::gray);
-    chart->legend()->setContentsMargins(0, 0, 0, 0);
-
-    xAxis = new QValueAxis;
-    yAxis = new QValueAxis;
-    xAxis->setLabelsColor(Qt::gray);
-    yAxis->setLabelsColor(Qt::gray);
-    xAxis->setRange(0, 1);
-    yAxis->setRange(0, 10);
-    xAxis->setTickType(QValueAxis::TicksDynamic);
-    xAxis->setTickInterval(5);
-    xAxis->setLabelFormat("%d");
-    xAxis->setGridLineColor(QColor(64, 64, 64, 128));
-    xAxis->setMinorTickCount(4);
-    xAxis->setMinorGridLineColor(QColor(64, 64, 64, 32));
-    //xAxis->setShadesBorderColor(QColor(0, 0, 0, 0));
-    //xAxis->setShadesColor(QColor(0, 0, 0, 8));
-    //xAxis->setShadesVisible(true);
-    yAxis->setTickType(QValueAxis::TicksDynamic);
-    yAxis->setTickInterval(10);
-    yAxis->setGridLineColor(QColor(64, 64, 64, 128));
-    yAxis->setMinorTickCount(1);
-    yAxis->setMinorGridLineColor(QColor(64, 64, 64, 32));
-    chart->addAxis(xAxis, Qt::AlignBottom);
-    chart->addAxis(yAxis, Qt::AlignLeft);
-
     for (unsigned i = 0; i < algs.size(); i++) {
-        QLineSeries *perf = new QLineSeries;
-        perf->setName(ui->combobox_alg->itemText(int(i)));
-        perf->append(0, 0.0);
-        performanceMax.append(perf);
-        chart->addSeries(perf);
-        perf->attachAxis(xAxis);
-        perf->attachAxis(yAxis);
+        ui->performanceView->performanceMax[int(i)]->setName(ui->combobox_alg->itemText(int(i)));
     }
-    for (unsigned i = 0; i < algs.size(); i++) {
-        QLineSeries *perf2 = new QLineSeries;
-        //perf2->setName(ui->combobox_alg->itemText(int(i)));
-        perf2->setColor(performanceMax[int(i)]->color());
-        perf2->append(0, 0.0);
-        performanceAvg.append(perf2);
-        chart->addSeries(perf2);
-        chart->legend()->markers(perf2)[0]->setVisible(false);
-        perf2->attachAxis(xAxis);
-        perf2->attachAxis(yAxis);
-    }
-    for (unsigned i = 0; i < algs.size(); i++) maxGen.append(0);
 
-    ui->performanceView->setChart(chart);
     resizeDocks({ui->performance}, {256}, Qt::Horizontal);
     resizeDocks({ui->performance}, {128}, Qt::Vertical);
 }
 
 MainWindow::~MainWindow() {
-    delete ui;
+    /*delete ui;
     delete experiment;
     delete timer;
     delete instanceTableModel;
     delete proxyModel;
     thread->quit();
     thread->wait();
-    delete thread;
-    delete chart;
-    performanceMax.clear();
-    performanceAvg.clear();
-    maxGen.clear();
-    delete xAxis;
-    delete yAxis;
+    delete thread;*/
 }
 
 void MainWindow::updateViews() {
@@ -190,23 +133,6 @@ void MainWindow::updateViews() {
         experiment->setSelected(proxyModel->mapToSource(proxyModel->index(0, 1)).row());
     }
     ui->mainView->following = ui->checkbox_followSelected->isChecked();
-}
-
-void MainWindow::updatePerformance(unsigned gen, float fitnessMax, float fitnessAvg) {
-    int alg = int(experiment->alg);
-    QLineSeries *perf = performanceMax[alg];
-    QLineSeries *perf2 = performanceAvg[alg];
-    if (gen > maxGen[alg]) {
-        perf->append(gen, double(fitnessMax));
-        perf2->append(gen, double(fitnessAvg));
-        maxGen[alg] = gen;
-    }
-    else {
-        perf->replace(gen, perf->at(int(gen)).y(), gen, double(fitnessMax));
-        perf2->replace(gen, perf2->at(int(gen)).y(), gen, double(fitnessAvg));
-    }
-    if (gen > xAxis->max()) xAxis->setMax(gen);
-    if (double(fitnessMax) > yAxis->max()) yAxis->setMax(ceil(double(fitnessMax) / 10) * 10);
 }
 
 void MainWindow::updateInstanceTable() {

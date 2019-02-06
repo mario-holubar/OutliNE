@@ -38,7 +38,8 @@ SOURCES += \
     UI/paramdialog.cpp \
     NE/esp.cpp \
     NE/ne.cpp \
-    NE/cosyne.cpp
+    NE/cosyne.cpp \
+    UI/performanceview.cpp
 
 HEADERS += \
     NE/experiment.h \
@@ -54,7 +55,8 @@ HEADERS += \
     UI/paramdialog.h \
     NE/esp.h \
     NE/ne.h \
-    NE/cosyne.h
+    NE/cosyne.h \
+    UI/performanceview.h
 
 FORMS += \
     mainwindow.ui

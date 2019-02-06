@@ -799,7 +799,7 @@ QFrame[frameShape=&quot;4&quot;] {
       <number>0</number>
      </property>
      <item row="0" column="0">
-      <widget class="QChartView" name="performanceView">
+      <widget class="PerformanceView" name="performanceView">
        <property name="frameShape">
         <enum>QFrame::Box</enum>
        </property>
@@ -869,9 +869,9 @@ QFrame[frameShape=&quot;4&quot;] {
    <header>UI/mainview.h</header>
   </customwidget>
   <customwidget>
-   <class>QChartView</class>
+   <class>PerformanceView</class>
    <extends>QGraphicsView</extends>
-   <header>QtCharts</header>
+   <header>UI/performanceview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

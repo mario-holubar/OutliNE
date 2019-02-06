@@ -42,7 +42,7 @@ signals:
     void requestPoolDialog();
     void requestTaskDialog();
     void updateView();
-    void updatePerformance(unsigned gen, float fitnessMax, float fitnessAvg);
+    void updatePerformance(int alg, unsigned gen, float fitnessMax, float fitnessAvg);
     void setViewRect(QRectF);
     void genChanged(QString gen);
 public slots:
