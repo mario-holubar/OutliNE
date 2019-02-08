@@ -439,7 +439,7 @@ QFrame[frameShape=&quot;4&quot;] {
              <string>Track top individual</string>
             </property>
             <property name="checked">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -506,7 +506,7 @@ QFrame[frameShape=&quot;4&quot;] {
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuView">
@@ -578,7 +578,7 @@ QFrame[frameShape=&quot;4&quot;] {
           <x>0</x>
           <y>0</y>
           <width>252</width>
-          <height>404</height>
+          <height>433</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
@@ -910,6 +910,9 @@ QFrame[frameShape=&quot;4&quot;] {
         </item>
         <item>
          <widget class="PerformanceView" name="performanceView">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>

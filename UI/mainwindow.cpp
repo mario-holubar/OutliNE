@@ -26,14 +26,6 @@ MainWindow::MainWindow(QWidget *parent)
     initViews();
 
     newPool();
-
-    /*for (int a = 0; a < 3; a++) {
-        emit experiment_changeNE(a);
-        ui->combobox_alg->setCurrentIndex(a);
-        for (int i = 0; i < 16; i++) {
-            experiment_nextGen();
-        }
-    }*/
 }
 
 void MainWindow::initMenu() {
@@ -103,7 +95,7 @@ void MainWindow::initViews() {
     instanceTableModel = new InstanceModel(this, int(experiment->getPopSize()));
     proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(instanceTableModel);
-    proxyModel->setDynamicSortFilter(true);
+    //proxyModel->setDynamicSortFilter(true);
     ui->tableView->setModel(proxyModel);
     ui->tableView->sortByColumn(1, Qt::DescendingOrder);
     connect(ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), SLOT(setSelected(const QItemSelection &)));
@@ -149,7 +141,6 @@ void MainWindow::updateInstanceTable() {
         instanceTableModel->fitness[i] = experiment->getIndividual(i)->getFitness();
     }
     proxyModel->invalidate();
-    ui->tableView->repaint();
 }
 
 void MainWindow::step() {
