@@ -133,24 +133,17 @@ void SANE::newGeneration() {
         }
         newGenes.push_back(SANEGene(c1));
         //newGenes.push_back(ESPGene(c2));
-    }
-    genes = newGenes;
 
-    // Noise
-    // TODO move inside top loop
-    if (mutationNoiseVariance > 0.0f) {
-        std::normal_distribution<double> dist(0.0, double(mutationNoiseVariance));
-        for (unsigned i = 0; i < n_neurons; i++) {
+        // Mutation
+        if (mutationNoiseVariance > 0.0f) {
+            std::normal_distribution<double> dist(0.0, double(mutationNoiseVariance));
             for (unsigned j = 0; j < n_inputs; j++) {
-                genes[i].neuron.w_in[j] += dist(rand);
-                //if (neurons[sp]->data()[i].w_in[j] > 1.0) neurons[sp]->data()[i].w_in[j] = 1.0;
-                //if (neurons[sp]->data()[i].w_in[j] < -1.0) neurons[sp]->data()[i].w_in[j] = -1.0;
+                newGenes[n].neuron.w_in[j] += dist(rand);
             }
             for (unsigned j = 0; j < n_outputs; j++) {
-                genes[i].neuron.w_out[j] += dist(rand);
-                //if (neurons[sp]->data()[i].w_out[j] > 1.0) neurons[sp]->data()[i].w_out[j] = 1.0;
-                //if (neurons[sp]->data()[i].w_out[j] < -1.0) neurons[sp]->data()[i].w_out[j] = -1.0;
+                newGenes[n].neuron.w_out[j] += dist(rand);
             }
         }
     }
+    genes = newGenes;
 }

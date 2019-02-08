@@ -910,6 +910,9 @@ QFrame[frameShape=&quot;4&quot;] {
         </item>
         <item>
          <widget class="PerformanceView" name="performanceView">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>

@@ -87,8 +87,6 @@ bool fitnessSort(CosyneGenome a, CosyneGenome b) {
 }
 
 void Cosyne::newGeneration() {
-    std::normal_distribution<double> dist(0.0, double(mutationNoiseVariance));
-
     std::sort(genomes.begin(), genomes.end(), fitnessSort);
 
     for (unsigned sp = 0; sp < subpopulationsPerGenome(); sp++) {
@@ -130,7 +128,10 @@ void Cosyne::newGeneration() {
 
             // Random crossover
             double w = rand() % 2 ? p1 : p2;
-            w += dist(rand);
+            if (mutationNoiseVariance > 0.0f) {
+                std::normal_distribution<double> dist(0.0, double(mutationNoiseVariance));
+                w += dist(rand);
+            }
             newGenes.push_back(CosyneGene(w));
             n++;
         }

@@ -14,6 +14,7 @@ void ESP::paramDialog(ParamDialog *d) {
     NE::paramDialog(d);
     d->addSpinBox("Number of neurons per subpopulation", &neuronsPerSubpopulation, 2, 32);
     d->addSpinBox("Generations of stagnation before burst mutation", &burstMutationStagnate, 2, 32);
+    d->addDoubleSpinBox("Burst mutation variance", &burstMutationVariance, 0.01f, 1.0f);
 }
 
 void ESP::init(bool reset) {
@@ -36,6 +37,8 @@ void ESP::init(bool reset) {
     if (add || genes[0].size() < neuronsPerSubpopulation) makeGenes();
 
     //makeGenomes();
+
+    stagnate = 0;
 }
 
 void ESP::makeGenes() {
@@ -154,33 +157,24 @@ void ESP::newGeneration() {
             }
             newGenes.push_back(ESPGene(c1));
             //newGenes.push_back(ESPGene(c2));
-        }
-        genes[sp] = newGenes;
 
-        // Noise
-        // TODO move inside top loop
-        if (mutationNoiseVariance > 0.0f) {
-            std::normal_distribution<double> dist(0.0, double(mutationNoiseVariance));
-            for (unsigned i = 0; i < neuronsPerSubpopulation; i++) {
+            // Mutation
+            if (mutationNoiseVariance > 0.0f) {
+                std::normal_distribution<double> dist(0.0, double(mutationNoiseVariance));
                 for (unsigned j = 0; j < n_inputs; j++) {
-                    genes[sp][i].neuron.w_in[j] += dist(rand);
-                    //if (neurons[sp]->data()[i].w_in[j] > 1.0) neurons[sp]->data()[i].w_in[j] = 1.0;
-                    //if (neurons[sp]->data()[i].w_in[j] < -1.0) neurons[sp]->data()[i].w_in[j] = -1.0;
+                    newGenes[n].neuron.w_in[j] += dist(rand);
                 }
                 for (unsigned j = 0; j < n_outputs; j++) {
-                    genes[sp][i].neuron.w_out[j] += dist(rand);
-                    //if (neurons[sp]->data()[i].w_out[j] > 1.0) neurons[sp]->data()[i].w_out[j] = 1.0;
-                    //if (neurons[sp]->data()[i].w_out[j] < -1.0) neurons[sp]->data()[i].w_out[j] = -1.0;
+                    newGenes[n].neuron.w_out[j] += dist(rand);
                 }
             }
         }
+        genes[sp] = newGenes;
     }
 
+    // Burst mutation
     stagnate++;
-    //qDebug() << stagnate;
-    float burstMutationVariance = 0.05f;
     if (stagnate > burstMutationStagnate) {
-        // Burst mutation
         stagnate = 0;
         bestFitness = 0.0f;
         std::default_random_engine generator;
@@ -191,13 +185,9 @@ void ESP::newGeneration() {
                 //qDebug() << dist(rand);
                 for (unsigned j = 0; j < n_inputs; j++) {
                     genes[sp][i].neuron.w_in[j] += dist(rand);
-                    //if (neurons[sp]->data()[i].w_in[j] > 1.0) neurons[sp]->data()[i].w_in[j] = 1.0;
-                    //if (neurons[sp]->data()[i].w_in[j] < -1.0) neurons[sp]->data()[i].w_in[j] = -1.0;
                 }
                 for (unsigned j = 0; j < n_outputs; j++) {
                     genes[sp][i].neuron.w_out[j] += dist(rand);
-                    //if (neurons[sp]->data()[i].w_out[j] > 1.0) neurons[sp]->data()[i].w_out[j] = 1.0;
-                    //if (neurons[sp]->data()[i].w_out[j] < -1.0) neurons[sp]->data()[i].w_out[j] = -1.0;
                 }
             }
         }

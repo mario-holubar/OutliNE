@@ -60,8 +60,8 @@ std::vector<double> NeuralNet::evaluate(std::vector<double> inputs) {
 }
 
 unsigned NE::seed = 0;
-unsigned NE::n_genomes = 64;
-unsigned NE::neuronsPerGenome = 4;
+unsigned NE::n_genomes = 32;
+unsigned NE::neuronsPerGenome = 3;
 float NE::sigmoidSteepness = 4.0f;
 unsigned NE::n_inputs = 0;
 unsigned NE::n_outputs = 0;
