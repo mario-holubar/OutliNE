@@ -23,6 +23,7 @@ public slots:
     void markerClicked();
     void changeShowTop(int show);
     void changeShowAvg(int show);
+    void collectData();
 };
 
 #endif // PERFORMANCEVIEW_H

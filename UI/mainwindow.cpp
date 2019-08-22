@@ -4,6 +4,8 @@
 #include <QTime>
 #include <UI/mainview.h>
 #include "paramdialog.h"
+#include <fstream>
+#include "NE/racingtask.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -26,6 +28,57 @@ MainWindow::MainWindow(QWidget *parent)
     initViews();
 
     newPool();
+
+    //NE::n_genomes = 16;
+    //while (int(experiment->ne->n_genomes) > experiment->individuals.size()) experiment->individuals.append(new RacingIndividual(experiment->task));
+    //NE::neuronsPerGenome = 32;
+    //newPool();
+
+    /*std::ofstream file;
+    file.open ("SANE.csv", std::ofstream::trunc);
+    file.close();
+    file.open ("ESP.csv", std::ofstream::trunc);
+    file.close();
+    file.open ("CoSyNE.csv", std::ofstream::trunc);
+    file.close();
+    connect(this, SIGNAL(collectData()), experiment, SLOT(collectData()));
+    connect(experiment, SIGNAL(collectPerformanceData()), ui->performanceView, SLOT(collectData()), Qt::BlockingQueuedConnection);
+    int runs = 25;
+    int gens = 50;
+    for (int i = 0; i < runs; i++) {
+        //randomizeTask();
+
+        experiment_changeNE(0);
+        newPool();
+        for (int g = 0; g < gens; g++) {
+            randomizeTask();
+            nextGen();
+        }
+
+        experiment_changeNE(1);
+        newPool();
+        for (int g = 0; g < gens; g++) {
+            randomizeTask();
+            nextGen();
+        }
+
+        experiment_changeNE(2);
+        newPool();
+        for (int g = 0; g < gens; g++) {
+            randomizeTask();
+            nextGen();
+        }
+
+        randomizeTask();
+        experiment_changeNE(0);
+        nextGen();
+        experiment_changeNE(1);
+        nextGen();
+        experiment_changeNE(2);
+        nextGen();
+
+        collectData();
+    }*/
 }
 
 void MainWindow::initMenu() {
@@ -109,6 +162,8 @@ void MainWindow::initViews() {
 
     resizeDocks({ui->performance}, {256}, Qt::Horizontal);
     resizeDocks({ui->performance}, {128}, Qt::Vertical);
+
+    ui->label_inputDimMismatch->setVisible(false);
 }
 
 MainWindow::~MainWindow() { //not sure if necessary
@@ -176,6 +231,7 @@ void MainWindow::setSelected(const QItemSelection &selection) {
         //ui->mainView->following = true;
     }
     if (ui->checkbox_followSelected->isChecked()) ui->mainView->centerOnSelected();
+    ui->checkbox_trackFirst->setChecked(false);
     updateViews();
 }
 
@@ -210,6 +266,7 @@ void MainWindow::newPool() {
         if (ui->performanceView->maxGen[i] > max) max = ui->performanceView->maxGen[i];
     }
     ui->performanceView->xAxis->setMax(max);
+    ui->label_inputDimMismatch->setVisible(false);
 }
 
 void MainWindow::queueTaskDialog() {
@@ -220,6 +277,7 @@ void MainWindow::makeTaskDialog() {
     ParamDialog d(this, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowCloseButtonHint);
     experiment->taskparams->paramDialog(&d);
     experiment->taskChanged = d.exec();
+    ui->label_inputDimMismatch->setVisible(experiment->inputDimMismatch());
 }
 
 void MainWindow::randomizeTask() {

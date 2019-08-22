@@ -1,4 +1,5 @@
 #include "performanceview.h"
+#include <fstream>
 
 PerformanceView::PerformanceView(QWidget *parent)
     : QChartView(parent) {
@@ -72,9 +73,11 @@ void PerformanceView::updatePerformance(int alg, unsigned gen, float max, float 
     else {
         perf->replace(gen, perf->at(int(gen)).y(), gen, double(max));
         perf2->replace(gen, perf2->at(int(gen)).y(), gen, double(avg));
+        //perf->replace(gen, perf->at(int(gen)).y(), gen, perf->at(int(gen)).y() + double(max));
+        //perf2->replace(gen, perf2->at(int(gen)).y(), gen, perf2->at(int(gen)).y() + double(avg));
     }
     if (gen > xAxis->max()) xAxis->setMax(gen);
-    if (double(max) > yAxis->max()) yAxis->setMax(ceil(double(max) / 10) * 10);
+    if (perf->at(int(gen)).y() > yAxis->max()) yAxis->setMax(ceil(perf->at(int(gen)).y() / 10) * 10);
 }
 
 void PerformanceView::markerClicked() {
@@ -113,4 +116,32 @@ void PerformanceView::changeShowAvg(int show) {
         markers[i + int(algs.size())]->series()->setVisible(showAlg[i] && show);
         markers[i + int(algs.size())]->setVisible(false);
     }
+}
+
+void PerformanceView::collectData() {
+    std::ofstream file;
+    file.open ("SANE.csv", std::ios_base::app);
+    for (int i = 0; i < int(maxGen[0]); i++) {
+        file << performanceMax[0]->at(i).y();
+        file << ",";
+    }
+    file << performanceMax[0]->at(int(maxGen[0])).y();
+    file << "\n";
+    file.close();
+    file.open ("ESP.csv", std::ios_base::app);
+    for (int i = 0; i < int(maxGen[1]); i++) {
+        file << performanceMax[1]->at(i).y();
+        file << ",";
+    }
+    file << performanceMax[1]->at(int(maxGen[1])).y();
+    file << "\n";
+    file.close();
+    file.open ("CoSyNE.csv", std::ios_base::app);
+    for (int i = 0; i < int(maxGen[2]); i++) {
+        file << performanceMax[2]->at(i).y();
+        file << ",";
+    }
+    file << performanceMax[2]->at(int(maxGen[2])).y();
+    file << "\n";
+    file.close();
 }

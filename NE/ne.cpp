@@ -32,7 +32,8 @@ std::vector<double> NeuralNet::evaluate(std::vector<double> inputs) {
     std::vector<double> outputs(NE::n_outputs, 0.0);
 
     // Bias neurons
-    while (inputs.size() < NE::n_inputs) inputs.push_back(1.0);
+    //while (inputs.size() < NE::n_inputs) inputs.push_back(1.0);
+    while (inputs.size() < NE::n_inputs) inputs.push_back(0.0);
 
     // Sum inputs
     for (unsigned n = 0; n < neurons.size(); n++) {
@@ -60,8 +61,8 @@ std::vector<double> NeuralNet::evaluate(std::vector<double> inputs) {
 }
 
 unsigned NE::seed = 0;
-unsigned NE::n_genomes = 32;
-unsigned NE::neuronsPerGenome = 3;
+unsigned NE::n_genomes = 64;
+unsigned NE::neuronsPerGenome = 32;
 float NE::sigmoidSteepness = 4.0f;
 unsigned NE::n_inputs = 0;
 unsigned NE::n_outputs = 0;

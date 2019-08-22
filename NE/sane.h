@@ -23,7 +23,7 @@ public:
 
 class SANE : public NE {
 public:
-    unsigned n_neurons = 16;
+    unsigned n_neurons = 128;
 
     std::vector<SANEGene> genes;
     std::vector<SANEGenome> genomes;

@@ -47,6 +47,7 @@ signals:
     void experiment_evaluateGen();
     void experiment_resetGen();
     void experiment_step();
+    void collectData();
 private slots:
     void updateViews();
     void step();

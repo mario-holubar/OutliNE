@@ -17,6 +17,8 @@ public:
 class Task {
 public:
     unsigned seed;
+    unsigned n_outputs;
+
     Task();
     virtual ~Task() = 0;
     virtual void init() = 0;

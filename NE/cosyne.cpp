@@ -128,6 +128,8 @@ void Cosyne::newGeneration() {
 
             // Random crossover
             double w = rand() % 2 ? p1 : p2;
+
+            // Mutation
             if (mutationNoiseVariance > 0.0f) {
                 std::normal_distribution<double> dist(0.0, double(mutationNoiseVariance));
                 w += dist(rand);

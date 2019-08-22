@@ -1,5 +1,6 @@
 #include "task.h"
 #include "ctime"
+#include "qdebug.h"
 
 TaskParams::TaskParams() {
 

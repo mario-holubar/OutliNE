@@ -9,15 +9,15 @@
 #define INDIVIDUAL RacingIndividual
 
 Experiment::Experiment() {
-    ne = algs[alg];
-    ne->n_inputs = 6;//
-    ne->n_outputs = 2;//
-    ne->init(false);
     taskparams = new PARAMS;
     task = new TASK(taskparams);
+    ne = algs[alg];
     for (int i = 0; i < int(ne->n_genomes); i++) {
         individuals.append(new INDIVIDUAL(task));
     }
+    ne->n_inputs = unsigned(individuals[0]->getInputs().size());
+    ne->n_outputs = task->n_outputs;
+    ne->init(false);
 
     t = 0;
     selected = -1;
@@ -83,7 +83,7 @@ void Experiment::evaluateGen() {
     if (t == 0) {
         for (unsigned i = 0; i < ne->n_genomes; i++) getIndividual(int(i))->visible = false;
     }
-    updateView();
+    //updateView();
     //QTimer updateTimer;
     //connect(&updateTimer, SIGNAL(timeout()), this, SIGNAL(updateView()));
     //updateTimer.start(1000 / 30); // update interval
@@ -129,7 +129,7 @@ void Experiment::changeNE(int alg) {
     emit genChanged("Generation " + QString::number(ne->gen));
     makeGenomes();
     resetGen();
-    evaluateGen();
+    //evaluateGen();
 }
 
 // Change pool parameters
@@ -151,8 +151,8 @@ void Experiment::newPool() {
     selected = -1;
     qsrand(unsigned(time(nullptr)));
     ne->seed = unsigned(rand());
+    ne->n_inputs = unsigned(individuals[0]->getInputs().size());
     ne->init(true);
-    //ne->makeNeurons(true);
     ne->gen = 0;
     emit genChanged("Generation " + QString::number(ne->gen));
     makeGenomes();
@@ -166,6 +166,7 @@ void Experiment::newPool() {
 void Experiment::changeTask() {
     emit requestTaskDialog();
     if (taskChanged) {
+        //ne->n_inputs = unsigned(individuals[0]->getInputs().size());
         resetGen();
         emit setViewRect(task->getBounds());
     }
@@ -174,10 +175,10 @@ void Experiment::changeTask() {
 
 // Generate new task with same parameters
 void Experiment::randomizeTask() {
-    task->seed = unsigned(time(nullptr));
+    task->seed = unsigned(time(nullptr) + rand());
     resetGen();
     emit setViewRect(task->getBounds());
-    evaluateGen();
+    //evaluateGen();
 }
 
 // Draw in main view
@@ -265,9 +266,8 @@ void Experiment::drawNet(QPainter *painter) {
     for (unsigned i = 0; i < net->numberOfNeurons(); i++) {
         int y = int((float(i) + 0.5f - float(net->numberOfNeurons()) / 2) * 50);
         for (unsigned j = 0; j < ne->n_inputs; j++) {
-            double a;
-            if (j >= inputs.size()) a = 1.0;
-            else a = inputs[j];
+            double a = 0.0;
+            if (j < inputs.size()) a = inputs[j];
             QColor c = activationColorWeight(net->getNeuron(i)->w_in[j], a);
             pen.setColor(c);
             painter->setPen(pen);
@@ -289,7 +289,7 @@ void Experiment::drawNet(QPainter *painter) {
         painter->drawEllipse(QRect(0, y, 20, 20));
     }
     for (unsigned i = 0; i < ne->n_inputs; i++) {
-        double a = 1.0;
+        double a = 0.0;
         if (i < inputs.size()) a = inputs[i];
         painter->setBrush(QBrush(activationColorNeuron(a)));
         painter->drawEllipse(QRect(-100, int((i + 0.5f - ne->n_inputs / 2.0f) * 50), 20, 20));
@@ -298,4 +298,8 @@ void Experiment::drawNet(QPainter *painter) {
         painter->setBrush(QBrush(activationColorNeuron(outputs[i])));
         painter->drawEllipse(QRect(100, int((i + 0.5f - ne->n_outputs / 2.0f) * 50), 20, 20));
     }
+}
+
+void Experiment::collectData() {
+    collectPerformanceData();
 }

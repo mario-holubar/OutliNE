@@ -38,6 +38,7 @@ public:
     unsigned getT() {return t;}
     int getSelected() {return selected;}
     void setSelected(int i) {selected = i;}
+    bool inputDimMismatch() {return individuals[0]->getInputs().size() != individuals[0]->net->getNeuron(0)->w_in.size();}
 signals:
     void requestPoolDialog();
     void requestTaskDialog();
@@ -45,6 +46,7 @@ signals:
     void updatePerformance(int alg, unsigned gen, float fitnessMax, float fitnessAvg);
     void setViewRect(QRectF);
     void genChanged(QString gen);
+    void collectPerformanceData();
 public slots:
     void stepAll();
     void evaluateGen();
@@ -55,6 +57,7 @@ public slots:
     void newPool();
     void changeTask();
     void randomizeTask();
+    void collectData();
 };
 
 #endif // EXPERIMENT_H
