@@ -28,8 +28,6 @@ SOURCES += \
     NE/racingtask.cpp \
     NE/sane.cpp \
     NE/task.cpp \
-    NE/tinyann.cpp \
-    NE/tinyneat.cpp \
     UI/instancemodel.cpp \
     UI/main.cpp \
     UI/mainview.cpp \
@@ -46,8 +44,6 @@ HEADERS += \
     NE/racingtask.h \
     NE/sane.h \
     NE/task.h \
-    NE/tinyann.h \
-    NE/tinyneat.h \
     UI/instancemodel.h \
     UI/mainview.h \
     UI/mainwindow.h \

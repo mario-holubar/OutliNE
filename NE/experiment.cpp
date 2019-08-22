@@ -129,7 +129,7 @@ void Experiment::changeNE(int alg) {
     emit genChanged("Generation " + QString::number(ne->gen));
     makeGenomes();
     resetGen();
-    //evaluateGen();
+    evaluateGen();
 }
 
 // Change pool parameters
@@ -178,7 +178,7 @@ void Experiment::randomizeTask() {
     task->seed = unsigned(time(nullptr) + rand());
     resetGen();
     emit setViewRect(task->getBounds());
-    //evaluateGen();
+    evaluateGen();
 }
 
 // Draw in main view
