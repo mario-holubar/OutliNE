@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QtMath>
 #include <QTime>
+#include <QPainterPath>
 
 RacingParams::RacingParams() {
     //rays = {{45, 200}, {15, 650}, {0, 750}, {-15, 650}, {-45, 200}};
